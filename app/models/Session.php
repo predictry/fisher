@@ -7,9 +7,16 @@
  * Copyright    : rifkiyandhi@gmail.com
  * Function     : 
  */
-class Session
+
+namespace App\Models;
+
+class Session extends \Eloquent
 {
-    //put your code here
+
+    protected $table      = "sessions";
+    protected $connection = 'mysql';
+    public $timestamps    = false;
+
 }
 
 /* End of file Session.php */
