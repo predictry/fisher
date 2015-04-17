@@ -6,6 +6,8 @@ use ApiBaseController,
     App\Models\Action2,
     App\Models\Session,
     App\Models\Tenant2,
+    Carbon\Carbon,
+    Everyman\Neo4j\Cypher\Query,
     Illuminate\Support\Facades\Response;
 
 class TenantsStatsSummaryController extends ApiBaseController
@@ -318,15 +320,30 @@ class TenantsStatsSummaryController extends ApiBaseController
      * @param string $start_date
      * @param string $end_date
      */
-    public function getTotalSKUs($tenant)
+    public function getTotalSkus($tenant)
     {
-//        $items      = [];
-//        $item       = false;
-//        $item_model = new Item();
-//        $client     = \DB::connection('neo4j')->getClient();
-//        $strQuery   = 'MATCH (n:`Item`:`' . $tenant . '` {type:"' . 'catalog' . '"}) return n';
-//        $query      = new Query($client, $strQuery);
-//        $result     = $query->getResultSet();
+        $client = \DB::connection('neo4j')->getClient();
+
+        if (!\Cache::has("{$tenant}_total_items")) {
+            $strQuery = 'MATCH (n:`Item`:`' . $tenant . '`) return count(n)';
+            $query    = new Query($client, $strQuery);
+            $results  = $query->getResultSet();
+            $total    = $results->current()['t'];
+
+            //CACHE the $total
+            $expiresAt = Carbon::now()->addMinutes(1440); //1 day cache
+            \Cache::put("{$tenant}_total_items", $total, $expiresAt);
+        }
+        else
+            $total = \Cache::get("{$tenant}_total_items");
+
+
+        $this->base_response['data'] = [
+            'tenant' => $tenant,
+            'count'  => $total
+        ];
+
+        return Response::json($this->base_response);
     }
 
     /**
@@ -343,27 +360,56 @@ class TenantsStatsSummaryController extends ApiBaseController
         $result     = null;
         $obj_tenant = Tenant2::where('tenant', $tenant)->first();
 
-        $query = "SELECT item_id, COUNT(item_id) AS occurences, max(id) FROM sales_stats ";
+        $query = "SELECT item_id, COUNT(item_id) AS occurences, max(id) as sales_stat_id FROM sales_stats ";
         $query .= "WHERE tenant_id = {$obj_tenant->id} ";
         $query .= "GROUP BY item_id ";
         $query .= "HAVING (COUNT(item_id) > 1) ";
         $query .= "ORDER BY occurences DESC ";
         $query .= "LIMIT {$limit}";
 
-        $results = \DB::select(\DB::raw($query));
+
+        $results   = \DB::select(\DB::raw($query));
+        $top_items = [];
         if ($results && is_array($results)) {
-            $result = current($results);
+
+            foreach ($results as $result) {
+                $item       = false;
+                $item_model = new \App\Models\Item();
+                $client     = \DB::connection('neo4j')->getClient();
+                $strQuery   = 'MATCH (n:`Item`:`' . $tenant . '` {id:"' . $result->item_id . '"}) return n';
+                $query      = new Query($client, $strQuery);
+                $result2    = $query->getResultSet();
+
+                foreach ($result2 as $row) {
+                    $attributes = $row['t']->getProperties();
+                    $item       = $item_model->newFromBuilder($attributes);
+                }
+
+                array_push($top_items, [
+                    'item_id'    => $result->item_id,
+                    'item'       => $item,
+                    'occurences' => $result->occurences
+                ]);
+            }
+
+            if (!is_null($result)) {
+                $this->base_response['data'] = [
+                    'tenant'     => $tenant,
+                    'items'      => $top_items,
+                    'start_date' => $start_date,
+                    'end_date'   => $end_date
+                ];
+            }
+
+            return Response::json($this->base_response);
         }
-        
-        echo '<pre>';
-        print_r($result);
-        echo "<br/>----<br/>";
-        echo '</pre>';
-        die;
+        else {
+            $this->base_response['error']   = true;
+            $this->base_response['message'] = "Data not found";
+        }
 
 
-
-        $top_10_bought_items = "";
+        return Response::json($this->base_response);
     }
 
     //GET Top 10 Viewed Items (Check with Gui)

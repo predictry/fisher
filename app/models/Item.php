@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Models;
+
 /**
  * Author       : Rifki Yandhi
  * Date Created : Feb 12, 2015 3:35:23 PM
@@ -7,7 +9,7 @@
  * Copyright    : rifkiyandhi@gmail.com
  * Function     : 
  */
-class Item extends NeoEloquent
+class Item extends \NeoEloquent
 {
 
     protected $label    = 'Item';

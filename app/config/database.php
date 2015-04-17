@@ -75,11 +75,11 @@ return array(
         ),
         'neo4j'  => array(
             'driver'   => 'neo4j',
-            'host'     => 'localhost',
-            'port'     => '7474',
-            'password' => null,
-            'prefix'   => null,
-        )
+            'host'     => getenv('NEO4J_DB_HOST'),
+            'port'     => getenv('NEO4J_DB_PORT'),
+            'username' => getenv('NEO4J_DB_USERNAME'),
+            'password' => getenv('NEO4J_DB_PASSWORD')
+        ),
     ),
     /*
       |--------------------------------------------------------------------------

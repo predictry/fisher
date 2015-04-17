@@ -31,7 +31,7 @@ Route::group(['prefix' => 'api/v1', 'namespace' => 'App\Controllers\Api'], funct
     Route::resource('tenants.actions', 'TenantsActionsController', ['only' => []]);
 
     ## Reference: http://docs.predictryanalytics.apiary.io/#reference/items
-    Route::resource('tenants.items', 'TenantsItemsController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+    Route::controller('tenants/{tenants}/items', 'TenantsItemsController');
 
     ## Reference: http://docs.predictryanalytics.apiary.io/#reference/sessions
     Route::resource('tenants.sessions', 'TenantsSessionsController', ['only' => ['index', 'show']]);
