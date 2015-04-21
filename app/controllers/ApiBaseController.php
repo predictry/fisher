@@ -17,8 +17,6 @@ class ApiBaseController extends Controller
             'message'        => "",
             "client_message" => ""
         ];
-
-        $this->tenant = \Input::get("tenant");
     }
 
     public function missingMethod($parameters = array())

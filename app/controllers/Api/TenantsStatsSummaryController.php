@@ -28,7 +28,6 @@ class TenantsStatsSummaryController extends ApiBaseController
         $view_action           = Action2::where('name', 'view')->first();
         $obj_tenant            = Tenant2::where('tenant', $tenant)->first();
         $regular_pageviews     = $recommended_pageviews = $overall_pageviews     = 0;
-
         if ($obj_tenant && $view_action) {
 
             $query = "SELECT SUM(regular_stats) as total FROM " .
@@ -41,7 +40,7 @@ class TenantsStatsSummaryController extends ApiBaseController
                 $result = current($results);
             }
 
-            $regular_pageviews = !is_null($result) ? $result->total : 0;
+            $regular_pageviews = (!is_null($result) && $result->total !== "" && isset($result->total)) ? $result->total : 0;
 
             if ($is_reco) {
                 $query = "SELECT SUM(regular_stats) as total FROM " .
@@ -60,9 +59,9 @@ class TenantsStatsSummaryController extends ApiBaseController
             $this->base_response['data'] = [
                 'tenant'     => $tenant,
                 'pageviews'  => [
-                    'overall'     => $regular_pageviews + $recommended_pageviews,
-                    'regular'     => $regular_pageviews,
-                    'recommended' => $recommended_pageviews
+                    'overall'     => (double) ($regular_pageviews + $recommended_pageviews),
+                    'regular'     => (double) $regular_pageviews,
+                    'recommended' => (double) $recommended_pageviews
                 ],
                 'start_date' => $start_date,
                 'end_date'   => $end_date
@@ -85,17 +84,23 @@ class TenantsStatsSummaryController extends ApiBaseController
      */
     public function getUniqueVisitors($tenant, $start_date = null, $end_date = null, $filter_key = 'session')
     {
-        $obj_tenant    = Tenant2::where('tenant', $tenant)->first();
-        $count_session = Session::select(\DB::raw('COUNT(DISTINCT session) as count'))->where('tenant_id', $obj_tenant->id)
-                ->whereBetween('log_created', array($start_date, $end_date))
-                ->first();
+        $obj_tenant = Tenant2::where('tenant', $tenant)->first();
+        if ($obj_tenant) {
+            $count_session = Session::select(\DB::raw('COUNT(DISTINCT session) as count'))->where('tenant_id', $obj_tenant->id)
+                    ->whereBetween('log_created', array($start_date, $end_date))
+                    ->first();
 
-        $this->base_response['data'] = [
-            'tenant'     => $tenant,
-            'count'      => $count_session->count,
-            'start_date' => $start_date,
-            'end_date'   => $end_date
-        ];
+            $this->base_response['data'] = [
+                'tenant'     => $tenant,
+                'count'      => $count_session->count,
+                'start_date' => $start_date,
+                'end_date'   => $end_date
+            ];
+        }
+        else {
+            $this->base_response['error']   = true;
+            $this->base_response['message'] = "Tenant or action not found";
+        }
 
         return Response::json($this->base_response);
     }
@@ -108,9 +113,10 @@ class TenantsStatsSummaryController extends ApiBaseController
      */
     public function getSalesAmount($tenant, $start_date = null, $end_date = null, $is_reco = false)
     {
-        $result                   = null;
-        $buy_action               = Action2::where('name', 'buy')->first();
-        $obj_tenant               = Tenant2::where('tenant', $tenant)->first();
+        $result     = null;
+        $buy_action = Action2::where('name', 'buy')->first();
+        $obj_tenant = Tenant2::where('tenant', $tenant)->first();
+
         $regular_sum_of_sales     = $recommended_sum_of_sales = 0;
         if ($buy_action && $obj_tenant) {
 
@@ -322,26 +328,34 @@ class TenantsStatsSummaryController extends ApiBaseController
      */
     public function getTotalSkus($tenant)
     {
-        $client = \DB::connection('neo4j')->getClient();
+        $obj_tenant = Tenant2::where('tenant', $tenant)->first();
 
-        if (!\Cache::has("{$tenant}_total_items")) {
-            $strQuery = 'MATCH (n:`Item`:`' . $tenant . '`) return count(n)';
-            $query    = new Query($client, $strQuery);
-            $results  = $query->getResultSet();
-            $total    = $results->current()['t'];
+        if ($obj_tenant) {
+            $client = \DB::connection('neo4j')->getClient();
 
-            //CACHE the $total
-            $expiresAt = Carbon::now()->addMinutes(1440); //1 day cache
-            \Cache::put("{$tenant}_total_items", $total, $expiresAt);
+            if (!\Cache::has("{$tenant}_total_items")) {
+                $strQuery = 'MATCH (n:`Item`:`' . $tenant . '`) return count(n)';
+                $query    = new Query($client, $strQuery);
+                $results  = $query->getResultSet();
+                $total    = $results->current()['t'];
+
+                //CACHE the $total
+                $expiresAt = Carbon::now()->addMinutes(1440); //1 day cache
+                \Cache::put("{$tenant}_total_items", $total, $expiresAt);
+            }
+            else
+                $total = \Cache::get("{$tenant}_total_items");
+
+
+            $this->base_response['data'] = [
+                'tenant' => $tenant,
+                'count'  => $total
+            ];
         }
-        else
-            $total = \Cache::get("{$tenant}_total_items");
-
-
-        $this->base_response['data'] = [
-            'tenant' => $tenant,
-            'count'  => $total
-        ];
+        else {
+            $this->base_response['error']   = true;
+            $this->base_response['message'] = "Tenant or action not found";
+        }
 
         return Response::json($this->base_response);
     }
@@ -360,52 +374,59 @@ class TenantsStatsSummaryController extends ApiBaseController
         $result     = null;
         $obj_tenant = Tenant2::where('tenant', $tenant)->first();
 
-        $query = "SELECT item_id, COUNT(item_id) AS occurences, max(id) as sales_stat_id FROM sales_stats ";
-        $query .= "WHERE tenant_id = {$obj_tenant->id} ";
-        $query .= "GROUP BY item_id ";
-        $query .= "HAVING (COUNT(item_id) > 1) ";
-        $query .= "ORDER BY occurences DESC ";
-        $query .= "LIMIT {$limit}";
+        if ($obj_tenant) {
+
+            $query = "SELECT item_id, COUNT(item_id) AS occurences, max(id) as sales_stat_id FROM sales_stats ";
+            $query .= "WHERE tenant_id = {$obj_tenant->id} ";
+            $query .= "GROUP BY item_id ";
+            $query .= "HAVING (COUNT(item_id) > 1) ";
+            $query .= "ORDER BY occurences DESC ";
+            $query .= "LIMIT {$limit}";
 
 
-        $results   = \DB::select(\DB::raw($query));
-        $top_items = [];
-        if ($results && is_array($results)) {
+            $results   = \DB::select(\DB::raw($query));
+            $top_items = [];
+            if ($results && is_array($results)) {
 
-            foreach ($results as $result) {
-                $item       = false;
-                $item_model = new \App\Models\Item();
-                $client     = \DB::connection('neo4j')->getClient();
-                $strQuery   = 'MATCH (n:`Item`:`' . $tenant . '` {id:"' . $result->item_id . '"}) return n';
-                $query      = new Query($client, $strQuery);
-                $result2    = $query->getResultSet();
+                foreach ($results as $result) {
+                    $item       = false;
+                    $item_model = new \App\Models\Item();
+                    $client     = \DB::connection('neo4j')->getClient();
+                    $strQuery   = 'MATCH (n:`Item`:`' . $tenant . '` {id:"' . $result->item_id . '"}) return n';
+                    $query      = new Query($client, $strQuery);
+                    $result2    = $query->getResultSet();
 
-                foreach ($result2 as $row) {
-                    $attributes = $row['t']->getProperties();
-                    $item       = $item_model->newFromBuilder($attributes);
+                    foreach ($result2 as $row) {
+                        $attributes = $row['t']->getProperties();
+                        $item       = $item_model->newFromBuilder($attributes);
+                    }
+
+                    array_push($top_items, [
+                        'item_id'    => $result->item_id,
+                        'item'       => $item,
+                        'occurences' => $result->occurences
+                    ]);
                 }
 
-                array_push($top_items, [
-                    'item_id'    => $result->item_id,
-                    'item'       => $item,
-                    'occurences' => $result->occurences
-                ]);
-            }
+                if (!is_null($result)) {
+                    $this->base_response['data'] = [
+                        'tenant'     => $tenant,
+                        'items'      => $top_items,
+                        'start_date' => $start_date,
+                        'end_date'   => $end_date
+                    ];
+                }
 
-            if (!is_null($result)) {
-                $this->base_response['data'] = [
-                    'tenant'     => $tenant,
-                    'items'      => $top_items,
-                    'start_date' => $start_date,
-                    'end_date'   => $end_date
-                ];
+                return Response::json($this->base_response);
             }
-
-            return Response::json($this->base_response);
+            else {
+                $this->base_response['error']   = true;
+                $this->base_response['message'] = "Data not found";
+            }
         }
         else {
             $this->base_response['error']   = true;
-            $this->base_response['message'] = "Data not found";
+            $this->base_response['message'] = "Tenant or action not found";
         }
 
 

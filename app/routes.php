@@ -11,7 +11,7 @@
   |
  */
 
-Route::pattern('tenants', '[A-Za-z0-9]+');
+Route::pattern('tenants', '[A-Za-z0-9_]+');
 Route::pattern('start_date', '^([0-9]{4})-([0-9]{2})-([0-9]{2})$');
 Route::pattern('end_date', '^([0-9]{4})-([0-9]{2})-([0-9]{2})$');
 
