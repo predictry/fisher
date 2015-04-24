@@ -79,92 +79,109 @@ class MatrixCalculation extends LogsBaseCommand
      */
     public function fire()
     {
-        $this->bucket = $this->argument('bucket');
+        try
+        {
+            $this->bucket = $this->argument('bucket');
 
-        $this->log_prefix = $this->option('prefix');
-        $this->log_prefix = isset($this->log_prefix) ? $this->log_prefix : false;
+            $this->log_prefix = $this->option('prefix');
+            $this->log_prefix = isset($this->log_prefix) ? $this->log_prefix : false;
 
-        $this->log_name_option = $this->option("log_name");
+            $this->log_name_option = $this->option("log_name");
 
-        $this->limit = $this->option('limit');
-        $this->limit = (isset($this->limit)) ? $this->limit : 1000;
+            $this->limit = $this->option('limit');
+            $this->limit = (isset($this->limit)) ? $this->limit : 1000;
 
-        $start_date = $this->option('start_date');
-        $end_date   = $this->option('end_date');
+            $start_date = $this->option('start_date');
+            $end_date   = $this->option('end_date');
 
-        $this->printTitle();
-        $bucket_objects = $this->getBucketObjects($this->bucket, $this->log_prefix);
+            $this->printTitle();
+            $bucket_objects = $this->getBucketObjects($this->bucket, $this->log_prefix);
 
-        $dates = Helper::getListDateRange($start_date, $end_date);
+            $dates = Helper::getListDateRange($start_date, $end_date);
 
-        foreach ($bucket_objects as $obj) {
-            $start_time         = new Carbon();
-            $str_date           = $str_date_formatted = null;
-            $file_name          = $this->getFilename($obj, $this->log_prefix);
-            if ($file_name !== "") {
-                $file_name_without_ext = str_replace('.json', '', $file_name);
+            foreach ($bucket_objects as $obj) {
+                $start_time         = new Carbon();
+                $str_date           = $str_date_formatted = null;
+                $file_name          = $this->getFilename($obj, $this->log_prefix);
+                if ($file_name !== "") {
+                    $file_name_without_ext = str_replace('.json', '', $file_name);
 
-                $arr_filename = explode('.', $file_name);
-                if (is_array($arr_filename) && !empty($arr_filename[0])) {
-                    $str_date = $arr_filename[1];
+                    $arr_filename = explode('.', $file_name);
+                    if (is_array($arr_filename) && !empty($arr_filename[0])) {
+                        $str_date = $arr_filename[1];
+                    }
+                    else
+                        continue;
+
+                    $date                    = date_create_from_format('Y-m-d-H', $str_date);
+                    $full_str_date_formatted = $date->format('Y-m-d H:i:s');
+                    $str_date_formatted      = $date->format('Y-m-d');
+
+                    if (!in_array($str_date_formatted, $dates)) { //current file is not within date range//then continue
+                        $this->error("{$file_name} is not within date range");
+                        continue;
+                    }
+
+                    $this->counter_total_actions_each_file = 0;
+
+                    $this->downloadObject($this->bucket, $obj['Key'], storage_path("logs/json_tmp/{$file_name}"));
+
+                    $tenant_actions_stats = $this->assignTenantActionIndexes($full_str_date_formatted);
+                    $tenant_sales_stats   = $this->assignTenantSaleIndexes();
+
+                    $arr_csv_formatted = $this->parseJsonToArrayCSVFormatted(storage_path("logs/json_tmp/{$file_name}"), $tenant_actions_stats, $tenant_sales_stats);
+                    $this->saveArrCSVFormattedIntoFile($arr_csv_formatted, $file_name_without_ext);
+                    $this->importCSV($file_name_without_ext);
+
+                    \File::delete(storage_path("logs/json_tmp/{$file_name}")); //delete zip log
+
+                    array_push($this->processing_logs, $file_name);
+                    array_push($this->processing_detail_logs, [
+                        'log_name'       => $file_name,
+                        'log_created_at' => $full_str_date_formatted,
+                        'created_at'     => $start_time,
+                        'updated_at'     => new Carbon(),
+                        'total_actions'  => $this->counter_total_actions_each_file,
+                        'batch'          => $this->batch
+                    ]);
                 }
                 else
                     continue;
 
-                $date                    = date_create_from_format('Y-m-d-H', $str_date);
-                $full_str_date_formatted = $date->format('Y-m-d H:i:s');
-                $str_date_formatted      = $date->format('Y-m-d');
+                $this->info($file_name);
 
-                if (!in_array($str_date_formatted, $dates)) { //current file is not within date range//then continue
-                    $this->error("{$file_name} is not within date range");
-                    continue;
+                if (count($this->processing_detail_logs) > 50) { //save after 50
+                    //this should be an event
+                    LogMigration::insert($this->processing_detail_logs);
+                    $this->processing_detail_logs = [];
                 }
-
-                $this->counter_total_actions_each_file = 0;
-
-                $this->downloadObject($this->bucket, $obj['Key'], storage_path("logs/json_tmp/{$file_name}"));
-
-                $tenant_actions_stats = $this->assignTenantActionIndexes($full_str_date_formatted);
-                $tenant_sales_stats   = $this->assignTenantSaleIndexes();
-
-                $arr_csv_formatted = $this->parseJsonToArrayCSVFormatted(storage_path("logs/json_tmp/{$file_name}"), $tenant_actions_stats, $tenant_sales_stats);
-                $this->saveArrCSVFormattedIntoFile($arr_csv_formatted, $file_name_without_ext);
-                $this->importCSV($file_name_without_ext);
-
-                \File::delete(storage_path("logs/json_tmp/{$file_name}")); //delete zip log
-
-                array_push($this->processing_logs, $file_name);
-                array_push($this->processing_detail_logs, [
-                    'log_name'       => $file_name,
-                    'log_created_at' => $full_str_date_formatted,
-                    'created_at'     => $start_time,
-                    'updated_at'     => new Carbon(),
-                    'total_actions'  => $this->counter_total_actions_each_file,
-                    'batch'          => $this->batch
-                ]);
             }
-            else
-                continue;
 
-            $this->info($file_name);
-
-            if (count($this->processing_detail_logs) > 50) { //save after 50
+            if (count($this->processing_detail_logs) > 0) {
                 //this should be an event
                 LogMigration::insert($this->processing_detail_logs);
                 $this->processing_detail_logs = [];
             }
-        }
 
-        if (count($this->processing_detail_logs) > 0) {
-            //this should be an event
-            LogMigration::insert($this->processing_detail_logs);
-            $this->processing_detail_logs = [];
+            $processed_logs = AnalyticsLogMigration::all();
+            if ($processed_logs) {
+                $this->processed_logs = $processed_logs->lists("log_name", "id");
+                Cache::add('processed_logs', $this->processed_logs, 1440);
+            }
         }
+        catch (Exception $ex)
+        {
+            if (count($this->processing_detail_logs) > 0) {
+                //this should be an event
+                LogMigration::insert($this->processing_detail_logs);
+                $this->processing_detail_logs = [];
+            }
 
-        $processed_logs = AnalyticsLogMigration::all();
-        if ($processed_logs) {
-            $this->processed_logs = $processed_logs->lists("log_name", "id");
-            Cache::add('processed_logs', $this->processed_logs, 1440);
+            $processed_logs = AnalyticsLogMigration::all();
+            if ($processed_logs) {
+                $this->processed_logs = $processed_logs->lists("log_name", "id");
+                Cache::add('processed_logs', $this->processed_logs, 1440);
+            }
         }
     }
 
