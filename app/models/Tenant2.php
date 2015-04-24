@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-class Tenant2 extends \Eloquent
+class ActionStat extends \Eloquent
 {
 
     protected $connection = 'mysql';
-    protected $table      = "tenants";
+    protected $table      = "actions_stats";
 
 }

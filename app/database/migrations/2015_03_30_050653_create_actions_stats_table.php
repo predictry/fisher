@@ -20,7 +20,6 @@ class CreateActionsStatsTable extends Migration
             $table->integer('regular_stats');
             $table->integer('recommendation_stats');
             $table->datetime('created');
-            $table->boolean('is_reco')->default(false);
 
             $table->foreign('action_id')->references('id')->on('actions')->onUpdate('cascade');
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade');
