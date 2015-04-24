@@ -161,7 +161,7 @@ class MatrixCalculation extends LogsBaseCommand
             $this->processing_detail_logs = [];
         }
 
-        $processed_logs = LogMigration::all();
+        $processed_logs = AnalyticsLogMigration::all();
         if ($processed_logs) {
             $this->processed_logs = $processed_logs->lists("log_name", "id");
             Cache::add('processed_logs', $this->processed_logs, 1440);

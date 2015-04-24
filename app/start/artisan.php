@@ -12,4 +12,4 @@
  */
 
 Artisan::add(new MatrixCalculation());
-Artisan::add(new SessionCalculation());
+//Artisan::add(new SessionCalculation());
