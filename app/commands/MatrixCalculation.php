@@ -51,21 +51,13 @@ class MatrixCalculation extends LogsBaseCommand
     {
         ini_set('memory_limit', '512M');
         parent::__construct();
-        $last_batch           = LogMigration::max("batch");
-        $count_processed_logs = LogMigration::count();
-        $this->batch          = $last_batch+=1;
+        $last_batch  = LogMigration::max("batch");
+        $this->batch = $last_batch+=1;
 
-
-        if (Cache::has('processed_logs')) {
-            $this->processed_logs = Cache::get('processed_logs');
-        }
-
-        if (!Cache::has('processed_logs') || (count($this->processed_logs) != $count_processed_logs)) {
-            $processed_logs = LogMigration::all();
-            if ($processed_logs) {
-                $this->processed_logs = $processed_logs->lists("log_name", "id");
-                Cache::add('processed_logs', $this->processed_logs, 1440);
-            }
+        $processed_logs = LogMigration::all();
+        if ($processed_logs) {
+            $this->processed_logs = $processed_logs->lists("log_name", "id");
+            Cache::add('processed_logs', $this->processed_logs, 1440);
         }
 
         $tenants       = Tenant2::all();
@@ -177,7 +169,7 @@ class MatrixCalculation extends LogsBaseCommand
                 $this->processing_detail_logs = [];
             }
 
-            $processed_logs = AnalyticsLogMigration::all();
+            $processed_logs = LogMigration::all();
             if ($processed_logs) {
                 $this->processed_logs = $processed_logs->lists("log_name", "id");
                 Cache::add('processed_logs', $this->processed_logs, 1440);
