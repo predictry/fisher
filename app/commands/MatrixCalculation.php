@@ -154,12 +154,6 @@ class MatrixCalculation extends LogsBaseCommand
                 LogMigration::insert($this->processing_detail_logs);
                 $this->processing_detail_logs = [];
             }
-
-            $processed_logs = AnalyticsLogMigration::all();
-            if ($processed_logs) {
-                $this->processed_logs = $processed_logs->lists("log_name", "id");
-                Cache::add('processed_logs', $this->processed_logs, 1440);
-            }
         }
         catch (Exception $ex)
         {
@@ -167,12 +161,6 @@ class MatrixCalculation extends LogsBaseCommand
                 //this should be an event
                 LogMigration::insert($this->processing_detail_logs);
                 $this->processing_detail_logs = [];
-            }
-
-            $processed_logs = LogMigration::all();
-            if ($processed_logs) {
-                $this->processed_logs = $processed_logs->lists("log_name", "id");
-                Cache::add('processed_logs', $this->processed_logs, 1440);
             }
         }
     }
