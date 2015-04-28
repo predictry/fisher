@@ -413,11 +413,15 @@ class MatrixCalculation extends LogsBaseCommand
         $pdo = DB::connection()->getPdo();
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        if (File::exists(storage_path("logs/csv_tmp/actions-stats-{$file_name_without_ext}.csv")))
+        if (File::exists(storage_path("logs/csv_tmp/actions-stats-{$file_name_without_ext}.csv"))) {
+            $this->info("LOAD DATA LOCAL INFILE '" . storage_path("logs/csv_tmp/actions-stats-{$file_name_without_ext}.csv") . "' INTO TABLE actions_stats FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES");
             $pdo->exec("LOAD DATA LOCAL INFILE '" . storage_path("logs/csv_tmp/actions-stats-{$file_name_without_ext}.csv") . "' INTO TABLE actions_stats FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES");
+        }
 
-        if (File::exists(storage_path("logs/csv_tmp/sales-stats-{$file_name_without_ext}.csv")))
+        if (File::exists(storage_path("logs/csv_tmp/sales-stats-{$file_name_without_ext}.csv"))) {
+            $this->info("LOAD DATA LOCAL INFILE '" . storage_path("logs/csv_tmp/sales-stats-{$file_name_without_ext}.csv") . "' INTO TABLE sales_stats FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES");
             $pdo->exec("LOAD DATA LOCAL INFILE '" . storage_path("logs/csv_tmp/sales-stats-{$file_name_without_ext}.csv") . "' INTO TABLE sales_stats FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES");
+        }
 
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         \File::delete(storage_path("logs/csv_tmp/actions-stats-{$file_name_without_ext}.csv")); //delete zip log
