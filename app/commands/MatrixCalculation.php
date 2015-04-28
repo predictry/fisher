@@ -157,6 +157,7 @@ class MatrixCalculation extends LogsBaseCommand
         }
         catch (Exception $ex)
         {
+            \Log::error($ex->getMessage());
             if (count($this->processing_detail_logs) > 0) {
                 //this should be an event
                 LogMigration::insert($this->processing_detail_logs);
