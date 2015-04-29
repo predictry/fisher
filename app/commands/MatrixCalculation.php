@@ -109,6 +109,11 @@ class MatrixCalculation extends LogsBaseCommand
                     $full_str_date_formatted = $date->format('Y-m-d H:i:s');
                     $str_date_formatted      = $date->format('Y-m-d');
 
+                    if (in_array($file_name, $this->processed_logs) || in_array($file_name, $this->processing_logs)) {
+                        $this->info("{$file_name} has been processed");
+                        continue;
+                    }
+                    
                     if (!in_array($str_date_formatted, $dates)) { //current file is not within date range//then continue
                         $this->error("{$file_name} is not within date range");
                         continue;
