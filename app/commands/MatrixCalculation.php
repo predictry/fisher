@@ -419,18 +419,21 @@ class MatrixCalculation extends LogsBaseCommand
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         if (File::exists(storage_path("logs/csv_tmp/actions-stats-{$file_name_without_ext}.csv"))) {
-            $this->info("LOAD DATA LOCAL INFILE '" . storage_path("logs/csv_tmp/actions-stats-{$file_name_without_ext}.csv") . "' INTO TABLE actions_stats FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES");
             $pdo->exec("LOAD DATA LOCAL INFILE '" . storage_path("logs/csv_tmp/actions-stats-{$file_name_without_ext}.csv") . "' INTO TABLE actions_stats FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES");
+            \Log::info("Imported " . storage_path("logs/csv_tmp/actions-stats-{$file_name_without_ext}.csv"));
         }
 
         if (File::exists(storage_path("logs/csv_tmp/sales-stats-{$file_name_without_ext}.csv"))) {
-            $this->info("LOAD DATA LOCAL INFILE '" . storage_path("logs/csv_tmp/sales-stats-{$file_name_without_ext}.csv") . "' INTO TABLE sales_stats FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES");
             $pdo->exec("LOAD DATA LOCAL INFILE '" . storage_path("logs/csv_tmp/sales-stats-{$file_name_without_ext}.csv") . "' INTO TABLE sales_stats FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES");
+            \Log::info("Imported " . storage_path("logs/csv_tmp/sales-stats-{$file_name_without_ext}.csv"));
         }
 
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         \File::delete(storage_path("logs/csv_tmp/actions-stats-{$file_name_without_ext}.csv")); //delete zip log
         \File::delete(storage_path("logs/csv_tmp/sales-stats-{$file_name_without_ext}.csv")); //delete zip log
+
+        \Log::info("Remove " . storage_path("logs/csv_tmp/actions-stats-{$file_name_without_ext}.csv"));
+        \Log::info("Remove " . storage_path("logs/csv_tmp/sales-stats-{$file_name_without_ext}.csv"));
     }
 
     protected function printTitle()
