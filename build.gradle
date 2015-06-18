@@ -1,0 +1,54 @@
+apply plugin: 'java'
+apply plugin: 'eclipse-wtp'
+apply plugin: 'war'
+
+sourceCompatibility = 1.8
+version = '0.1'
+
+configurations {
+    sshAntTask
+}
+
+war {
+    archiveName = 'fisher.war'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {  
+    // Spring Framework         
+    compile 'org.springframework:spring-webmvc:4.1.6.RELEASE'
+    compile 'org.springframework:spring-aspects:4.1.6.RELEASE'
+    compile 'org.springframework:spring-test:4.1.6.RELEASE'
+    
+    // Elasticsearch
+    compile 'org.elasticsearch:elasticsearch:1.6.0'
+    compile 'org.springframework.data:spring-data-elasticsearch:1.2.0.RELEASE'
+     
+    // Others
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.5.3'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.5.3'
+    compile 'javax:javaee-web-api:7.0'
+    compile 'org.slf4j:slf4j-api:1.7.12'
+    compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.4.0'
+    runtime 'org.slf4j:slf4j-log4j12:1.7.12'
+    runtime 'log4j:log4j:1.2.15'
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+    sshAntTask 'org.apache.ant:ant-jsch:1.9.5', 'com.jcraft:jsch:0.1.53'
+}
+
+ant.taskdef(name: 'scp', classname: 'org.apache.tools.ant.taskdefs.optional.ssh.Scp', 
+    classpath: configurations.sshAntTask.asPath)
+
+
+task deployToServer(dependsOn: 'war') << {
+    ant.scp(todir: 'jocki:latihan12345@119.81.208.244:/home/jocki/apache-tomcat-8.0.23/webapps',
+        file: "${project.projectDir}/build/libs/fisher.war")
+}
+
+task testDomainClass(type: Test, dependsOn: testClasses) {
+    include 'com/predictry/fisher/domain/**'
+}
