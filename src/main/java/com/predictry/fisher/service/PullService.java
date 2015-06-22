@@ -25,6 +25,7 @@ import com.predictry.fisher.domain.aggregation.Aggregation;
 import com.predictry.fisher.domain.aggregation.ItemPerCartAggregation;
 import com.predictry.fisher.domain.aggregation.ItemPurchasedAggregation;
 import com.predictry.fisher.domain.aggregation.SalesAggregation;
+import com.predictry.fisher.domain.aggregation.UniqueVisitorAggregation;
 import com.predictry.fisher.domain.aggregation.ViewsAggregation;
 import com.predictry.fisher.domain.pull.PullTime;
 import com.predictry.fisher.domain.stat.Stat;
@@ -81,6 +82,7 @@ public class PullService {
 		aggrs.add(new SalesAggregation());
 		aggrs.add(new ItemPerCartAggregation());
 		aggrs.add(new ItemPurchasedAggregation());
+		aggrs.add(new UniqueVisitorAggregation());
 		
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFile)))) {
 			String line;

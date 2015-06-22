@@ -3,6 +3,9 @@
 {"data": {"id": "user02", "timestamp": "2015-06-19T00:50:12+00:00", "fields": {}, "tenant": "tenant1"}, "type": "User"}
 {"data": {"id": "user03", "timestamp": "2015-06-19T00:50:08+00:00", "fields": {}, "tenant": "tenant2"}, "type": "User"}
 {"data": {"id": "user04", "timestamp": "2015-06-19T00:50:11+00:00", "fields": {}, "tenant": "tenant2"}, "type": "User"}
+{"data": {"id": "user04", "timestamp": "2015-06-19T00:50:11+00:00", "fields": {}, "tenant": "tenant2"}, "type": "User"}
+{"data": {"id": "user05", "timestamp": "2015-06-19T00:49:29+00:00", "fields": {}, "tenant": "tenant2"}, "type": "User"}
+{"data": {"id": "user05", "timestamp": "2015-06-19T00:49:29+00:00", "fields": {}, "tenant": "tenant2"}, "type": "User"}
 {"data": {"id": "user05", "timestamp": "2015-06-19T00:49:29+00:00", "fields": {}, "tenant": "tenant2"}, "type": "User"}
 {"data": {"id": "item01", "timestamp": "2015-06-19T00:49:31+00:00", "fields": {"item_url": "https://www.xxx.com", "img_url": "https://www.xxx.com", "price": "125000", "name": "The Item 01", "subcategory": ["Cat01", "Cat02"], "store_name": "Store1", "category": "Cat01", "store_url": "https://www.xxx.com", "store_id": "648510", "inventory_qty": "1", "description": "test"}, "tenant": "tenant1"}, "type": "Item"}
 {"data": {"id": "item02", "timestamp": "2015-06-19T00:50:04+00:00", "fields": {}, "tenant": "Tenant2"}, "type": "Item"}
