@@ -6,10 +6,14 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Document(indexName="stat")
 public class Stat {
 	
 	private String time;
+	@JsonIgnore
+	private String tenantId;
 	private Long views = 0l;
 	private Double sales = 0.0;
 	private Long itemPerCart = 0l;
@@ -19,10 +23,11 @@ public class Stat {
 	
 	public Stat() {}
 	
-	public Stat(String time, Long views, Double sales, Long itemPerCart,
+	public Stat(String time, String tenantId, Long views, Double sales, Long itemPerCart,
 			Long itemPurchased, Long orders, Long uniqueVisitor) {
 		super();
 		this.time = time;
+		this.tenantId = tenantId;
 		this.views = views;
 		this.sales = sales;
 		this.itemPerCart = itemPerCart;
@@ -40,6 +45,14 @@ public class Stat {
 		this.time = time;
 	}
 	
+	public String getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(String tenantId) {
+		this.tenantId = tenantId;
+	}
+
 	public void setTimeFrom(LocalDateTime time) {
 		this.time = time.toString();
 	}

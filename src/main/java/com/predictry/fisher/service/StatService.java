@@ -32,14 +32,14 @@ public class StatService {
 	@Autowired
 	private ElasticsearchOperations template;
 	
-	public void save(Stat stat, String tenantId) {
+	public void save(Stat stat) {
 		String indexName = stat.getIndexName();
 		if (!template.indexExists(indexName)) {
 			template.createIndex(indexName);
 		}
 		IndexQuery indexQuery = new IndexQuery();
 		indexQuery.setIndexName(stat.getIndexName());
-		indexQuery.setType(tenantId);
+		indexQuery.setType(stat.getTenantId());
 		indexQuery.setObject(stat);
 		indexQuery.setId(stat.getTime());
 		template.index(indexQuery);
