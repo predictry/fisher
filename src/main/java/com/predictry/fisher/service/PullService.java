@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.predictry.fisher.domain.aggregation.Aggregation;
+import com.predictry.fisher.domain.aggregation.SalesAggregation;
 import com.predictry.fisher.domain.aggregation.ViewsAggregation;
 import com.predictry.fisher.domain.pull.PullTime;
 import com.predictry.fisher.domain.stat.Stat;
@@ -59,6 +60,13 @@ public class PullService {
 		processAggregation(getDefaultPullTime());
 	}
 	
+	/**
+	 * Perform the aggregation process for each line in data.
+	 * 
+	 * @param sourceFile is the <code>File</code> retrieved from data source.
+	 * @param expectedTime is the expected time for this data source.  This field is used for validation.
+	 * @return a <code>Map</code> that contains <code>Stat</code> for each tenant ids.
+	 */
 	@SuppressWarnings("unchecked")
 	public Map<String,Stat> aggregate(File sourceFile, LocalDateTime expectedTime) throws IOException {
 		Map<String,Stat> results = new HashMap<>();
@@ -68,6 +76,7 @@ public class PullService {
 		// Don't forget to register here everytime new aggregation command is created.
 		List<Aggregation> aggrs = new ArrayList<>();
 		aggrs.add(new ViewsAggregation());
+		aggrs.add(new SalesAggregation());
 		
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFile)))) {
 			String line;
@@ -97,6 +106,9 @@ public class PullService {
 		return results;
 	}
 	
+	/**
+	 * Create new <code>Stat</code> or returns existing if available.
+	 */
 	private Stat getStat(String tenantId, LocalDateTime expectedTime, Map<String,Stat> stats) {
 		if (stats.containsKey(tenantId)) {
 			return stats.get(tenantId);

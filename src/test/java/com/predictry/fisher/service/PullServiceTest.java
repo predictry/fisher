@@ -32,10 +32,12 @@ public class PullServiceTest {
 		// Stat for 'tenant1'
 		Stat statTenant1 = stats.get("tenant1");
 		assertEquals(2l, statTenant1.getViews().longValue());
+		assertEquals(1000001.1, statTenant1.getSales(), 0.5);
 		
 		// Stat for 'tenant2'
 		Stat statTenant2 = stats.get("tenant2");
 		assertEquals(3l, statTenant2.getViews().longValue());
+		assertEquals(18000.0, statTenant2.getSales(), 0.5);
 	}
 	
 	@Test(expected=RuntimeException.class)
