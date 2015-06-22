@@ -1,12 +1,9 @@
 package com.predictry.fisher.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import static org.junit.Assert.*;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +15,6 @@ import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-
 import com.predictry.fisher.config.TestRootConfig;
 import com.predictry.fisher.domain.overview.StatOverview;
 import com.predictry.fisher.domain.stat.Stat;
@@ -174,6 +170,15 @@ public class StatServiceTest {
         assertEquals(30l, statOverview.getItemPurchased().getOverall().longValue());
         assertEquals(3l, statOverview.getOrders().longValue());
         assertEquals(170l, statOverview.getUniqueVisitor().getOverall().longValue());
+        
+        // Stat for Bukalapak at 2015 month 2
+        statOverview = statService.overview(LocalDateTime.parse("2015-02-01T01:00:00"), LocalDateTime.parse("2015-02-10T01:00:00"), "BUKALAPAK");
+        assertEquals(50l, statOverview.getPageView().getOverall().longValue());
+        assertEquals(3.0, statOverview.getSalesAmount().getOverall(), 0.5);
+        assertEquals(2l, statOverview.getItemPerCart().getOverall().longValue());
+        assertEquals(15l, statOverview.getItemPurchased().getOverall().longValue());
+        assertEquals(3l, statOverview.getOrders().longValue());
+        assertEquals(70l, statOverview.getUniqueVisitor().getOverall().longValue());
         
         // Stat for Bukalapak at 2014-2015
         statOverview = statService.overview(LocalDateTime.parse("2014-01-01T01:00:00"), LocalDateTime.parse("2015-12-31T01:00:00"), "BUKALAPAK");

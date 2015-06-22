@@ -1,8 +1,13 @@
 package com.predictry.fisher.service;
 
+import static org.elasticsearch.index.query.FilterBuilders.rangeFilter;
+
 import java.time.LocalDateTime;
+
 import javax.transaction.Transactional;
+
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.FilteredQueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.metrics.avg.InternalAvg;
@@ -14,6 +19,7 @@ import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Service;
+
 import com.predictry.fisher.domain.overview.StatOverview;
 import com.predictry.fisher.domain.overview.Value;
 import com.predictry.fisher.domain.stat.Stat;
@@ -43,6 +49,7 @@ public class StatService {
 		SearchQuery searchQuery = new NativeSearchQueryBuilder()
 			.withIndices(Helper.convertToIndices(startTime, endTime))
 			.withTypes(tenantId)
+			.withQuery(new FilteredQueryBuilder(null, rangeFilter("time").from(startTime).to(endTime)))
 			.addAggregation(AggregationBuilders.sum("views").field("views"))
 			.addAggregation(AggregationBuilders.sum("salesAmount").field("sales"))
 			.addAggregation(AggregationBuilders.avg("itemPerCart").field("itemPerCart"))
