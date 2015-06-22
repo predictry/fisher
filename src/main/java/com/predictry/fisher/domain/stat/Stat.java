@@ -1,6 +1,8 @@
 package com.predictry.fisher.domain.stat;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -20,6 +22,9 @@ public class Stat {
 	private Long itemPurchased = 0l;
 	private Long orders = 0l;
 	private Long uniqueVisitor = 0l;
+	
+	@JsonIgnore
+	private Map<String, Long> cartPerSession = new HashMap<>();
 	
 	public Stat() {}
 	
@@ -161,6 +166,40 @@ public class Stat {
 		} else {
 			this.itemPerCart = (this.itemPerCart + itemPerCart) / 2;
 		}
+	}
+	
+	/**
+	 * Add new qty in cart for a session.
+	 * 
+	 * @param sessionId is a session identifier.
+	 * @param qty is number of qty in the cart for an item in that session.
+	 */
+	public void addItemPerCart(String sessionId, Long qty) {
+		if (cartPerSession.containsKey(sessionId)) {
+			Long oldQty = cartPerSession.get(sessionId);
+			cartPerSession.put(sessionId, oldQty + qty);
+		} else {
+			cartPerSession.put(sessionId, qty);
+		}
+	}
+	
+	/**
+	 * Calculate item per cart value based on information added by {@link #addItemPerCart(String, Long)}.
+	 * This method will also set the value of <code>itemPerCart</code>.
+	 * 
+	 * @return the calculated <code>itemPerCart</code>.
+	 */
+	public Long calculateItemPerCart() {
+		Long total = 0l;
+		for (Long value: cartPerSession.values()) {
+			total += value;
+		}
+		if (cartPerSession.size() > 0) {
+			this.itemPerCart = (long) (total / cartPerSession.size());
+		} else {
+			this.itemPerCart = 0l;
+		}
+		return this.itemPerCart;
 	}
 	
 	/**

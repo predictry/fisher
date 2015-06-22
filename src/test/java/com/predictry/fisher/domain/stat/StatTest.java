@@ -58,6 +58,19 @@ public class StatTest {
 	}
 	
 	@Test
+	public void addItemPerCartWithSession() {
+		Stat stat = new Stat();
+		stat.addItemPerCart("session1", 10l);
+		stat.addItemPerCart("session1",  5l);
+		stat.addItemPerCart("session1",  3l);
+		stat.addItemPerCart("session2", 15l);
+		stat.addItemPerCart("session3", 20l);
+		stat.addItemPerCart("session4", 10l);
+		assertEquals(15l, stat.calculateItemPerCart().longValue());
+		assertEquals(15l, stat.getItemPerCart().longValue());
+	}
+	
+	@Test
 	public void addItemPurchased() {
 		Stat stat = new Stat();
 		stat.addItemPurchased(10l);

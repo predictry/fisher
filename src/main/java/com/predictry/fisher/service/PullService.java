@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.predictry.fisher.domain.aggregation.Aggregation;
+import com.predictry.fisher.domain.aggregation.ItemPerCartAggregation;
 import com.predictry.fisher.domain.aggregation.SalesAggregation;
 import com.predictry.fisher.domain.aggregation.ViewsAggregation;
 import com.predictry.fisher.domain.pull.PullTime;
@@ -77,6 +78,7 @@ public class PullService {
 		List<Aggregation> aggrs = new ArrayList<>();
 		aggrs.add(new ViewsAggregation());
 		aggrs.add(new SalesAggregation());
+		aggrs.add(new ItemPerCartAggregation());
 		
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFile)))) {
 			String line;
@@ -103,6 +105,12 @@ public class PullService {
 				}
 			}
 		}
+		
+		// Post calculation for every stats
+		for (Stat stat: results.values()) {
+			stat.calculateItemPerCart();
+		}
+		
 		return results;
 	}
 	
