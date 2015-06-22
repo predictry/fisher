@@ -2,6 +2,8 @@ package com.predictry.fisher.config;
 
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -30,8 +32,11 @@ public class RootConfig {
 			client = new TransportClient().addTransportAddress(
 				new InetSocketTransportAddress("localhost", 9300));	
 		} else {
-			client = new TransportClient().addTransportAddress(
-				new InetSocketTransportAddress("localhost", 9300));
+			Settings settings = ImmutableSettings.settingsBuilder()
+				.put("cluster.name", "fisher").build();
+			client = new TransportClient(settings).addTransportAddress(
+				new InetSocketTransportAddress("localhost", 9500));
+			
 		}
 		return new ElasticsearchTemplate(client);
 	}
