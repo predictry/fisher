@@ -25,6 +25,8 @@ import com.predictry.fisher.domain.aggregation.UniqueVisitorAggregation;
 import com.predictry.fisher.domain.aggregation.ViewsAggregation;
 import com.predictry.fisher.domain.pull.PullTime;
 import com.predictry.fisher.domain.stat.Stat;
+import com.predictry.fisher.domain.tapirus.GetRecordsResult;
+import com.predictry.fisher.domain.tapirus.GetRecordsResult.STATUS;
 import com.predictry.fisher.repository.PullTimeRepository;
 
 @Service
@@ -34,13 +36,23 @@ public class PullService {
 	@Autowired
 	private PullTimeRepository pullTimeRepository;
 	
+	@Autowired
+	private TapirusService tapirusService;
+	
+	@Autowired
+	private StatService statService;
+	
 	private static final Logger log = LoggerFactory.getLogger(PullService.class);
 	
 	/**
 	 * @return retrieve default <code>PullTime</code> for default task.
 	 */
 	public PullTime getDefaultPullTime() {
-		return pullTimeRepository.findOne("default");
+		PullTime pullTime = pullTimeRepository.findOne("default");
+		if (pullTime == null) {
+			pullTime = new PullTime("default", LocalDateTime.parse("2015-01-01T00:00:00"));
+		}
+		return pullTime;
 	}
 	
 	/**
@@ -49,7 +61,25 @@ public class PullService {
 	 * @param pullTime a <code>PullTime</code> to process.
 	 */
 	public void processAggregation(PullTime pullTime) {
-		// TODO: Do pull operation from Tapirus here later!
+		if (pullTime.getForTime().isBefore(LocalDateTime.now())) {
+			GetRecordsResult tapResult = tapirusService.getRecords(pullTime.getForTime());
+			if (tapResult.getStatus() == STATUS.NOT_FOUND) {
+				pullTime.success();
+			} else if (tapResult.getStatus() == STATUS.PROCESSED) {
+				// Process and save aggregation
+				try {
+					Map<String, Stat> stats = aggregate(tapirusService.readFile(tapResult), pullTime.getForTime());
+					for (Stat stat: stats.values()) {
+						statService.save(stat);
+					}
+					pullTime.success();
+				} catch (IOException e) {
+					log.error("Error while processing aggregation.", e);
+					pullTime.fail();
+				}
+			}
+		}
+		pullTimeRepository.save(pullTime);
 	}
 	
 	/**

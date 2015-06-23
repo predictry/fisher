@@ -6,6 +6,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.predictry.fisher.domain.util.JackonTimeSerializer;
+import com.predictry.fisher.domain.util.JacksonTimeDeserializer;
+
 @Document(indexName="pull", type="pullTime")
 public class PullTime {
 
@@ -13,9 +18,21 @@ public class PullTime {
 	
 	@Id
 	private String id;
+	
+	@JsonSerialize(using=JackonTimeSerializer.class)
+	@JsonDeserialize(using=JacksonTimeDeserializer.class)
 	private LocalDateTime forTime;
+	
 	private LocalDateTime lastExecutedTime;
+	
 	private Integer repeat = 0;
+	
+	public PullTime() {}
+	
+	public PullTime(String id, LocalDateTime forTime) {
+		this.id = id;
+		this.forTime = forTime;
+	}
 	
 	/**
 	 * This method should be called if pull operation was done successfully.
@@ -24,6 +41,7 @@ public class PullTime {
 		if (forTime == null) {
 			forTime = LocalDateTime.now().plusHours(1);
 		}
+		forTime = forTime.plusHours(1);
 		lastExecutedTime = null;
 		repeat = 0;
 	}
@@ -61,6 +79,11 @@ public class PullTime {
 
 	public Integer getRepeat() {
 		return repeat;
+	}
+
+	@Override
+	public String toString() {
+		return "PullTime for=[" + forTime + "], repeat count=[" + repeat + "], " +
+			"lastExecutedTime=[" + lastExecutedTime + "]";
 	}	
-	
 }
