@@ -1,10 +1,6 @@
 package com.predictry.fisher.service;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -66,12 +62,12 @@ public class PullService {
 	/**
 	 * Perform the aggregation process for each line in data.
 	 * 
-	 * @param sourceFile is the <code>File</code> retrieved from data source.
+	 * @param sources is the strings retrieved from data source.
 	 * @param expectedTime is the expected time for this data source.  This field is used for validation.
 	 * @return a <code>Map</code> that contains <code>Stat</code> for each tenant ids.
 	 */
 	@SuppressWarnings("unchecked")
-	public Map<String,Stat> aggregate(File sourceFile, LocalDateTime expectedTime) throws IOException {
+	public Map<String,Stat> aggregate(List<String> sources, LocalDateTime expectedTime) throws IOException {
 		Map<String,Stat> results = new HashMap<>();
 		ObjectMapper objectMapper = new ObjectMapper();
 		
@@ -84,28 +80,25 @@ public class PullService {
 		aggrs.add(new ItemPurchasedAggregation());
 		aggrs.add(new UniqueVisitorAggregation());
 		
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFile)))) {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				Map<String,Object> mapJson = objectMapper.readValue(line, new TypeReference<Map<String,Object>>() {});
-				String type = (String) mapJson.get("type");
-				if (type.equals("metadata")) {
-					// Check if time metadata returned from Fisher is for the expected time.
-					Map<String,Object> metadataMap = (Map<String,Object>) mapJson.get("metadata");
-					LocalDateTime time = LocalDate.parse((String) metadataMap.get("date")).atStartOfDay();
-					time = time.withHour((Integer) metadataMap.get("hour"));
-					if (!time.isEqual(expectedTime)) {
-						log.error("Time metadata check failed!");
-						throw new RuntimeException("Fisher's time metadata (" + time + ") is not for the expected time (" + expectedTime + ")");
-					} else {
-						log.info("Time metadata check success!");
-					}
+		for (String line: sources) {
+			Map<String,Object> mapJson = objectMapper.readValue(line, new TypeReference<Map<String,Object>>() {});
+			String type = (String) mapJson.get("type");
+			if (type.equals("metadata")) {
+				// Check if time metadata returned from Fisher is for the expected time.
+				Map<String,Object> metadataMap = (Map<String,Object>) mapJson.get("metadata");
+				LocalDateTime time = LocalDate.parse((String) metadataMap.get("date")).atStartOfDay();
+				time = time.withHour((Integer) metadataMap.get("hour"));
+				if (!time.isEqual(expectedTime)) {
+					log.error("Time metadata check failed!");
+					throw new RuntimeException("Fisher's time metadata (" + time + ") is not for the expected time (" + expectedTime + ")");
 				} else {
-					Map<String,Object> data = (Map<String,Object>) mapJson.get("data");
-					String tenantId = (String) data.get("tenant");
-					for (Aggregation aggr: aggrs) {
-						aggr.consume(mapJson, getStat(tenantId, expectedTime, results));
-					}
+					log.info("Time metadata check success!");
+				}
+			} else {
+				Map<String,Object> data = (Map<String,Object>) mapJson.get("data");
+				String tenantId = (String) data.get("tenant");
+				for (Aggregation aggr: aggrs) {
+					aggr.consume(mapJson, getStat(tenantId, expectedTime, results));
 				}
 			}
 		}

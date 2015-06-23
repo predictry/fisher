@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -27,7 +29,8 @@ public class PullServiceTest {
 	@Test
 	public void aggregateFile() throws IOException {
 		File file = new File(getClass().getResource("/sample.log").getFile());
-		Map<String, Stat> stats = pullService.aggregate(file, LocalDateTime.parse("2015-06-19T03:00:00"));
+		List<String> sources = Files.readAllLines(file.toPath());
+		Map<String, Stat> stats = pullService.aggregate(sources, LocalDateTime.parse("2015-06-19T03:00:00"));
 		
 		// Stat for 'tenant1'
 		Stat statTenant1 = stats.get("tenant1");
@@ -49,7 +52,8 @@ public class PullServiceTest {
 	@Test(expected=RuntimeException.class)
 	public void aggregateFileWithInvalidTimeMetadata() throws IOException {
 		File file = new File(getClass().getResource("/sample_invalid_metadata.log").getFile());
-		pullService.aggregate(file, LocalDateTime.parse("2015-06-19T03:00:00"));		
+		List<String> sources = Files.readAllLines(file.toPath());
+		pullService.aggregate(sources, LocalDateTime.parse("2015-06-19T03:00:00"));		
 	}
 	
 }
