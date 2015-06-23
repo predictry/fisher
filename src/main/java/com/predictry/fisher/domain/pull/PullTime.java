@@ -8,8 +8,8 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.predictry.fisher.domain.util.JackonTimeSerializer;
 import com.predictry.fisher.domain.util.JacksonTimeDeserializer;
+import com.predictry.fisher.domain.util.JacksonTimeSerializer;
 
 @Document(indexName="pull", type="pullTime")
 public class PullTime {
@@ -19,10 +19,12 @@ public class PullTime {
 	@Id
 	private String id;
 	
-	@JsonSerialize(using=JackonTimeSerializer.class)
+	@JsonSerialize(using=JacksonTimeSerializer.class)
 	@JsonDeserialize(using=JacksonTimeDeserializer.class)
 	private LocalDateTime forTime;
 	
+	@JsonSerialize(using=JacksonTimeSerializer.class)
+	@JsonDeserialize(using=JacksonTimeDeserializer.class)
 	private LocalDateTime lastExecutedTime;
 	
 	private Integer repeat = 0;

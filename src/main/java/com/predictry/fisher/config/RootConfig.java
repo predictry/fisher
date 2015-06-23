@@ -1,5 +1,7 @@
 package com.predictry.fisher.config;
 
+import java.time.LocalDateTime;
+
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -17,6 +19,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
+import com.predictry.fisher.domain.util.JacksonTimeDeserializer;
+import com.predictry.fisher.domain.util.JacksonTimeSerializer;
 
 @Configuration
 @EnableElasticsearchRepositories(basePackages="com.predictry.fisher.repository")
@@ -43,10 +47,12 @@ public class RootConfig {
 		return new ElasticsearchTemplate(client);
 	}
 	
-	@Bean
+	@Bean	
 	public Jackson2ObjectMapperBuilder jacksonBuilder() {
 		return new Jackson2ObjectMapperBuilder()
 			.modulesToInstall(new JSR310Module())
+			.serializerByType(LocalDateTime.class, new JacksonTimeSerializer())
+			.deserializerByType(LocalDateTime.class, new JacksonTimeDeserializer())
 			.featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 	}
 

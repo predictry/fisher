@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-public class JackonTimeSerializer extends JsonSerializer<LocalDateTime> {
+public class JacksonTimeSerializer extends JsonSerializer<LocalDateTime> {
 
 	@Override
 	public void serialize(LocalDateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
