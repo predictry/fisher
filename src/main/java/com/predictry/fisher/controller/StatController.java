@@ -2,15 +2,20 @@ package com.predictry.fisher.controller;
 
 import java.time.LocalDateTime;
 
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.predictry.fisher.domain.ErrorMessage;
 import com.predictry.fisher.domain.overview.StatOverview;
+import com.predictry.fisher.domain.stat.Metric;
+import com.predictry.fisher.domain.stat.StatResultDTO;
 import com.predictry.fisher.service.StatService;
 
 @RestController
@@ -33,42 +38,56 @@ public class StatController {
 	public StatOverview statOverview(@RequestParam String tenantId, 
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime startDate, 
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime endDate) {
-		
 		log.info("Processing stat overview for tenantId [" + tenantId + "], startDate = [" + 
 				startDate + "], endDate = [" + endDate + "]" );
 		return statService.overview(startDate, endDate, tenantId);		
 	}
-//	
-//	/**
-//	 * Retrieve the aggregation as group of values.
-//	 * 
-//	 * @param tenantId the tenant id to search for, for example, "Bukalapak".
-//	 * @param startDate starting date for aggregation.
-//	 * @param endDate end date for aggregation.
-//	 * @param metric name of metric to return (such as "conversionRate", "itemPerCart", etc).
-//	 * @param groupInHour aggregate per number of hour.
-//	 * @return JSON value (<code>Stat</code>).
-//	 */
-//	@RequestMapping("/stat")
-//	public Stat<?> stat(@RequestParam String tenantId,
-//			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDate startDate,
-//			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDate endDate,
-//			@RequestParam String metric, @RequestParam int groupInHour ) {
-//		Stat<Long> stat = new Stat<>(metric);
-//		stat.addEntry(LocalDateTime.of(2015, 10, 1, 1, 0), 100l);
-//		stat.addEntry(LocalDateTime.of(2015, 10, 1, 3, 0), 150l);
-//		stat.addEntry(LocalDateTime.of(2015, 10, 1, 5, 0), 130l);
-//		return stat;
-//	}
-//		
-//	/**
-//	 * General error handler for this controller.
-//	 */
-//	@ExceptionHandler(value={Exception.class, RuntimeException.class})
-//	public ErrorMessage error(Exception ex) {
-//		ErrorMessage error = new ErrorMessage(ex.getMessage());
-//		return error;
-//	} 
+	
+	/**
+	 * Retrieve the aggregation as group of values.
+	 * 
+	 * @param tenantId the tenant id to search for, for example, "Bukalapak".
+	 * @param startDate starting date for aggregation.
+	 * @param endDate end date for aggregation.
+	 * @param metric name of metric to return.
+	 * @param interval is interval for aggregation.  Can be string like <code>"year"</code>, <code>"month"</code>, etc or
+	 * 				   expression such as <code>"1.5h"</code>.
+	 * @return JSON value (<code>Stat</code>).
+	 */
+	@RequestMapping("/stat")
+	public StatResultDTO stat(@RequestParam String tenantId,
+			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime startDate,
+			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime endDate,
+			@RequestParam Metric metric, @RequestParam String interval) {
+		log.info("Processing stat for tenantId [" + tenantId + "], startDate [" + startDate + "], endDate = [" +
+			endDate + "], metric [" + metric + "], interval [" + interval + "]");
+		Interval bucketInterval = null;
+		if (interval.equals("year")) {
+			bucketInterval = Interval.YEAR;
+		} else if (interval.equals("quarter")) {
+			bucketInterval = Interval.QUARTER;
+		} else if (interval.equals("month")) {
+			bucketInterval = Interval.MONTH;
+		} else if (interval.equals("week")) {
+			bucketInterval = Interval.WEEK;
+		} else if (interval.equals("day")) {
+			bucketInterval = Interval.DAY;
+		} else if (interval.equals("hour")) {
+			bucketInterval = Interval.HOUR;
+		} else {
+			bucketInterval = new Interval(interval);
+		}
+		return statService.stat(startDate, endDate, tenantId, metric, bucketInterval);
+	}
+		
+	/**
+	 * General error handler for this controller.
+	 */
+	@ExceptionHandler(value={Exception.class, RuntimeException.class})
+	public ErrorMessage error(Exception ex) {
+		ErrorMessage error = new ErrorMessage(ex.getMessage());
+		return error;
+	} 
 	
 }
 
