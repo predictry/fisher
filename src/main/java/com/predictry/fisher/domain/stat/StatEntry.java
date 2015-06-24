@@ -7,27 +7,27 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.predictry.fisher.domain.util.JacksonTimeDeserializer;
 import com.predictry.fisher.domain.util.JacksonTimeSerializer;
 
-public class StatResultEntryDTO {
+public class StatEntry {
 
 	@JsonSerialize(using=JacksonTimeSerializer.class)
 	@JsonDeserialize(using=JacksonTimeDeserializer.class)
-	private LocalDateTime period;
+	private LocalDateTime date;
 	
 	private Double value;
 	
-	public StatResultEntryDTO() {}
+	public StatEntry() {}
 	
-	public StatResultEntryDTO(LocalDateTime period, Double value) {
-		this.period = period;
+	public StatEntry(LocalDateTime period, Double value) {
+		this.date = period;
 		this.value = value;
 	}
 
-	public LocalDateTime getPeriod() {
-		return period;
+	public LocalDateTime getDate() {
+		return date;
 	}
 	
-	public void setPeriod(LocalDateTime period) {
-		this.period = period;
+	public void setDate(LocalDateTime date) {
+		this.date = date;
 	}
 		
 	public Double getValue() {

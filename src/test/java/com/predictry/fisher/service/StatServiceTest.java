@@ -1,6 +1,7 @@
 package com.predictry.fisher.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -23,7 +24,7 @@ import com.predictry.fisher.config.TestRootConfig;
 import com.predictry.fisher.domain.overview.StatOverview;
 import com.predictry.fisher.domain.stat.Metric;
 import com.predictry.fisher.domain.stat.Stat;
-import com.predictry.fisher.domain.stat.StatResultDTO;
+import com.predictry.fisher.domain.stat.StatEntry;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={TestRootConfig.class}, loader=AnnotationConfigContextLoader.class)
@@ -169,32 +170,29 @@ public class StatServiceTest {
         template.refresh("stat_2015", true);
 
         // Stat for Bukalapak hourly from 2014-01-01T01:00:00 to 2015-02-01T10:00:00
-        StatResultDTO result = statService.stat(LocalDateTime.parse("2014-01-01T01:00:00"), 
+        List<StatEntry> result = statService.stat(LocalDateTime.parse("2014-01-01T01:00:00"), 
     		LocalDateTime.parse("2014-01-01T05:00:00"), "BUKALAPAK", Metric.VIEWS, DateHistogram.Interval.HOUR);
-        assertEquals(Metric.VIEWS, result.getMetric());
-        assertEquals(2, result.getEntries().size());
-        assertEquals(LocalDateTime.parse("2014-01-01T01:00:00"), result.getEntries().get(0).getPeriod());
-        assertEquals(100.0, result.getEntries().get(0).getValue(), 0.1);
-        assertEquals(LocalDateTime.parse("2014-01-01T02:00:00"), result.getEntries().get(1).getPeriod());
-        assertEquals(200.0, result.getEntries().get(1).getValue(), 0.1);
+        assertEquals(2, result.size());
+        assertEquals(LocalDateTime.parse("2014-01-01T01:00:00"), result.get(0).getDate());
+        assertEquals(100.0, result.get(0).getValue(), 0.1);
+        assertEquals(LocalDateTime.parse("2014-01-01T02:00:00"), result.get(1).getDate());
+        assertEquals(200.0, result.get(1).getValue(), 0.1);
         
         // Stat for Bukalapak daily from 2014-01-01T01:00:00 to 2016-01-01T10:00:00
         result = statService.stat(LocalDateTime.parse("2014-01-01T01:00:00"), 
     		LocalDateTime.parse("2014-01-03T10:00:00"), "BUKALAPAK", Metric.VIEWS, DateHistogram.Interval.DAY);
-        assertEquals(Metric.VIEWS, result.getMetric());
-        assertEquals(1, result.getEntries().size());
-        assertEquals(LocalDateTime.parse("2014-01-01T00:00:00"), result.getEntries().get(0).getPeriod());
-        assertEquals(300.0, result.getEntries().get(0).getValue(), 0.1);
+        assertEquals(1, result.size());
+        assertEquals(LocalDateTime.parse("2014-01-01T00:00:00"), result.get(0).getDate());
+        assertEquals(300.0, result.get(0).getValue(), 0.1);
         
         // Stat for Superbuy daily from 2014-01-01T01:00:00 to 2015-12-31T10:00:00
         result = statService.stat(LocalDateTime.parse("2014-01-01T01:00:00"), 
     		LocalDateTime.parse("2014-01-03T10:00:00"), "SUPERBUY", Metric.VIEWS, DateHistogram.Interval.DAY);
-        assertEquals(Metric.VIEWS, result.getMetric());
-        assertEquals(2, result.getEntries().size());
-        assertEquals(LocalDateTime.parse("2014-01-01T00:00:00"), result.getEntries().get(0).getPeriod());
-        assertEquals(30.0, result.getEntries().get(0).getValue(), 0.1);
-        assertEquals(LocalDateTime.parse("2014-01-02T00:00:00"), result.getEntries().get(1).getPeriod());
-        assertEquals(10.0, result.getEntries().get(1).getValue(), 0.1);
+        assertEquals(2, result.size());
+        assertEquals(LocalDateTime.parse("2014-01-01T00:00:00"), result.get(0).getDate());
+        assertEquals(30.0, result.get(0).getValue(), 0.1);
+        assertEquals(LocalDateTime.parse("2014-01-02T00:00:00"), result.get(1).getDate());
+        assertEquals(10.0, result.get(1).getValue(), 0.1);
 	}
 	
 	@Test

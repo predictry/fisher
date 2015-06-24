@@ -4,6 +4,8 @@ import static org.elasticsearch.index.query.FilterBuilders.rangeFilter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.transaction.Transactional;
 
@@ -27,7 +29,7 @@ import com.predictry.fisher.domain.overview.StatOverview;
 import com.predictry.fisher.domain.overview.Value;
 import com.predictry.fisher.domain.stat.Metric;
 import com.predictry.fisher.domain.stat.Stat;
-import com.predictry.fisher.domain.stat.StatResultDTO;
+import com.predictry.fisher.domain.stat.StatEntry;
 import com.predictry.fisher.domain.util.Helper;
 
 @Service
@@ -111,9 +113,9 @@ public class StatService {
 	 * @param tenantId is the tenant id to calculate.
 	 * @param metric is the metric to calculate.
 	 * @param interval is the bucket interval.
-	 * @return an instance of <code>StatResultDTO</code>.
+	 * @return list of <code>StatEntry</code> for every bucket.
 	 */
-	public StatResultDTO stat(LocalDateTime startTime, LocalDateTime endTime, String tenantId, 
+	public List<StatEntry> stat(LocalDateTime startTime, LocalDateTime endTime, String tenantId, 
 			Metric metric, DateHistogram.Interval interval) {
 		SearchQuery searchQuery = new NativeSearchQueryBuilder()
 			.withIndices(Helper.convertToIndices(startTime, endTime))
@@ -136,11 +138,11 @@ public class StatService {
 			}
 		});
 		DateHistogram histogram = aggregations.get("aggr");
-		StatResultDTO result = new StatResultDTO(metric);
+		List<StatEntry> result = new ArrayList<>();
 		for (DateHistogram.Bucket bucket: histogram.getBuckets()) {
 			LocalDateTime time = LocalDateTime.parse(bucket.getKey(), DateTimeFormatter.ISO_DATE_TIME);
 			Double value = ((InternalNumericMetricsAggregation.SingleValue) bucket.getAggregations().get("value")).value();
-			result.addEntry(time, value);
+			result.add(new StatEntry(time, value));
 		}
 		return result;
 	}

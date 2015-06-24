@@ -1,6 +1,7 @@
 package com.predictry.fisher.controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram.Interval;
 import org.slf4j.Logger;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.predictry.fisher.domain.ErrorMessage;
 import com.predictry.fisher.domain.overview.StatOverview;
 import com.predictry.fisher.domain.stat.Metric;
-import com.predictry.fisher.domain.stat.StatResultDTO;
+import com.predictry.fisher.domain.stat.StatEntry;
 import com.predictry.fisher.service.StatService;
 
 @RestController
@@ -52,10 +53,10 @@ public class StatController {
 	 * @param metric name of metric to return.
 	 * @param interval is interval for aggregation.  Can be string like <code>"year"</code>, <code>"month"</code>, etc or
 	 * 				   expression such as <code>"1.5h"</code>.
-	 * @return JSON value (<code>Stat</code>).
+	 * @return Array of JSON value.
 	 */
 	@RequestMapping("/stat")
-	public StatResultDTO stat(@RequestParam String tenantId,
+	public List<StatEntry> stat(@RequestParam String tenantId,
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime startDate,
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime endDate,
 			@RequestParam Metric metric, @RequestParam String interval) {

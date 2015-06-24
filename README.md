@@ -80,23 +80,21 @@ To return histogram (grouped by specific interval), use resource `/stat`.  For e
     
 returns value such as:
 
-    {
-        "metric": "VIEWS",
-        "entries": [
-            {
-                "period": "2015-01-01T00:00:00",
-                "value": 53
-            },
-            {
-                "period": "2015-01-02T00:00:00",
-                "value": 68
-            },
-            {
-                "period": "2015-01-03T00:00:00",
-                "value": 36
-            }
-        ]
-    }
+    
+    [
+        {
+            "date": "2015-01-01T00:00:00",
+            "value": 53
+        },
+        {
+            "date": "2015-01-02T00:00:00",
+            "value": 68
+        },
+        {
+            "date": "2015-01-03T00:00:00",
+            "value": 36
+        }
+    ]
     
 Valid values for `metric` are `VIEWS`, `SALES_AMOUNT`, `ITEM_PER_CART`, `ITEM_PURCHASED`, `UNIQUE_VISITOR`, and `ORDERS`.
 
