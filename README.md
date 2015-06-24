@@ -35,9 +35,9 @@ To deploy this application to deployment server (**Don't run this command if not
 
 To returns summary of statistics for a period, hits `/stat/overview` resource.  For example:
 
-   http://119.81.208.244:8090/fisher/stat/overview?tenantId=targettenantid&startDate=2015010100&endDate=2015010102
+    http://119.81.208.244:8090/fisher/stat/overview?tenantId=targettenantid&startDate=2015010100&endDate=2015010102
 
-returns:
+returns value such as:
 
     {
       "pageView": {
@@ -74,3 +74,30 @@ returns:
       }
     }
 
+To return histogram (grouped by specific interval), use resource `/stat`.  For example:
+
+    http://119.81.208.244:8090/fisher/stat?tenantId=FAMILYNARA2014&startDate=2015010100&endDate=2015010323&metric=VIEWS&interval=day
+    
+returns value such as:
+
+    {
+        "metric": "VIEWS",
+        "entries": [
+            {
+                "period": "2015-01-01T00:00:00",
+                "value": 53
+            },
+            {
+                "period": "2015-01-02T00:00:00",
+                "value": 68
+            },
+            {
+                "period": "2015-01-03T00:00:00",
+                "value": 36
+            }
+        ]
+    }
+    
+Valid values for `metric` are `VIEWS`, `SALES_AMOUNT`, `ITEM_PER_CART`, `ITEM_PURCHASED`, `UNIQUE_VISITOR`, and `ORDERS`.
+
+`interval` can be predefined value such as `year`, `quarter`, `month`, `week`, `day`, and `hour`.  It can also be an expression such as `1.5h` (every `1.5` hours), `3M` (every `3` months), `2y` (every `2` year), etc.
