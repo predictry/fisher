@@ -14,7 +14,7 @@ public class JacksonTimeDeserializer extends JsonDeserializer<LocalDateTime> {
 	@Override
 	public LocalDateTime deserialize(JsonParser parser, DeserializationContext ctx) throws IOException, JsonProcessingException {
 		String value = parser.getValueAsString();
-		return value.equals("null")? null: LocalDateTime.parse(value, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+		return ((value==null) || value.equals("null"))? null: LocalDateTime.parse(value, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 	}
 
 }

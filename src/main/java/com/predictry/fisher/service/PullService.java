@@ -61,7 +61,7 @@ public class PullService {
 	 * @param pullTime a <code>PullTime</code> to process.
 	 */
 	public void processAggregation(PullTime pullTime) {
-		if (pullTime.getForTime().isBefore(LocalDateTime.now())) {
+		if ((pullTime != null) && pullTime.getForTime().isBefore(LocalDateTime.now())) {
 			GetRecordsResult tapResult = tapirusService.getRecords(pullTime.getForTime());
 			if (tapResult.getStatus() == STATUS.NOT_FOUND) {
 				pullTime.success();
@@ -78,8 +78,8 @@ public class PullService {
 					pullTime.fail();
 				}
 			}
+			pullTimeRepository.save(pullTime);
 		}
-		pullTimeRepository.save(pullTime);
 	}
 	
 	/**
