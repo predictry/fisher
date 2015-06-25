@@ -39,6 +39,7 @@ public class PullServiceTest {
 		assertEquals(15l, statTenant1.getItemPerCart().longValue());
 		assertEquals(28l, statTenant1.getItemPurchased().longValue());
 		assertEquals(2l, statTenant1.getUniqueVisitor().longValue());
+		assertEquals(4l, statTenant1.getOrders().longValue());
 		
 		// Stat for 'tenant2'
 		Stat statTenant2 = stats.get("tenant2");
@@ -47,6 +48,7 @@ public class PullServiceTest {
 		assertEquals(34l, statTenant2.getItemPerCart().longValue());
 		assertEquals(27l, statTenant2.getItemPurchased().longValue());
 		assertEquals(3l, statTenant2.getUniqueVisitor().longValue());
+		assertEquals(3l, statTenant2.getOrders().longValue());
 	}
 	
 	@Test(expected=RuntimeException.class)

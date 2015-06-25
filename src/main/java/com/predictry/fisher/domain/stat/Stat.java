@@ -184,6 +184,15 @@ public class Stat {
 	}
 	
 	/**
+	 * Increase number of sales (orders).
+	 * 
+	 * @param order is number of sales (orders) to add to current value.
+	 */
+	public void addOrder(Long orders) {
+		this.orders += orders;
+	}
+	
+	/**
 	 * Calculate item per cart value based on information added by {@link #addItemPerCart(String, Long)}.
 	 * This method will also set the value of <code>itemPerCart</code>.
 	 * 
