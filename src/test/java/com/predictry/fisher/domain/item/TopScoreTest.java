@@ -1,15 +1,16 @@
 package com.predictry.fisher.domain.item;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
-import static org.junit.Assert.*;
-import com.predictry.fisher.domain.item.TopScore.TYPE;
 
 public class TopScoreTest {
 	
 	@Test
 	public void addNewScore() {
-		TopScore topScore = new TopScore(TYPE.SALES);
-		assertEquals(TYPE.SALES, topScore.getType());
+		TopScore topScore = new TopScore();
 		assertTrue(topScore.getItems().isEmpty());
 		
 		topScore.addNewScore("itemA", "Product A", "http://www.xxx.com", 10.0);
@@ -83,7 +84,7 @@ public class TopScoreTest {
 	
 	@Test(expected=RuntimeException.class)
 	public void addDuplicatedIdInTopScore() {
-		TopScore topScore = new TopScore(TYPE.SALES);
+		TopScore topScore = new TopScore();
 		topScore.addNewScore("itemB", "Item B", "http://www.xxx.com", 5.0);
 		topScore.addNewScore("itemB", "Item B", "http://www.yyy.com", 3.0);
 	}

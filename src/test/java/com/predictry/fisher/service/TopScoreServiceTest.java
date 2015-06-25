@@ -21,7 +21,6 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import com.predictry.fisher.config.TestRootConfig;
 import com.predictry.fisher.domain.item.TopScore;
-import com.predictry.fisher.domain.item.TopScore.TYPE;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={TestRootConfig.class}, loader=AnnotationConfigContextLoader.class)
@@ -45,7 +44,7 @@ public class TopScoreServiceTest {
 	
 	@Test
 	public void createLogIndexIfDoesNotExist() {
-		TopScore topScore = new TopScore(TYPE.VIEWS);
+		TopScore topScore = new TopScore();
 		topScore.addNewScore("itemB", "Product B", "http://www.xxx.com", 28.0);
 		topScore.addNewScore("itemD", "Product D", "http://www.yyy.com", 20.0);
 		topScore.addNewScore("itemA", "Product A", "http://www.xxx.com", 10.0);
@@ -68,7 +67,6 @@ public class TopScoreServiceTest {
 		assertEquals(1, searchResult.size());
 		TopScore savedStat = searchResult.get(0);
 		assertEquals("2015-02-01T10:00:00", savedStat.getTime().format(DateTimeFormatter.ISO_DATE_TIME));
-		assertEquals(TYPE.VIEWS, savedStat.getType());
 		assertEquals(4, savedStat.getItems().size());
 		assertEquals("itemB", savedStat.getItemAtRank(1).getId());
 		assertEquals(28.0, savedStat.getItemAtRank(1).getScore(), 0.1);
@@ -82,7 +80,7 @@ public class TopScoreServiceTest {
 	
 	@Test
 	public void updateExistingTopScore() {
-		TopScore topScore = new TopScore(TYPE.VIEWS);
+		TopScore topScore = new TopScore();
 		topScore.addNewScore("itemB", "Product B", "http://www.xxx.com", 28.0);
 		topScore.addNewScore("itemD", "Product D", "http://www.yyy.com", 20.0);
 		topScore.addNewScore("itemA", "Product A", "http://www.xxx.com", 10.0);
@@ -105,7 +103,6 @@ public class TopScoreServiceTest {
 		assertEquals(1, searchResult.size());
 		TopScore savedStat = searchResult.get(0);
 		assertEquals("2015-02-01T10:00:00", savedStat.getTime().format(DateTimeFormatter.ISO_DATE_TIME));
-		assertEquals(TYPE.VIEWS, savedStat.getType());
 		assertEquals(5, savedStat.getItems().size());
 		assertEquals("itemE", savedStat.getItemAtRank(1).getId());
 		assertEquals(30.0, savedStat.getItemAtRank(1).getScore(), 0.1);

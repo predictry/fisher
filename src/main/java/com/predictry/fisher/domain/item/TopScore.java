@@ -19,8 +19,6 @@ public class TopScore {
 	
 	public static final int MAX_NUMBER_OF_SCORES = 10;
 	
-	public enum TYPE { SALES, VIEWS };
-	
 	private List<ItemScore> items = new ArrayList<>();
 
 	@Id
@@ -31,14 +29,8 @@ public class TopScore {
 	@JsonIgnore
 	private String tenantId;
 	
-	private TYPE type;
-	
 	public TopScore() {}
 
-	public TopScore(TYPE type) {
-		this.type = type;
-	}
-	
 	public void setTime(LocalDateTime time) {
 		this.time = time;
 	}
@@ -53,14 +45,6 @@ public class TopScore {
 	
 	public String getTenantId() {
 		return tenantId;
-	}
-
-	public TYPE getType() {
-		return type;
-	}
-
-	public void setType(TYPE type) {
-		this.type = type;
 	}
 
 	public List<ItemScore> getItems() {

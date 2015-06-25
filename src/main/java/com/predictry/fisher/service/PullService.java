@@ -24,6 +24,8 @@ import com.predictry.fisher.domain.aggregation.NumberOfSalesAggregation;
 import com.predictry.fisher.domain.aggregation.SalesAggregation;
 import com.predictry.fisher.domain.aggregation.UniqueVisitorAggregation;
 import com.predictry.fisher.domain.aggregation.ViewsAggregation;
+import com.predictry.fisher.domain.item.ScoreStore;
+import com.predictry.fisher.domain.item.TopScore;
 import com.predictry.fisher.domain.pull.PullTime;
 import com.predictry.fisher.domain.stat.Stat;
 import com.predictry.fisher.domain.tapirus.GetRecordsResult;
@@ -34,6 +36,8 @@ import com.predictry.fisher.repository.PullTimeRepository;
 @Transactional
 public class PullService {
 
+	private static final Logger log = LoggerFactory.getLogger(PullService.class);
+	
 	@Autowired
 	private PullTimeRepository pullTimeRepository;
 	
@@ -43,7 +47,8 @@ public class PullService {
 	@Autowired
 	private StatService statService;
 	
-	private static final Logger log = LoggerFactory.getLogger(PullService.class);
+	@Autowired
+	private TopScoreService topScoreService;
 	
 	/**
 	 * @return retrieve default <code>PullTime</code> for default task.
@@ -69,10 +74,19 @@ public class PullService {
 			} else if (tapResult.getStatus() == STATUS.PROCESSED) {
 				// Process and save aggregation
 				try {
-					Map<String, Stat> stats = aggregate(tapirusService.readFile(tapResult), pullTime.getForTime());
+					ViewsAggregation viewsAggr = new ViewsAggregation();
+					SalesAggregation salesAggr = new SalesAggregation();
+					
+					// Calculate and save stats
+					Map<String, Stat> stats = aggregate(tapirusService.readFile(tapResult), pullTime.getForTime(), viewsAggr, salesAggr);
 					for (Stat stat: stats.values()) {
 						statService.save(stat);
 					}
+					
+					// Calculate and save top scores
+					List<TopScore> topScores = topScore(viewsAggr, salesAggr, pullTime.getForTime());
+					topScores.forEach(topScore -> topScoreService.save(topScore));
+					
 					pullTime.success();
 				} catch (IOException e) {
 					log.error("Error while processing aggregation.", e);
@@ -90,6 +104,33 @@ public class PullService {
 		processAggregation(getDefaultPullTime());
 	}
 	
+	public List<TopScore> topScore(ViewsAggregation viewsAggr, SalesAggregation salesAggr, LocalDateTime expectedTime) {
+		List<TopScore> results = new ArrayList<>();
+		
+		// Top score
+		ScoreStore topScoreForViews = viewsAggr.getScoreStore();
+		topScoreForViews.getData().forEach((tenantId, itemScores) -> {
+			TopScore topScore = new TopScore();
+			topScore.setTenantId(tenantId);
+			topScore.setTime(expectedTime);
+			itemScores.forEach(i -> {
+				topScore.addNewScore(i);
+			});
+			results.add(topScore);
+		});
+		
+		return results;
+	}
+	
+	/**
+	 * Perform the aggregation process for each line in data.
+	 * 
+	 * @see #aggregate(List, LocalDateTime, ViewsAggregation, SalesAggregation)
+	 */
+	public Map<String,Stat> aggregate(List<String> sources, LocalDateTime expectedTime) throws IOException {
+		return aggregate(sources, expectedTime, new ViewsAggregation(), new SalesAggregation());
+	}
+	
 	/**
 	 * Perform the aggregation process for each line in data.
 	 * 
@@ -98,15 +139,15 @@ public class PullService {
 	 * @return a <code>Map</code> that contains <code>Stat</code> for each tenant ids.
 	 */
 	@SuppressWarnings("unchecked")
-	public Map<String,Stat> aggregate(List<String> sources, LocalDateTime expectedTime) throws IOException {
+	public Map<String,Stat> aggregate(List<String> sources, LocalDateTime expectedTime, ViewsAggregation viewsAggregation, SalesAggregation salesAggregation) throws IOException {
 		Map<String,Stat> results = new HashMap<>();
 		ObjectMapper objectMapper = new ObjectMapper();
 		
 		// Define aggregation commands
 		// Don't forget to register here everytime new aggregation command is created.
 		List<Aggregation> aggrs = new ArrayList<>();
-		aggrs.add(new ViewsAggregation());
-		aggrs.add(new SalesAggregation());
+		aggrs.add(viewsAggregation);
+		aggrs.add(salesAggregation);
 		aggrs.add(new ItemPerCartAggregation());
 		aggrs.add(new ItemPurchasedAggregation());
 		aggrs.add(new UniqueVisitorAggregation());

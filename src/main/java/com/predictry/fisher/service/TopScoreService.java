@@ -18,7 +18,7 @@ public class TopScoreService {
 	
 	/**
 	 * Save a new hourly <code>TopScore</code> in Elasticsearch.  Depending on the time for this top score,
-	 * Elasticsearch's index for that year will be created (such as, "top_2014", "top_2015", etc).
+	 * Elasticsearch's index for that year will be created (such as, "top_view_2014", "top_view_2015", etc).
 	 * 
 	 * @param stat the <code>TopScore</code> to save.
 	 */
@@ -29,8 +29,8 @@ public class TopScoreService {
 		}
 		IndexQuery indexQuery = new IndexQuery();
 		indexQuery.setIndexName(topScore.getIndexName());
-		indexQuery.setId(topScore.getTime().toString());
 		indexQuery.setType(topScore.getTenantId());
+		indexQuery.setId(topScore.getTime().toString());
 		indexQuery.setObject(topScore);
 		template.index(indexQuery);
 	}

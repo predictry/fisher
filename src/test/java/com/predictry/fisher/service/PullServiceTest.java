@@ -17,6 +17,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import com.predictry.fisher.config.TestRootConfig;
+import com.predictry.fisher.domain.aggregation.SalesAggregation;
+import com.predictry.fisher.domain.aggregation.ViewsAggregation;
+import com.predictry.fisher.domain.item.TopScore;
 import com.predictry.fisher.domain.stat.Stat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -49,6 +52,31 @@ public class PullServiceTest {
 		assertEquals(27l, statTenant2.getItemPurchased().longValue());
 		assertEquals(3l, statTenant2.getUniqueVisitor().longValue());
 		assertEquals(3l, statTenant2.getOrders().longValue());
+	}
+	
+	@Test
+	public void topScoreFile() throws IOException {
+		File file = new File(getClass().getResource("/sample.log").getFile());
+		List<String> sources = Files.readAllLines(file.toPath());
+		ViewsAggregation viewsAggregation = new ViewsAggregation();
+		SalesAggregation salesAggregation = new SalesAggregation();
+		pullService.aggregate(sources, LocalDateTime.parse("2015-06-19T03:00:00"), viewsAggregation, salesAggregation);
+		List<TopScore> topScores = pullService.topScore(viewsAggregation, salesAggregation, LocalDateTime.parse("2015-06-19T03:00:00"));
+		assertEquals(2, topScores.size());
+		
+		TopScore tenant1Views = topScores.stream().filter(t -> (t.getTenantId().equals("tenant1"))).findFirst().get();
+		assertEquals(2, tenant1Views.getItems().size());
+		assertEquals("item01", tenant1Views.getItemAtRank(1).getId());
+		assertEquals(1.0, tenant1Views.getItemAtRank(1).getScore(), 0.1);
+		assertEquals("item02", tenant1Views.getItemAtRank(2).getId());
+		assertEquals(1.0, tenant1Views.getItemAtRank(2).getScore(), 0.1);
+		
+		TopScore tenant2Views = topScores.stream().filter(t -> (t.getTenantId().equals("tenant2"))).findFirst().get();
+		assertEquals(2, tenant2Views.getItems().size());
+		assertEquals("item10", tenant2Views.getItemAtRank(1).getId());
+		assertEquals(2.0, tenant2Views.getItemAtRank(1).getScore(), 0.1);
+		assertEquals("item07", tenant2Views.getItemAtRank(2).getId());
+		assertEquals(1.0, tenant2Views.getItemAtRank(2).getScore(), 0.1);		
 	}
 	
 	@Test(expected=RuntimeException.class)

@@ -49,6 +49,10 @@ public class ItemScore {
 	public void setScore(Double score) {
 		this.score = score;
 	}
+	
+	public void increaseScore(Double scoreToAdd) {
+		this.score += scoreToAdd;
+	}
 
 	@Override
 	public int hashCode() {
