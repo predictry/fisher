@@ -68,7 +68,7 @@ public class StatService {
 	 */
 	public StatOverview overview(LocalDateTime startTime, LocalDateTime endTime, String tenantId) {
 		SearchQuery searchQuery = new NativeSearchQueryBuilder()
-			.withIndices(Helper.convertToIndices(startTime, endTime))
+			.withIndices(Helper.convertToIndices("stat", startTime, endTime))
 			.withTypes(tenantId)
 			.withQuery(new FilteredQueryBuilder(null, rangeFilter("time").from(startTime).to(endTime)))
 			.addAggregation(AggregationBuilders.sum("views").field("views"))
@@ -118,7 +118,7 @@ public class StatService {
 	public List<StatEntry> stat(LocalDateTime startTime, LocalDateTime endTime, String tenantId, 
 			Metric metric, DateHistogram.Interval interval) {
 		SearchQuery searchQuery = new NativeSearchQueryBuilder()
-			.withIndices(Helper.convertToIndices(startTime, endTime))
+			.withIndices(Helper.convertToIndices("stat", startTime, endTime))
 			.withTypes(tenantId)
 			.withQuery(new FilteredQueryBuilder(null, rangeFilter("time").from(startTime).to(endTime)))
 			.addAggregation(
