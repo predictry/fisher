@@ -1,18 +1,21 @@
 package com.predictry.fisher.domain.item;
 
-public class Item {
+
+public class ItemScore {
 
 	private String id;
 	private String name;
 	private String url;
+	private Double score;
 	
-	public Item() {}
+	public ItemScore() {}
 	
-	public Item(String id, String name, String url) {
+	public ItemScore(String id, String name, String url, Double score) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.url = url;
+		this.score = score;
 	}
 
 	public String getId() {
@@ -39,6 +42,14 @@ public class Item {
 		this.url = url;
 	}
 
+	public Double getScore() {
+		return score;
+	}
+
+	public void setScore(Double score) {
+		this.score = score;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -57,7 +68,7 @@ public class Item {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Item other = (Item) obj;
+		ItemScore other = (ItemScore) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;

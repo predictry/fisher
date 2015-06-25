@@ -3,42 +3,36 @@ package com.predictry.fisher.service;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.stereotype.Service;
 
-import com.predictry.fisher.domain.item.Item;
 import com.predictry.fisher.domain.item.TopScore;
 
 @Service
 @Transactional
 public class TopScoreService {
-/*
+
 	@Autowired
-	private ItemRepository topScoreRepository;
+	private ElasticsearchOperations template;
 	
-	public TopScore<Long> getTopHits() {
-		@SuppressWarnings("unchecked")
-		TopScore<Long> topHits = (TopScore<Long>) topScoreRepository.findOne(TopScore.TOP_HIT);
-		if (topHits == null) {
-			topHits = new TopScore<Long>(TopScore.TOP_HIT);
-			topScoreRepository.save(topHits);
+	/**
+	 * Save a new hourly <code>TopScore</code> in Elasticsearch.  Depending on the time for this top score,
+	 * Elasticsearch's index for that year will be created (such as, "top_2014", "top_2015", etc).
+	 * 
+	 * @param stat the <code>TopScore</code> to save.
+	 */
+	public void save(TopScore topScore) {
+		String indexName = topScore.getIndexName();
+		if (!template.indexExists(indexName)) {
+			template.createIndex(indexName);
 		}
-		return topHits;
+		IndexQuery indexQuery = new IndexQuery();
+		indexQuery.setIndexName(topScore.getIndexName());
+		indexQuery.setId(topScore.getTime().toString());
+		indexQuery.setType(topScore.getTenantId());
+		indexQuery.setObject(topScore);
+		template.index(indexQuery);
 	}
 	
-	public TopScore<Double> getTopSales() {
-		@SuppressWarnings("unchecked")
-		TopScore<Double> topSales = (TopScore<Double>) topScoreRepository.findOne(TopScore.TOP_SALES);
-		if (topSales == null) {
-			topSales = new TopScore<Double>(TopScore.TOP_SALES);
-			topScoreRepository.save(topSales);
-		}
-		return topSales;
-	}
-	
-	public TopScore<Long> addNewTopHits(Item<Long> newScore) {
-		TopScore<Long> topHits = getTopHits();
-		topHits.addNewScore(newScore);
-		return topScoreRepository.save(topHits);
-	}
-*/	
 }
