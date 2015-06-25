@@ -3,7 +3,7 @@ package com.predictry.fisher.domain.aggregation;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
+import static com.predictry.fisher.domain.util.Helper.*;
 import com.predictry.fisher.domain.stat.Stat;
 
 public class UniqueVisitorAggregation implements Aggregation {

@@ -1,7 +1,7 @@
 package com.predictry.fisher.domain.aggregation;
 
 import java.util.Map;
-
+import static com.predictry.fisher.domain.util.Helper.*;
 import com.predictry.fisher.domain.stat.Stat;
 
 public class NumberOfSalesAggregation implements Aggregation {
