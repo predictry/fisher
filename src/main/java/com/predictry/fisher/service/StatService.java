@@ -73,7 +73,6 @@ public class StatService {
 			.addAggregation(AggregationBuilders.sum("views").field("views"))
 			.addAggregation(AggregationBuilders.sum("salesAmount").field("sales"))
 			.addAggregation(AggregationBuilders.sum("itemPurchased").field("itemPurchased"))
-			.addAggregation(AggregationBuilders.sum("salesPerCart").field("orders"))
 			.addAggregation(AggregationBuilders.sum("uniqueVisitor").field("uniqueVisitor"))
 			.addAggregation(AggregationBuilders.sum("orders").field("orders"))
 			.build();
@@ -87,14 +86,12 @@ public class StatService {
 		long totalViews = (long) ((InternalSum) aggregations.get("views")).getValue();
 		double totalSalesAmount = (double) ((InternalSum) aggregations.get("salesAmount")).getValue();
 		long itemPurchased = (long) ((InternalSum) aggregations.get("itemPurchased")).getValue();
-		double salesPerCart = ((InternalSum) aggregations.get("salesPerCart")).getValue();
 		long uniqueVisitor = (long) ((InternalSum) aggregations.get("uniqueVisitor")).getValue();
 		long order = (long) ((InternalSum) aggregations.get("orders")).getValue();
 		StatOverview overview = new StatOverview();
 		overview.setPageView(new Value<Long>(totalViews, 0l, 0l));
 		overview.setSalesAmount(new Value<Double>(totalSalesAmount, 0.0, 0.0));
 		overview.setItemPurchased(new Value<Long>(itemPurchased, 0l, 0l));
-		overview.setSalesPerCart(new Value<Double>(salesPerCart, 0.0, 0.0));
 		overview.setUniqueVisitor(new Value<Long>(uniqueVisitor, 0l, 0l));
 		overview.setOrders(order);
 		return overview;
