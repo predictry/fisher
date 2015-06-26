@@ -8,21 +8,18 @@ public class StatOverview {
 	private Value<Double> salesAmount;
 	private Long orders;
 	private Value<Long> itemPurchased;
-	private Double conversionRate;
 	private Value<Double> salesPerCart;
 	private Value<Long> itemPerCart;
 	
 	public StatOverview() {}
 	
 	public StatOverview(Value<Long> pageView, Value<Long> uniqueVisitor, Value<Double> salesAmount,
-			Long orders, Value<Long> itemPurchased, Double conversionRate,
-			Value<Double> salesPerCart, Value<Long> itemPerCart) {
+			Long orders, Value<Long> itemPurchased,	Value<Double> salesPerCart, Value<Long> itemPerCart) {
 		this.pageView = pageView;
 		this.uniqueVisitor = uniqueVisitor;
 		this.salesAmount = salesAmount;
 		this.orders = orders;
 		this.itemPurchased = itemPurchased;
-		this.conversionRate = conversionRate;
 		this.salesPerCart = salesPerCart;
 		this.itemPerCart = itemPerCart;
 	}
@@ -68,11 +65,11 @@ public class StatOverview {
 	}
 
 	public Double getConversionRate() {
-		return conversionRate;
-	}
-
-	public void setConversionRate(Double conversionRate) {
-		this.conversionRate = conversionRate;
+		if ((getPageView() == null) || (getPageView().getOverall() == 0)) {
+			return 0.0;
+		} else {
+			return ((double) getOrders() / getPageView().getOverall());
+		}
 	}
 
 	public Value<Double> getSalesPerCart() {

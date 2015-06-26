@@ -101,7 +101,6 @@ public class StatService {
 		overview.setSalesPerCart(new Value<Double>(salesPerCart, 0.0, 0.0));
 		overview.setUniqueVisitor(new Value<Long>(uniqueVisitor, 0l, 0l));
 		overview.setOrders(order);
-		overview.setConversionRate(0.0);
 		return overview;
 	}
 	
