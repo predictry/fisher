@@ -53,6 +53,17 @@ public class PullServiceTest {
 	}
 	
 	@Test
+	public void aggregateBuy() throws IOException {
+		File file = new File(getClass().getResource("/sample_buy.log").getFile());
+		List<String> sources = Files.readAllLines(file.toPath());
+		Map<String, Stat> stats = pullService.aggregate(sources, LocalDateTime.parse("2015-06-19T03:00:00"));
+		
+		Stat statTenant1 = stats.get("tenant1");
+		assertEquals(2l, statTenant1.getOrders().longValue());
+		assertEquals(21l, statTenant1.getItemPurchased().longValue());
+	}
+	
+	@Test
 	public void topScoreFile() throws IOException {
 		File file = new File(getClass().getResource("/sample.log").getFile());
 		List<String> sources = Files.readAllLines(file.toPath());
