@@ -11,8 +11,8 @@ public class ItemPerCartAggregation implements Aggregation {
 		if (getType(mapJson).equals("Action") && getDataName(mapJson).equals("ADD_TO_CART")) {
 			@SuppressWarnings("unchecked")
 			Map<String,Object> fields = (Map<String,Object>) getData(mapJson).get("fields");
-			if (fields.containsKey("qty") && getData(mapJson).containsKey("session")) {
-				stat.addItemPerCart((String) getData(mapJson).get("session"), Long.parseLong(fields.get("qty").toString()));
+			if (fields.containsKey("quantity") && getData(mapJson).containsKey("session")) {
+				stat.addItemPerCart((String) getData(mapJson).get("session"), Long.parseLong(fields.get("quantity").toString()));
 			}
 		}		
 	}

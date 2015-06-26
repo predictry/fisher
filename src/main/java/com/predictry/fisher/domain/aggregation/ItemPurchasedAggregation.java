@@ -11,8 +11,10 @@ public class ItemPurchasedAggregation implements Aggregation {
 		if (getType(mapJson).equals("Action") && getDataName(mapJson).equals("BUY")) {
 			@SuppressWarnings("unchecked")
 			Map<String,Object> fields = (Map<String,Object>) getData(mapJson).get("fields");
-			if (fields.containsKey("qty")) {
-				stat.addItemPurchased(Long.parseLong(fields.get("qty").toString()));
+			if (fields.containsKey("quantity")) {
+				stat.addItemPurchased(Long.parseLong(fields.get("quantity").toString()));
+			} else {
+				stat.addItemPurchased(1l);
 			}
 		}				
 	}
