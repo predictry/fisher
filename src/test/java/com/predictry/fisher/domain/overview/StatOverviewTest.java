@@ -21,4 +21,20 @@ public class StatOverviewTest {
 		assertEquals(0.8, statOverview.getConversionRate(), 0.01);
 	}
 	
+	@Test
+	public void itemPerCart() {
+		StatOverview statOverview = new StatOverview();
+		statOverview.setOrders(0l);
+		statOverview.setItemPurchased(new Value<Long>(0l, 0l, 0l));
+		assertEquals(0l, statOverview.getItemPerCart().getOverall().longValue());
+		
+		statOverview.setOrders(10l);
+		statOverview.setItemPurchased(new Value<Long>(1000l, 0l, 0l));
+		assertEquals(100l, statOverview.getItemPerCart().getOverall().longValue());
+		
+		statOverview.setOrders(50l);
+		statOverview.setItemPurchased(new Value<Long>(120l, 0l, 0l));
+		assertEquals(2l, statOverview.getItemPerCart().getOverall().longValue());
+	}
+	
 }

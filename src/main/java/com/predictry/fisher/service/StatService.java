@@ -15,7 +15,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.metrics.InternalNumericMetricsAggregation;
-import org.elasticsearch.search.aggregations.metrics.avg.InternalAvg;
 import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -73,7 +72,6 @@ public class StatService {
 			.withQuery(new FilteredQueryBuilder(null, rangeFilter("time").from(startTime).to(endTime)))
 			.addAggregation(AggregationBuilders.sum("views").field("views"))
 			.addAggregation(AggregationBuilders.sum("salesAmount").field("sales"))
-			.addAggregation(AggregationBuilders.avg("itemPerCart").field("itemPerCart"))
 			.addAggregation(AggregationBuilders.sum("itemPurchased").field("itemPurchased"))
 			.addAggregation(AggregationBuilders.sum("salesPerCart").field("orders"))
 			.addAggregation(AggregationBuilders.sum("uniqueVisitor").field("uniqueVisitor"))
@@ -88,7 +86,6 @@ public class StatService {
 		
 		long totalViews = (long) ((InternalSum) aggregations.get("views")).getValue();
 		double totalSalesAmount = (double) ((InternalSum) aggregations.get("salesAmount")).getValue();
-		long itemPerCart = (long) ((InternalAvg) aggregations.get("itemPerCart")).getValue();
 		long itemPurchased = (long) ((InternalSum) aggregations.get("itemPurchased")).getValue();
 		double salesPerCart = ((InternalSum) aggregations.get("salesPerCart")).getValue();
 		long uniqueVisitor = (long) ((InternalSum) aggregations.get("uniqueVisitor")).getValue();
@@ -96,7 +93,6 @@ public class StatService {
 		StatOverview overview = new StatOverview();
 		overview.setPageView(new Value<Long>(totalViews, 0l, 0l));
 		overview.setSalesAmount(new Value<Double>(totalSalesAmount, 0.0, 0.0));
-		overview.setItemPerCart(new Value<Long>(itemPerCart, 0l, 0l));
 		overview.setItemPurchased(new Value<Long>(itemPurchased, 0l, 0l));
 		overview.setSalesPerCart(new Value<Double>(salesPerCart, 0.0, 0.0));
 		overview.setUniqueVisitor(new Value<Long>(uniqueVisitor, 0l, 0l));

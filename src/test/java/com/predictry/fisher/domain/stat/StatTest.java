@@ -43,33 +43,7 @@ public class StatTest {
 		stat.addViews(15l);
 		assertEquals(25l, stat.getViews().longValue());
 	}
-	
-	@Test
-	public void addItemPerCart() {
-		Stat stat = new Stat();
-		stat.addItemPerCart(10l);
-		assertEquals(10l, stat.getItemPerCart().longValue());
-		stat.addItemPerCart(10l);
-		assertEquals(10l, stat.getItemPerCart().longValue());
-		stat.addItemPerCart(20l);
-		assertEquals(15l, stat.getItemPerCart().longValue());
-		stat.addItemPerCart(5l);
-		assertEquals(10l, stat.getItemPerCart().longValue());
-	}
-	
-	@Test
-	public void addItemPerCartWithSession() {
-		Stat stat = new Stat();
-		stat.addItemPerCart("session1", 10l);
-		stat.addItemPerCart("session1",  5l);
-		stat.addItemPerCart("session1",  3l);
-		stat.addItemPerCart("session2", 15l);
-		stat.addItemPerCart("session3", 20l);
-		stat.addItemPerCart("session4", 10l);
-		assertEquals(15l, stat.calculateItemPerCart().longValue());
-		assertEquals(15l, stat.getItemPerCart().longValue());
-	}
-	
+		
 	@Test
 	public void addItemPurchased() {
 		Stat stat = new Stat();

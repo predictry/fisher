@@ -1,8 +1,6 @@
 package com.predictry.fisher.domain.stat;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -18,24 +16,19 @@ public class Stat {
 	private String tenantId;
 	private Long views = 0l;
 	private Double sales = 0.0;
-	private Long itemPerCart = 0l;
 	private Long itemPurchased = 0l;
 	private Long orders = 0l;
 	private Long uniqueVisitor = 0l;
-	
-	@JsonIgnore
-	private Map<String, Long> cartPerSession = new HashMap<>();
-	
+		
 	public Stat() {}
 	
-	public Stat(String time, String tenantId, Long views, Double sales, Long itemPerCart,
+	public Stat(String time, String tenantId, Long views, Double sales,
 			Long itemPurchased, Long orders, Long uniqueVisitor) {
 		super();
 		this.time = time;
 		this.tenantId = tenantId;
 		this.views = views;
 		this.sales = sales;
-		this.itemPerCart = itemPerCart;
 		this.itemPurchased = itemPurchased;
 		this.orders = orders;
 		this.uniqueVisitor = uniqueVisitor;
@@ -77,15 +70,7 @@ public class Stat {
 	public void setSales(Double sales) {
 		this.sales = sales;
 	}
-	
-	public Long getItemPerCart() {
-		return itemPerCart;
-	}
-	
-	public void setItemPerCart(Long itemPerCart) {
-		this.itemPerCart = itemPerCart;
-	}
-	
+		
 	public Long getItemPurchased() {
 		return itemPurchased;
 	}
@@ -154,35 +139,7 @@ public class Stat {
 	public void addSales(Double sales) {
 		this.sales += sales;
 	}
-	
-	/**
-	 * Calculate new average item per cart.
-	 * 
-	 * @param itemPerCart the new item per cart.
-	 */
-	public void addItemPerCart(Long itemPerCart) {
-		if (this.itemPerCart == 0) {
-			this.itemPerCart = itemPerCart;
-		} else {
-			this.itemPerCart = (this.itemPerCart + itemPerCart) / 2;
-		}
-	}
-	
-	/**
-	 * Add new qty in cart for a session.
-	 * 
-	 * @param sessionId is a session identifier.
-	 * @param qty is number of qty in the cart for an item in that session.
-	 */
-	public void addItemPerCart(String sessionId, Long qty) {
-		if (cartPerSession.containsKey(sessionId)) {
-			Long oldQty = cartPerSession.get(sessionId);
-			cartPerSession.put(sessionId, oldQty + qty);
-		} else {
-			cartPerSession.put(sessionId, qty);
-		}
-	}
-	
+		
 	/**
 	 * Increase number of sales (orders).
 	 * 
@@ -190,25 +147,6 @@ public class Stat {
 	 */
 	public void addOrder(Long orders) {
 		this.orders += orders;
-	}
-	
-	/**
-	 * Calculate item per cart value based on information added by {@link #addItemPerCart(String, Long)}.
-	 * This method will also set the value of <code>itemPerCart</code>.
-	 * 
-	 * @return the calculated <code>itemPerCart</code>.
-	 */
-	public Long calculateItemPerCart() {
-		Long total = 0l;
-		for (Long value: cartPerSession.values()) {
-			total += value;
-		}
-		if (cartPerSession.size() > 0) {
-			this.itemPerCart = (long) (total / cartPerSession.size());
-		} else {
-			this.itemPerCart = 0l;
-		}
-		return this.itemPerCart;
 	}
 	
 	/**

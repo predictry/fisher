@@ -9,19 +9,17 @@ public class StatOverview {
 	private Long orders;
 	private Value<Long> itemPurchased;
 	private Value<Double> salesPerCart;
-	private Value<Long> itemPerCart;
 	
 	public StatOverview() {}
 	
 	public StatOverview(Value<Long> pageView, Value<Long> uniqueVisitor, Value<Double> salesAmount,
-			Long orders, Value<Long> itemPurchased,	Value<Double> salesPerCart, Value<Long> itemPerCart) {
+			Long orders, Value<Long> itemPurchased,	Value<Double> salesPerCart) {
 		this.pageView = pageView;
 		this.uniqueVisitor = uniqueVisitor;
 		this.salesAmount = salesAmount;
 		this.orders = orders;
 		this.itemPurchased = itemPurchased;
 		this.salesPerCart = salesPerCart;
-		this.itemPerCart = itemPerCart;
 	}
 
 	public Value<Long> getPageView() {
@@ -80,12 +78,15 @@ public class StatOverview {
 		this.salesPerCart = salesPerCart;
 	}
 
+	/**
+	 * Item per cart is calculated as number of item purchased divided by number of individual orders (sales).
+	 */
 	public Value<Long> getItemPerCart() {
-		return itemPerCart;
-	}
-
-	public void setItemPerCart(Value<Long> itemPerCart) {
-		this.itemPerCart = itemPerCart;
+		if ((getOrders() == null) || (getOrders() == 0)) {
+			return new Value<Long>(0l, 0l, 0l);
+		} else {
+			return new Value<Long>((getItemPurchased().getOverall() / getOrders()), 0l, 0l);
+		}
 	}
 	
 }

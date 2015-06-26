@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.predictry.fisher.domain.aggregation.Aggregation;
-import com.predictry.fisher.domain.aggregation.ItemPerCartAggregation;
 import com.predictry.fisher.domain.aggregation.ItemPurchasedAggregation;
 import com.predictry.fisher.domain.aggregation.NumberOfSalesAggregation;
 import com.predictry.fisher.domain.aggregation.SalesAggregation;
@@ -148,7 +147,6 @@ public class PullService {
 		List<Aggregation> aggrs = new ArrayList<>();
 		aggrs.add(viewsAggregation);
 		aggrs.add(salesAggregation);
-		aggrs.add(new ItemPerCartAggregation());
 		aggrs.add(new ItemPurchasedAggregation());
 		aggrs.add(new UniqueVisitorAggregation());
 		aggrs.add(new NumberOfSalesAggregation());
@@ -175,12 +173,7 @@ public class PullService {
 				}
 			}
 		}
-		
-		// Post calculation for every stats
-		for (Stat stat: results.values()) {
-			stat.calculateItemPerCart();
-		}
-		
+				
 		return results;
 	}
 	
