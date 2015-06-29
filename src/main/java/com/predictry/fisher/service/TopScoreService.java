@@ -1,19 +1,35 @@
 package com.predictry.fisher.service;
 
+import static org.elasticsearch.index.query.FilterBuilders.rangeFilter;
+
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import javax.transaction.Transactional;
 
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.query.FilteredQueryBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.nested.InternalNested;
+import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms.Order;
+import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.ResultsExtractor;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Service;
 
 import com.predictry.fisher.domain.item.TopScore;
+import com.predictry.fisher.domain.util.Helper;
 
 @Service
 @Transactional
@@ -82,6 +98,41 @@ public class TopScoreService {
 		indexQuery.setId(topScore.getTime().toString());
 		indexQuery.setObject(topScore);
 		template.index(indexQuery);
+	}
+	
+	/**
+	 * Retrieve most viewed items for a period for a tenant id.
+	 * 
+	 * @param startTime the start of period.
+	 * @param endTime the end of period.
+	 * @param tenantId the name of tenant id.
+	 * @return <code>TopScore</code> representing most viewed items.
+	 */
+	public TopScore topView(LocalDateTime startTime, LocalDateTime endTime, String tenantId) {
+		SearchQuery searchQuery = new NativeSearchQueryBuilder()
+			.withIndices(Helper.convertToIndices("top", startTime, endTime))
+			.withTypes(tenantId)
+			.withQuery(new FilteredQueryBuilder(null, rangeFilter("time").from(startTime).to(endTime)))
+			.addAggregation(AggregationBuilders.nested("items").path("items")
+				.subAggregation(AggregationBuilders.terms("top_items").field("items.id").order(Order.aggregation("total", false)).size(10)
+						.subAggregation(AggregationBuilders.sum("total").field("items.score"))))
+			.build();
+		Aggregations aggregations = template.query(searchQuery, new ResultsExtractor<Aggregations>() {
+			@Override
+			public Aggregations extract(SearchResponse response) {
+				return response.getAggregations();
+			}
+		});
+		Aggregations nestedAggrs = ((InternalNested) aggregations.get("items")).getAggregations();
+		StringTerms topItems = nestedAggrs.get("top_items");
+		TopScore topScore = new TopScore();
+		topScore.setTime(LocalDateTime.now());
+		for (Bucket bucket: topItems.getBuckets()) {
+			String id = bucket.getKey();
+			double total = (double) ((InternalSum) bucket.getAggregations().get("total")).getValue();
+			topScore.addNewScore(id, "XXX", "YYY", total);
+		}
+		return topScore;
 	}
 	
 }

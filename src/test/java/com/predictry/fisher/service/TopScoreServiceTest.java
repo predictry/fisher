@@ -116,4 +116,48 @@ public class TopScoreServiceTest {
 		assertEquals(2.0, savedStat.getItemAtRank(5).getScore(), 0.1);
 	}
 
+	@Test
+	public void topView() {
+		// Create dummy data
+		TopScore topScore1 = new TopScore();
+		topScore1.setTime(LocalDateTime.parse("2015-01-01T04:00:00"));
+		topScore1.setTenantId("BUKALAPAK");
+		topScore1.addNewScore("11989", "XXX", "XXX", 3.0);
+		topScore1.addNewScore("10541", "XXX", "XXX", 1.0);
+		topScore1.addNewScore("11851", "XXX", "XXX", 1.0);
+
+		TopScore topScore2 = new TopScore();
+		topScore2.setTime(LocalDateTime.parse("2015-01-01T02:00:00"));
+		topScore2.setTenantId("BUKALAPAK");
+		topScore2.addNewScore("11989", "XXX", "XXX", 3.0);
+
+		TopScore topScore3 = new TopScore();
+		topScore3.setTime(LocalDateTime.parse("2015-01-01T03:00:00"));
+		topScore3.setTenantId("BUKALAPAK");
+		topScore3.addNewScore("11989", "XXX", "XXX", 4.0);
+		
+		TopScore topScore4 = new TopScore();
+		topScore4.setTime(LocalDateTime.parse("2015-01-01T01:00:00"));
+		topScore4.setTenantId("BUKALAPAK");
+		topScore4.addNewScore("11989", "XXX", "XXX", 1.0);
+		
+		topScoreService.save(topScore1);
+		topScoreService.save(topScore2);
+		topScoreService.save(topScore3);
+		topScoreService.save(topScore4);
+		
+        template.refresh("top_2015", true);
+        
+        // Get top score
+        TopScore topScore = topScoreService.topView(LocalDateTime.parse("2015-01-01T00:00:00"), LocalDateTime.parse("2015-02-01T00:00:00"), "BUKALAPAK");
+        assertEquals(3, topScore.getItems().size());
+        assertEquals("11989", topScore.getItemAtRank(1).getId());
+        assertEquals(11.0, topScore.getItemAtRank(1).getScore(), 0.1);
+        assertEquals("10541", topScore.getItemAtRank(2).getId());
+        assertEquals(1.0, topScore.getItemAtRank(2).getScore(), 0.1);
+        assertEquals("11851", topScore.getItemAtRank(3).getId());
+        assertEquals(1.0, topScore.getItemAtRank(3).getScore(), 0.1);
+	}
+
+	
 }
