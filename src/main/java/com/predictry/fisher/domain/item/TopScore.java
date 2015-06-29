@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -19,6 +21,7 @@ public class TopScore {
 	
 	public static final int MAX_NUMBER_OF_SCORES = 10;
 	
+	@Field(type=FieldType.Nested)
 	private List<ItemScore> items = new ArrayList<>();
 
 	@Id
