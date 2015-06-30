@@ -1,11 +1,13 @@
 package com.predictry.fisher.service;
 
 import java.util.Arrays;
+import static org.elasticsearch.index.query.FilterBuilders.*;
 import java.util.List;
 
 import javax.transaction.Transactional;
 
 import org.apache.http.util.Asserts;
+import org.elasticsearch.index.query.FilteredQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
@@ -53,6 +55,7 @@ public class ItemService {
 		SearchQuery searchQuery = new NativeSearchQueryBuilder().withIndices("item_" + tenantId.toLowerCase())
 			.withTypes("item")
 			.withIds(Arrays.asList(itemId))
+			.withQuery(new FilteredQueryBuilder(null, termFilter("id", itemId)))
 			.build();
 		List<Item> results = template.queryForList(searchQuery, Item.class);
 		if (results.isEmpty()) {

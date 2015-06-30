@@ -28,6 +28,7 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Service;
 
+import com.predictry.fisher.domain.item.Item;
 import com.predictry.fisher.domain.item.TopScore;
 import com.predictry.fisher.domain.util.Helper;
 
@@ -39,6 +40,9 @@ public class TopScoreService {
 	
 	@Autowired
 	private ElasticsearchOperations template;
+	
+	@Autowired
+	private ItemService itemService;
 	
 	/**
 	 * Save a new hourly <code>TopScore</code> in Elasticsearch.  Depending on the time for this top score,
@@ -130,7 +134,8 @@ public class TopScoreService {
 		for (Bucket bucket: topItems.getBuckets()) {
 			String id = bucket.getKey();
 			double total = (double) ((InternalSum) bucket.getAggregations().get("total")).getValue();
-			topScore.addNewScore(id, "XXX", "YYY", total);
+			Item item = itemService.find(tenantId, id);
+			topScore.addNewScore(id, (item==null)?"":item.getName(), (item==null)?"":item.getItemUrl(), total);
 		}
 		return topScore;
 	}

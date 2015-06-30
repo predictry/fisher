@@ -23,8 +23,7 @@ public class ViewsAggregation implements Aggregation {
 			Map<String,Object> data = getData(mapJson);
 			String tenantId = data.get("tenant").toString();
 			String itemId = data.get("item").toString();
-			// TODO: Add item information here later.
-			scoreStore.add(tenantId, new ItemScore(itemId, "XXX", "XXX", 1.0));
+			scoreStore.add(tenantId, new ItemScore(itemId, "", "", 1.0));
 		}
 	}
 	
