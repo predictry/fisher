@@ -1,10 +1,16 @@
 package com.predictry.fisher.service;
 
+import java.util.Arrays;
+import java.util.List;
+
 import javax.transaction.Transactional;
 
+import org.apache.http.util.Asserts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Service;
 
 import com.predictry.fisher.domain.item.Item;
@@ -32,6 +38,30 @@ public class ItemService {
 		indexQuery.setObject(item);
 		indexQuery.setId(item.getId());
 		template.index(indexQuery);
+	}
+	
+	/**
+	 * Find an <code>Item</code>.
+	 * 
+	 * @param tenantId is the tenant id in which this item belongs to.
+	 * @param itemId is the id to search for.
+	 * @return an <code>Item</code> or <code>null</code> if nothing is found.
+	 */
+	public Item find(String tenantId, String itemId) {
+		Asserts.notNull(tenantId, "Tenant id can't be null.");
+		Asserts.notNull(itemId, "Item id can't be null.");
+		SearchQuery searchQuery = new NativeSearchQueryBuilder().withIndices("item_" + tenantId.toLowerCase())
+			.withTypes("item")
+			.withIds(Arrays.asList(itemId))
+			.build();
+		List<Item> results = template.queryForList(searchQuery, Item.class);
+		if (results.isEmpty()) {
+			return null;
+		} else {
+			Item result = results.get(0);
+			result.setTenantId(tenantId);
+			return result;
+		}
 	}
 	
 }

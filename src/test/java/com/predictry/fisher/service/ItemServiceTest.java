@@ -1,7 +1,6 @@
 package com.predictry.fisher.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -88,6 +87,30 @@ public class ItemServiceTest {
 		assertEquals("http://item.url", savedItem.getItemUrl());
 		assertEquals("http://image.url", savedItem.getImageUrl());
 		assertEquals("category1", savedItem.getCategory());
+	}
+	
+	@Test
+	public void find() {
+		Item item = new Item("id1", "item1", "http://item.url", "http://image.url", "category1");
+		item.setTenantId("BUKALAPAK");
+		itemService.save(item);
+		template.refresh("item_bukalapak", true);
+		
+		Item result = itemService.find("BUKALAPAK", "id1");
+		assertNotNull(result);
+		assertEquals("id1", result.getId());
+		assertEquals("item1", result.getName());
+		assertEquals("http://item.url", result.getItemUrl());
+		assertEquals("http://image.url", result.getImageUrl());
+		assertEquals("category1", result.getCategory());
+		
+		result = itemService.find("bukalapak", "id1");
+		assertNotNull(result);
+		assertEquals("id1", result.getId());
+		assertEquals("item1", result.getName());
+		assertEquals("http://item.url", result.getItemUrl());
+		assertEquals("http://image.url", result.getImageUrl());
+		assertEquals("category1", result.getCategory());
 	}
 
 }
