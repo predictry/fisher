@@ -21,6 +21,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import com.predictry.fisher.config.TestRootConfig;
 import com.predictry.fisher.domain.item.TopScore;
+import com.predictry.fisher.domain.item.TopScoreType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={TestRootConfig.class}, loader=AnnotationConfigContextLoader.class)
@@ -34,11 +35,11 @@ public class TopScoreServiceTest {
 
 	@Before
 	public void clean() {
-		if (template.indexExists("top_2015")) {
-			template.deleteIndex("top_2015");
+		if (template.indexExists("top_hits_2015")) {
+			template.deleteIndex("top_hits_2015");
 		}
-		if (template.indexExists("top_2014")) {
-			template.deleteIndex("top_2014");
+		if (template.indexExists("top_hits_2014")) {
+			template.deleteIndex("top_hits_2014");
 		}
 	}
 	
@@ -54,12 +55,12 @@ public class TopScoreServiceTest {
 		topScoreService.save(topScore);
 		
 		// Check if index is created
-		assertTrue(template.indexExists("top_2015"));
-		assertTrue(template.typeExists("top_2015", "BUKALAPAK"));
+		assertTrue(template.indexExists("top_hits_2015"));
+		assertTrue(template.typeExists("top_hits_2015", "BUKALAPAK"));
 		
 		// Check if document is created
-		template.refresh("top_2015", true);
-		SearchQuery searchQuery = new NativeSearchQueryBuilder().withIndices("top_2015")
+		template.refresh("top_hits_2015", true);
+		SearchQuery searchQuery = new NativeSearchQueryBuilder().withIndices("top_hits_2015")
 			.withTypes("BUKALAPAK")
 			.withIds(Arrays.asList("2015-02-01T10:00"))
 			.build();
@@ -94,8 +95,8 @@ public class TopScoreServiceTest {
 		topScoreService.save(topScore);
 		
 		// Check if top score is updated
-		template.refresh("top_2015", true);
-		SearchQuery searchQuery = new NativeSearchQueryBuilder().withIndices("top_2015")
+		template.refresh("top_hits_2015", true);
+		SearchQuery searchQuery = new NativeSearchQueryBuilder().withIndices("top_hits_2015")
 			.withTypes("BUKALAPAK")
 			.withIds(Arrays.asList("2015-02-01T10:00"))
 			.build();
@@ -146,10 +147,10 @@ public class TopScoreServiceTest {
 		topScoreService.save(topScore3);
 		topScoreService.save(topScore4);
 		
-        template.refresh("top_2015", true);
+        template.refresh("top_hits_2015", true);
         
         // Get top score
-        TopScore topScore = topScoreService.topView(LocalDateTime.parse("2015-01-01T00:00:00"), LocalDateTime.parse("2015-02-01T00:00:00"), "BUKALAPAK");
+        TopScore topScore = topScoreService.topScore(LocalDateTime.parse("2015-01-01T00:00:00"), LocalDateTime.parse("2015-02-01T00:00:00"), "BUKALAPAK", TopScoreType.HIT);
         assertEquals(3, topScore.getItems().size());
         assertEquals("11989", topScore.getItemAtRank(1).getId());
         assertEquals(11.0, topScore.getItemAtRank(1).getScore(), 0.1);

@@ -26,13 +26,13 @@
 {"data": {"user": "user05", "timestamp": "2015-06-19T00:09:13+00:00", "fields": {}, "name": "VIEW", "tenant": "tenant2", "session": "8hlaiZWY-PrBN-FxtI-a0YT-P1bTW1FuR2U1", "item": "item10", "agent": "zlD5M8ga-hP03-TKCT-uLqU-B5mbhjDenOQv"}, "type": "Action"}
 {"data": {"user": "user05", "timestamp": "2015-06-19T00:09:30+00:00", "fields": {}, "name": "VIEW", "tenant": "tenant2", "session": "Nhyz2Wjt-dw2O-iOLQ-VN1R-kGJGPzjC4Rzs", "item": "item10", "agent": "QKRpFZcZ-xSNQ-QPuh-lRht-huIbMUBxlZwQ"}, "type": "Action"}
 {"data": {"user": "user04", "timestamp": "2015-06-19T00:09:11+00:00", "fields": {}, "name": "VIEW", "tenant": "tenant2", "session": "vrY6NJ1Z-hp63-sPFf-mCIS-0LIOWWiEXRmb", "item": "item07", "agent": "VQHqCjSe-A7YT-BafX-3msS-W17FcjSxBqO7"}, "type": "Action"}
-{"data": {"user": "user01", "timestamp": "2015-06-19T00:09:11+00:00", "fields": {"quantity": 10, "sub_total": 100000.5}, "name": "BUY", "tenant": "tenant1"}, "type": "Action"}
-{"data": {"user": "user01", "timestamp": "2015-06-19T00:09:11+00:00", "fields": {"quantity": 5, "sub_total": 200000.3}, "name": "BUY", "tenant": "tenant1"}, "type": "Action"}
-{"data": {"user": "user01", "timestamp": "2015-06-19T00:09:11+00:00", "fields": {"quantity": 6, "sub_total": 300000.2}, "name": "BUY", "tenant": "tenant1"}, "type": "Action"}
-{"data": {"user": "user01", "timestamp": "2015-06-19T00:09:11+00:00", "fields": {"quantity": 7, "sub_total": 400000.1}, "name": "BUY", "tenant": "tenant1"}, "type": "Action"}
-{"data": {"user": "user01", "timestamp": "2015-06-19T00:09:11+00:00", "fields": {"quantity": 8, "sub_total": 5000}, "name": "BUY", "tenant": "tenant2"}, "type": "Action"}
-{"data": {"user": "user01", "timestamp": "2015-06-19T00:09:11+00:00", "fields": {"quantity": 9, "sub_total": 6000}, "name": "BUY", "tenant": "tenant2"}, "type": "Action"}
-{"data": {"user": "user01", "timestamp": "2015-06-19T00:09:11+00:00", "fields": {"quantity": 10, "sub_total": 7000}, "name": "BUY", "tenant": "tenant2"}, "type": "Action"}
+{"data": {"user": "user01", "item": "item01", "timestamp": "2015-06-19T00:09:11+00:00", "fields": {"quantity": 10, "sub_total": 100000.5}, "name": "BUY", "tenant": "tenant1"}, "type": "Action"}
+{"data": {"user": "user01", "item": "item01", "timestamp": "2015-06-19T00:09:11+00:00", "fields": {"quantity": 5, "sub_total": 200000.3}, "name": "BUY", "tenant": "tenant1"}, "type": "Action"}
+{"data": {"user": "user01", "item": "item03", "timestamp": "2015-06-19T00:09:11+00:00", "fields": {"quantity": 6, "sub_total": 300000.2}, "name": "BUY", "tenant": "tenant1"}, "type": "Action"}
+{"data": {"user": "user01", "item": "item03", "timestamp": "2015-06-19T00:09:11+00:00", "fields": {"quantity": 7, "sub_total": 400000.1}, "name": "BUY", "tenant": "tenant1"}, "type": "Action"}
+{"data": {"user": "user01", "item": "item03", "timestamp": "2015-06-19T00:09:11+00:00", "fields": {"quantity": 8, "sub_total": 5000}, "name": "BUY", "tenant": "tenant2"}, "type": "Action"}
+{"data": {"user": "user01", "item": "item05", "timestamp": "2015-06-19T00:09:11+00:00", "fields": {"quantity": 9, "sub_total": 6000}, "name": "BUY", "tenant": "tenant2"}, "type": "Action"}
+{"data": {"user": "user01", "item": "item05", "timestamp": "2015-06-19T00:09:11+00:00", "fields": {"quantity": 10, "sub_total": 7000}, "name": "BUY", "tenant": "tenant2"}, "type": "Action"}
 {"data": {"user": "user01", "timestamp": "2015-06-19T00:06:22+00:00", "fields": {"quantity": "1"}, "name": "ADD_TO_CART", "tenant": "tenant1", "session": "session1", "item": "item03", "agent": "Zysbd5aB-UTjl-maXF-G45L-8FaDXaSKcj7Z"}, "type": "Action"}
 {"data": {"user": "user02", "timestamp": "2015-06-19T00:06:44+00:00", "fields": {"quantity": "2"}, "name": "ADD_TO_CART", "tenant": "tenant1", "session": "session1", "item": "item04", "agent": "IiIVNHlk-pdfY-TLU6-vI0P-A41sCVSUCBkK"}, "type": "Action"}
 {"data": {"user": "user03", "timestamp": "2015-06-19T00:06:55+00:00", "fields": {"quantity": "3"}, "name": "ADD_TO_CART", "tenant": "tenant1", "session": "session1", "item": "item05", "agent": "Zysbd5aB-UTjl-maXF-G45L-8FaDXaSKcj7Z"}, "type": "Action"}

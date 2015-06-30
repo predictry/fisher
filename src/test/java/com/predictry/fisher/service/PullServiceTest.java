@@ -26,6 +26,7 @@ import com.predictry.fisher.domain.aggregation.SalesAggregation;
 import com.predictry.fisher.domain.aggregation.ViewsAggregation;
 import com.predictry.fisher.domain.item.Item;
 import com.predictry.fisher.domain.item.TopScore;
+import com.predictry.fisher.domain.item.TopScoreType;
 import com.predictry.fisher.domain.stat.Stat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -109,21 +110,36 @@ public class PullServiceTest {
 		SalesAggregation salesAggregation = new SalesAggregation();
 		pullService.aggregate(sources, LocalDateTime.parse("2015-06-19T03:00:00"), viewsAggregation, salesAggregation);
 		List<TopScore> topScores = pullService.topScore(viewsAggregation, salesAggregation, LocalDateTime.parse("2015-06-19T03:00:00"));
-		assertEquals(2, topScores.size());
+		assertEquals(4, topScores.size());
 		
-		TopScore tenant1Views = topScores.stream().filter(t -> (t.getTenantId().equals("tenant1"))).findFirst().get();
+		TopScore tenant1Views = topScores.stream().filter(t -> (t.getType() == TopScoreType.HIT && t.getTenantId().equals("tenant1"))).findFirst().get();
 		assertEquals(2, tenant1Views.getItems().size());
 		assertEquals("item01", tenant1Views.getItemAtRank(1).getId());
 		assertEquals(1.0, tenant1Views.getItemAtRank(1).getScore(), 0.1);
 		assertEquals("item02", tenant1Views.getItemAtRank(2).getId());
 		assertEquals(1.0, tenant1Views.getItemAtRank(2).getScore(), 0.1);
 		
-		TopScore tenant2Views = topScores.stream().filter(t -> (t.getTenantId().equals("tenant2"))).findFirst().get();
+		TopScore tenant2Views = topScores.stream().filter(t -> (t.getType() == TopScoreType.HIT && t.getTenantId().equals("tenant2"))).findFirst().get();
 		assertEquals(2, tenant2Views.getItems().size());
 		assertEquals("item10", tenant2Views.getItemAtRank(1).getId());
 		assertEquals(2.0, tenant2Views.getItemAtRank(1).getScore(), 0.1);
 		assertEquals("item07", tenant2Views.getItemAtRank(2).getId());
-		assertEquals(1.0, tenant2Views.getItemAtRank(2).getScore(), 0.1);		
+		assertEquals(1.0, tenant2Views.getItemAtRank(2).getScore(), 0.1);
+
+		TopScore tenant1Sales = topScores.stream().filter(t -> (t.getType() == TopScoreType.SALES && t.getTenantId().equals("tenant1"))).findFirst().get();
+		assertEquals(2, tenant1Sales.getItems().size());
+		assertEquals("item01", tenant1Sales.getItemAtRank(1).getId());
+		assertEquals(15.0, tenant1Sales.getItemAtRank(1).getScore(), 0.1);
+		assertEquals("item03", tenant1Sales.getItemAtRank(2).getId());
+		assertEquals(13.0, tenant1Sales.getItemAtRank(2).getScore(), 0.1);
+		
+		TopScore tenant2Sales = topScores.stream().filter(t -> (t.getType() == TopScoreType.SALES && t.getTenantId().equals("tenant2"))).findFirst().get();
+		assertEquals(2, tenant2Sales.getItems().size());
+		assertEquals("item05", tenant2Sales.getItemAtRank(1).getId());
+		assertEquals(19.0, tenant2Sales.getItemAtRank(1).getScore(), 0.1);
+		assertEquals("item03", tenant2Sales.getItemAtRank(2).getId());
+		assertEquals(8.0, tenant2Sales.getItemAtRank(2).getScore(), 0.1);
+
 	}
 	
 	@Test(expected=RuntimeException.class)

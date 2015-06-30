@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import com.predictry.fisher.domain.item.Item;
 import com.predictry.fisher.domain.item.TopScore;
+import com.predictry.fisher.domain.item.TopScoreType;
 import com.predictry.fisher.domain.util.Helper;
 
 @Service
@@ -110,11 +111,12 @@ public class TopScoreService {
 	 * @param startTime the start of period.
 	 * @param endTime the end of period.
 	 * @param tenantId the name of tenant id.
+	 * @param type the type of the score to display.
 	 * @return <code>TopScore</code> representing most viewed items.
 	 */
-	public TopScore topView(LocalDateTime startTime, LocalDateTime endTime, String tenantId) {
+	public TopScore topScore(LocalDateTime startTime, LocalDateTime endTime, String tenantId, TopScoreType type) {
 		SearchQuery searchQuery = new NativeSearchQueryBuilder()
-			.withIndices(Helper.convertToIndices("top", startTime, endTime))
+			.withIndices(Helper.convertToIndices("top_" + type.getPrefix(), startTime, endTime))
 			.withTypes(tenantId)
 			.withQuery(new FilteredQueryBuilder(null, rangeFilter("time").from(startTime).to(endTime)))
 			.addAggregation(AggregationBuilders.nested("items").path("items")
@@ -129,7 +131,7 @@ public class TopScoreService {
 		});
 		Aggregations nestedAggrs = ((InternalNested) aggregations.get("items")).getAggregations();
 		StringTerms topItems = nestedAggrs.get("top_items");
-		TopScore topScore = new TopScore();
+		TopScore topScore = new TopScore(TopScoreType.HIT);
 		topScore.setTime(LocalDateTime.now());
 		for (Bucket bucket: topItems.getBuckets()) {
 			String id = bucket.getKey();
@@ -139,5 +141,5 @@ public class TopScoreService {
 		}
 		return topScore;
 	}
-	
+		
 }

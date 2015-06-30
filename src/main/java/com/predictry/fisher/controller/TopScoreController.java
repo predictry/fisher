@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import com.predictry.fisher.domain.ErrorMessage;
 //import com.predictry.fisher.domain.item.Item;
 import com.predictry.fisher.domain.item.TopScore;
+import com.predictry.fisher.domain.item.TopScoreType;
 import com.predictry.fisher.service.TopScoreService;
 
 @RestController
@@ -30,7 +30,7 @@ public class TopScoreController {
 	public TopScore topView(@RequestParam String tenantId,
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime startDate,
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime endDate) {
-		return topScoreService.topView(startDate, endDate, tenantId);
+		return topScoreService.topScore(startDate, endDate, tenantId, TopScoreType.HIT);
 	}
 	
 	/**
@@ -42,11 +42,7 @@ public class TopScoreController {
 	public TopScore topSales(@RequestParam String tenantId,
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime startDate,
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime endDate) {
-		// TODO: Change this later!
-		TopScore topScore = new TopScore();
-		topScore.setTime(LocalDateTime.now());
-		topScore.addNewScore("product1", "Produk 1", "http://www.xxx.com", 10.0);
-		return topScore;
+		return topScoreService.topScore(startDate, endDate, tenantId, TopScoreType.SALES);
 	}
 	
 	/**

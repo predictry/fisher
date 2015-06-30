@@ -32,7 +32,16 @@ public class TopScore {
 	@JsonIgnore
 	private String tenantId;
 	
-	public TopScore() {}
+	@JsonIgnore
+	private TopScoreType type;
+	
+	public TopScore() {
+		this.type = TopScoreType.HIT;
+	}
+	
+	public TopScore(TopScoreType type) {
+		this.type = type;
+	}
 
 	public void setTime(LocalDateTime time) {
 		this.time = time;
@@ -50,18 +59,26 @@ public class TopScore {
 		return tenantId;
 	}
 
+	public TopScoreType getType() {
+		return type;
+	}
+
+	public void setType(TopScoreType type) {
+		this.type = type;
+	}
+
 	public List<ItemScore> getItems() {
 		return items;
 	}
 	
 	/**
-	 * Get Elasticsearch index name in form of "top_yyyy" based on time.
+	 * Get Elasticsearch index name in form of "top_hit_yyyy", "top_sales_yyyy", etc based on time.
 	 * 
 	 * @return index name for Elasticsearch.
 	 */
 	public String getIndexName() {
 		Assert.notNull(time);
-		return "top_" + getTime().getYear();
+		return "top_" + getType().getPrefix() + "_" + getTime().getYear();
 	}
 	
 	/**

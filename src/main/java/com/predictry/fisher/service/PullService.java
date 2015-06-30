@@ -26,6 +26,7 @@ import com.predictry.fisher.domain.aggregation.ViewsAggregation;
 import com.predictry.fisher.domain.item.Item;
 import com.predictry.fisher.domain.item.ScoreStore;
 import com.predictry.fisher.domain.item.TopScore;
+import com.predictry.fisher.domain.item.TopScoreType;
 import com.predictry.fisher.domain.pull.PullTime;
 import com.predictry.fisher.domain.stat.Stat;
 import com.predictry.fisher.domain.tapirus.GetRecordsResult;
@@ -114,10 +115,22 @@ public class PullService {
 	public List<TopScore> topScore(ViewsAggregation viewsAggr, SalesAggregation salesAggr, LocalDateTime expectedTime) {
 		List<TopScore> results = new ArrayList<>();
 		
-		// Top score
+		// Top score for hits
 		ScoreStore topScoreForViews = viewsAggr.getScoreStore();
 		topScoreForViews.getData().forEach((tenantId, itemScores) -> {
-			TopScore topScore = new TopScore();
+			TopScore topScore = new TopScore(TopScoreType.HIT);
+			topScore.setTenantId(tenantId);
+			topScore.setTime(expectedTime);
+			itemScores.forEach(i -> {
+				topScore.addNewScore(i);
+			});
+			results.add(topScore);
+		});
+		
+		// Top score for sales
+		ScoreStore topScoreForSales = salesAggr.getScoreStore();
+		topScoreForSales.getData().forEach((tenantId, itemScores) -> {
+			TopScore topScore = new TopScore(TopScoreType.SALES);
 			topScore.setTenantId(tenantId);
 			topScore.setTime(expectedTime);
 			itemScores.forEach(i -> {

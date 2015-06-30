@@ -6,6 +6,7 @@ import static com.predictry.fisher.domain.util.Helper.getType;
 
 import java.util.Map;
 
+import com.predictry.fisher.domain.item.ItemScore;
 import com.predictry.fisher.domain.item.ScoreStore;
 import com.predictry.fisher.domain.stat.Stat;
 
@@ -23,11 +24,11 @@ public class SalesAggregation implements Aggregation {
 				stat.addSales(subTotal);
 				
 				// Add sales amount per item
-//				Map<String,Object> data = getData(mapJson);
-//				String tenantId = data.get("tenant").toString();
-//				String itemId = data.get("item").toString();
-//				// TODO: Add item information here later.
-//				scoreStore.add(tenantId, new ItemScore(itemId, "XXX", "XXX", subTotal));
+				Map<String,Object> data = getData(mapJson);
+				String tenantId = data.get("tenant").toString();
+				String itemId = data.get("item").toString();
+				Double quantity = Double.parseDouble(fields.get("quantity").toString());
+				scoreStore.add(tenantId, new ItemScore(itemId, "", "", quantity));
 			}
 		}		
 	}
