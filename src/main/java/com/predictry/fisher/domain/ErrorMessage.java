@@ -14,7 +14,7 @@ public class ErrorMessage {
 		return error;
 	}
 
-	public void setStatus(String error) {
+	public void setError(String error) {
 		this.error = error;
 	}
 	

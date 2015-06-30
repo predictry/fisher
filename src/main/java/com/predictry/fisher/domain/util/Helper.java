@@ -57,4 +57,20 @@ public class Helper {
 		return (String) getData(mapJson).get("name");
 	}
 	
+	/**
+	 * A temporary solution to do tenant id remapping.
+	 * 
+	 * @param oldTenantId the tenant id to remap.
+	 * @return new tenant id.
+	 */
+	public static String tenantIdRemapping(String oldTenantId) {
+		if (oldTenantId.equals("bukalapak")) {
+			return oldTenantId.toUpperCase();
+		}
+		if (oldTenantId.equals("familynara2014")) {
+			return oldTenantId.toUpperCase();
+		}
+		return oldTenantId;
+	}
+	
 }

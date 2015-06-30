@@ -8,15 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.predictry.fisher.domain.ErrorMessage;
 import com.predictry.fisher.domain.overview.StatOverview;
 import com.predictry.fisher.domain.stat.Metric;
 import com.predictry.fisher.domain.stat.StatEntry;
+import com.predictry.fisher.domain.util.Helper;
 import com.predictry.fisher.service.StatService;
 
 @RestController
@@ -39,6 +38,7 @@ public class StatController {
 	public StatOverview statOverview(@RequestParam String tenantId, 
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime startDate, 
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime endDate) {
+		tenantId = Helper.tenantIdRemapping(tenantId);
 		log.info("Processing stat overview for tenantId [" + tenantId + "], startDate = [" + 
 				startDate + "], endDate = [" + endDate + "]" );
 		return statService.overview(startDate, endDate, tenantId);		
@@ -60,6 +60,7 @@ public class StatController {
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime startDate,
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime endDate,
 			@RequestParam Metric metric, @RequestParam String interval) {
+		tenantId = Helper.tenantIdRemapping(tenantId);
 		log.info("Processing stat for tenantId [" + tenantId + "], startDate [" + startDate + "], endDate = [" +
 			endDate + "], metric [" + metric + "], interval [" + interval + "]");
 		Interval bucketInterval = null;
@@ -80,15 +81,6 @@ public class StatController {
 		}
 		return statService.stat(startDate, endDate, tenantId, metric, bucketInterval);
 	}
-		
-	/**
-	 * General error handler for this controller.
-	 */
-	@ExceptionHandler(value={Exception.class, RuntimeException.class})
-	public ErrorMessage error(Exception ex) {
-		ErrorMessage error = new ErrorMessage(ex.getMessage());
-		return error;
-	} 
-	
+			
 }
 

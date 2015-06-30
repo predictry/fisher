@@ -99,3 +99,11 @@ returns value such as:
 Valid values for `metric` are `VIEWS`, `SALES_AMOUNT`, `ITEM_PER_CART`, `ITEM_PURCHASED`, `UNIQUE_VISITOR`, and `ORDERS`.
 
 `interval` can be predefined value such as `year`, `quarter`, `month`, `week`, `day`, and `hour`.  It can also be an expression such as `1.5h` (every `1.5` hours), `3M` (every `3` months), `2y` (every `2` year), etc.
+
+Whenever error in encountered (in application logic), fisher will return JSON such as:
+
+    {
+       "error": "This is the error message"
+    }
+    
+ 

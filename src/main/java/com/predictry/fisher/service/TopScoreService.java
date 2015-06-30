@@ -133,11 +133,13 @@ public class TopScoreService {
 		StringTerms topItems = nestedAggrs.get("top_items");
 		TopScore topScore = new TopScore(TopScoreType.HIT);
 		topScore.setTime(LocalDateTime.now());
-		for (Bucket bucket: topItems.getBuckets()) {
-			String id = bucket.getKey();
-			double total = (double) ((InternalSum) bucket.getAggregations().get("total")).getValue();
-			Item item = itemService.find(tenantId, id);
-			topScore.addNewScore(id, (item==null)?"":item.getName(), (item==null)?"":item.getItemUrl(), total);
+		if (topItems != null) {
+			for (Bucket bucket: topItems.getBuckets()) {
+				String id = bucket.getKey();
+				double total = (double) ((InternalSum) bucket.getAggregations().get("total")).getValue();
+				Item item = itemService.find(tenantId, id);
+				topScore.addNewScore(id, (item==null)?"":item.getName(), (item==null)?"":item.getItemUrl(), total);
+			}
 		}
 		return topScore;
 	}
