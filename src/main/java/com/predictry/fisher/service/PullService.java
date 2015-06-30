@@ -23,12 +23,14 @@ import com.predictry.fisher.domain.aggregation.NumberOfSalesAggregation;
 import com.predictry.fisher.domain.aggregation.SalesAggregation;
 import com.predictry.fisher.domain.aggregation.UniqueVisitorAggregation;
 import com.predictry.fisher.domain.aggregation.ViewsAggregation;
+import com.predictry.fisher.domain.item.Item;
 import com.predictry.fisher.domain.item.ScoreStore;
 import com.predictry.fisher.domain.item.TopScore;
 import com.predictry.fisher.domain.pull.PullTime;
 import com.predictry.fisher.domain.stat.Stat;
 import com.predictry.fisher.domain.tapirus.GetRecordsResult;
 import com.predictry.fisher.domain.tapirus.GetRecordsResult.STATUS;
+import com.predictry.fisher.domain.util.Helper;
 import com.predictry.fisher.repository.PullTimeRepository;
 
 @Service
@@ -48,6 +50,9 @@ public class PullService {
 	
 	@Autowired
 	private TopScoreService topScoreService;
+	
+	@Autowired
+	private ItemService itemService;
 	
 	/**
 	 * @return retrieve default <code>PullTime</code> for default task.
@@ -75,9 +80,10 @@ public class PullService {
 				try {
 					ViewsAggregation viewsAggr = new ViewsAggregation();
 					SalesAggregation salesAggr = new SalesAggregation();
+					List<String> data = tapirusService.readFile(tapResult);
 					
 					// Calculate and save stats
-					Map<String, Stat> stats = aggregate(tapirusService.readFile(tapResult), pullTime.getForTime(), viewsAggr, salesAggr);
+					Map<String, Stat> stats = aggregate(data, pullTime.getForTime(), viewsAggr, salesAggr);
 					for (Stat stat: stats.values()) {
 						statService.save(stat);
 					}
@@ -91,6 +97,8 @@ public class PullService {
 					log.error("Error while processing aggregation.", e);
 					pullTime.fail();
 				}
+			} else {
+				pullTime.fail();
 			}
 			pullTimeRepository.save(pullTime);
 		}
@@ -165,6 +173,8 @@ public class PullService {
 				} else {
 					log.info("Time metadata check success!");
 				}
+			} else if (type.equals("Item")) {
+				saveItem(mapJson);
 			} else {
 				Map<String,Object> data = (Map<String,Object>) mapJson.get("data");
 				String tenantId = (String) data.get("tenant");
@@ -175,6 +185,21 @@ public class PullService {
 		}
 				
 		return results;
+	}
+	
+	private void saveItem(Map<String,Object> mapJson) {
+		Item item = new Item();
+		item.setId((String) Helper.getData(mapJson).get("id"));
+		item.setTenantId((String) Helper.getData(mapJson).get("tenant"));
+		@SuppressWarnings("unchecked")
+		Map<String,Object> fields = (Map<String, Object>) Helper.getData(mapJson).get("fields");
+		if ((fields != null) && (!fields.isEmpty())) {
+			item.setName((String) fields.get("name"));
+			item.setImageUrl((String) fields.get("img_url"));
+			item.setItemUrl((String) fields.get("item_url"));
+			item.setCategory((String) fields.get("category"));
+			itemService.save(item);
+		}
 	}
 	
 	/**

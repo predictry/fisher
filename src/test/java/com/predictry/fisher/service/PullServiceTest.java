@@ -1,17 +1,22 @@
 package com.predictry.fisher.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
@@ -19,6 +24,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import com.predictry.fisher.config.TestRootConfig;
 import com.predictry.fisher.domain.aggregation.SalesAggregation;
 import com.predictry.fisher.domain.aggregation.ViewsAggregation;
+import com.predictry.fisher.domain.item.Item;
 import com.predictry.fisher.domain.item.TopScore;
 import com.predictry.fisher.domain.stat.Stat;
 
@@ -28,6 +34,9 @@ public class PullServiceTest {
 
 	@Autowired
 	private PullService pullService;
+	
+	@Autowired
+	private ElasticsearchTemplate template;
 	
 	@Test
 	public void aggregateFile() throws IOException {
@@ -50,6 +59,35 @@ public class PullServiceTest {
 		assertEquals(27l, statTenant2.getItemPurchased().longValue());
 		assertEquals(3l, statTenant2.getUniqueVisitor().longValue());
 		assertEquals(3l, statTenant2.getOrders().longValue());
+		
+		// Check if items were created
+		assertTrue(template.indexExists("item_tenant1"));
+		assertTrue(template.typeExists("item_tenant1", "item"));
+		template.refresh("item_tenant1", true);
+		SearchQuery searchQuery = new NativeSearchQueryBuilder().withIndices("item_tenant1")
+			.withTypes("item")
+			.withIds(Arrays.asList("item01", "item02", "item03", "item04", "item05", "item06", "item07", "item08", "item09", "item10"))
+			.build();
+		List<Item> searchResult = template.queryForList(searchQuery, Item.class);
+		assertEquals(7, searchResult.size());
+		
+		Item item1 = searchResult.stream().filter(i -> i.getId().equals("item01")).findFirst().get();
+		assertEquals("The Item 01", item1.getName());
+		assertEquals("https://www.xxx_item01.com", item1.getItemUrl());
+		assertEquals("https://www.yyy_item01.com", item1.getImageUrl());
+		assertEquals("Cat01", item1.getCategory());
+		
+		Item item3 = searchResult.stream().filter(i -> i.getId().equals("item03")).findFirst().get();
+		assertEquals("The Item 02", item3.getName());
+		assertEquals("https://www.xxx_item02.com", item3.getItemUrl());
+		assertEquals("https://www.yyy_item02.com", item3.getImageUrl());
+		assertEquals("Sepeda", item3.getCategory());
+		
+		Item item4 = searchResult.stream().filter(i -> i.getId().equals("item04")).findFirst().get();
+		assertEquals("The Item 03", item4.getName());
+		assertEquals("https://www.xxx_item03.com", item4.getItemUrl());
+		assertEquals("https://www.yyy_item03.com", item4.getImageUrl());
+		assertEquals("Fashion", item4.getCategory());
 	}
 	
 	@Test
