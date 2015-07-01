@@ -3,6 +3,7 @@ package com.predictry.fisher.scheduled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +25,7 @@ public class PullTask {
 	 * keeping the server running (so it can serve), set an environment variable
 	 * with name <code>FISHER_PULL</code> with value <code>false</code>.
 	 */
-	@Scheduled(fixedRate=60000)
+	@Scheduled(fixedRate=60000) @Async
 	public void pullLog() {
 		String flag = System.getenv(ENV_FISHER_PULL);
 		if ((flag != null) && flag.toLowerCase().equals("false")) {
