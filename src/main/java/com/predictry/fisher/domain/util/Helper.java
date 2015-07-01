@@ -64,11 +64,11 @@ public class Helper {
 	 * @return new tenant id.
 	 */
 	public static String tenantIdRemapping(String oldTenantId) {
-		if (oldTenantId.equals("bukalapak")) {
-			return oldTenantId.toUpperCase();
+		if (oldTenantId.equalsIgnoreCase("bukalapak")) {
+			return "bukalapak";
 		}
-		if (oldTenantId.equals("familynara2014")) {
-			return oldTenantId.toUpperCase();
+		if (oldTenantId.equalsIgnoreCase("familynara2014")) {
+			return "FAMILYNARA2014";
 		}
 		return oldTenantId;
 	}
