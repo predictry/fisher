@@ -14,6 +14,7 @@ import java.util.zip.GZIPInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
@@ -30,16 +31,30 @@ public class TapirusService {
 	private static final String TAPIRUS_URL = "http://119.81.208.244:7870";
 	private static final String S3_BUCKET_NAME = "trackings";
 	
+	/**
+	 * Read result from Tapirus. If it is not found, this method will return <code>null</code>.
+	 * 
+	 * @param time the time to search for.
+	 * @return an instance of <code>GetRecordsResult</code> or <code>null</code> if it is not found.
+	 */
 	public GetRecordsResult getRecords(LocalDateTime time) {
 		RestTemplate restTemplate = new RestTemplate();
-		Map<String,String> vars = new HashMap<>();
-		vars.put("date", time.format(DateTimeFormatter.ISO_LOCAL_DATE));
-		vars.put("hour", String.valueOf(time.getHour()));
-		log.info("Invoking Tapirus getRecords() with the following vars: " + vars);
-		GetRecordsResult result = restTemplate.getForObject(TAPIRUS_URL + "/records?date={date}&hour={hour}", 
-			GetRecordsResult.class, vars);
-		log.info("Result = " + result);
-		return result;
+		try {
+			Map<String,String> vars = new HashMap<>();
+			vars.put("date", time.format(DateTimeFormatter.ISO_LOCAL_DATE));
+			vars.put("hour", String.valueOf(time.getHour()));
+			log.info("Invoking Tapirus getRecords() with the following vars: " + vars);
+			GetRecordsResult result = restTemplate.getForObject(TAPIRUS_URL + "/records?date={date}&hour={hour}", 
+				GetRecordsResult.class, vars);
+			log.info("Result = " + result);
+			return result;
+		} catch (HttpClientErrorException httpError) {
+			if (httpError.getStatusCode().value() == 404) {
+				return null;
+			} else {
+				throw httpError;
+			}
+		}
 	}
 	
 	public List<String> readFile(GetRecordsResult response) throws IOException {

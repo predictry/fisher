@@ -73,36 +73,57 @@ public class PullService {
 	 */
 	public void processAggregation(PullTime pullTime) {
 		if ((pullTime != null) && pullTime.getForTime().isBefore(LocalDateTime.now())) {
-			GetRecordsResult tapResult = tapirusService.getRecords(pullTime.getForTime());
-			if (tapResult.getStatus() == STATUS.NOT_FOUND) {
-				pullTime.success();
-			} else if (tapResult.getStatus() == STATUS.PROCESSED) {
-				// Process and save aggregation
-				try {
-					ViewsAggregation viewsAggr = new ViewsAggregation();
-					SalesAggregation salesAggr = new SalesAggregation();
-					List<String> data = tapirusService.readFile(tapResult);
-					
-					// Calculate and save stats
-					Map<String, Stat> stats = aggregate(data, pullTime.getForTime(), viewsAggr, salesAggr);
-					for (Stat stat: stats.values()) {
-						statService.save(stat);
-					}
-					
-					// Calculate and save top scores
-					List<TopScore> topScores = topScore(viewsAggr, salesAggr, pullTime.getForTime());
-					topScores.forEach(topScore -> topScoreService.save(topScore));
-					
+			log.info("Processing aggregation for " + pullTime);
+			try {
+				GetRecordsResult tapResult = processAggregation(pullTime.getForTime());
+				if (tapResult == null) {
+					pullTime.fail();
+				} else if (tapResult.getStatus() == STATUS.NOT_FOUND) {
 					pullTime.success();
-				} catch (IOException e) {
-					log.error("Error while processing aggregation.", e);
+				} else if (tapResult.getStatus() == STATUS.PROCESSED) {
+					pullTime.success();
+				} else {
 					pullTime.fail();
 				}
-			} else {
+				pullTimeRepository.save(pullTime);
+			} catch (IOException e) {
+				log.error("Error while processing aggregation.", e);
 				pullTime.fail();
 			}
-			pullTimeRepository.save(pullTime);
+			log.info("Done processing aggregation. Sleeping.");
 		}
+	}
+	
+	/**
+	 * Process aggregation.
+	 * @param time the time to get.
+	 * @return an instance of <code>GetRecordsResult</code> or </code>null</code> if nothing is found.
+	 * @throws IOException 
+	 */
+	public GetRecordsResult processAggregation(LocalDateTime time) throws IOException {
+		GetRecordsResult tapResult = tapirusService.getRecords(time);
+		if (tapResult != null) {
+			if (tapResult.getStatus() == STATUS.PROCESSED) {
+				ViewsAggregation viewsAggr = new ViewsAggregation();
+				SalesAggregation salesAggr = new SalesAggregation();
+				List<String> data = tapirusService.readFile(tapResult);
+				
+				// Calculate and save stats
+				log.info("Calculating stats for [" + time + "]");
+				Map<String, Stat> stats = aggregate(data, time, viewsAggr, salesAggr);
+				for (Stat stat: stats.values()) {
+					statService.save(stat);
+				}
+				log.info("Finish calculating stat.");
+				
+				// Calculate and save top scores
+				log.info("Calculating top score for [" + time + "]");
+				List<TopScore> topScores = topScore(viewsAggr, salesAggr, time);
+				topScores.forEach(topScore -> topScoreService.save(topScore));
+				log.info("Finish calculating top score.");
+			}
+		}
+		return tapResult;
 	}
 	
 	/**
@@ -174,7 +195,7 @@ public class PullService {
 		
 		for (String line: sources) {
 			Map<String,Object> mapJson = objectMapper.readValue(line, new TypeReference<Map<String,Object>>() {});
-			String type = (String) mapJson.get("type");
+			String type = (String) mapJson.get("type");			
 			if (type.equals("metadata")) {
 				// Check if time metadata returned from Fisher is for the expected time.
 				Map<String,Object> metadataMap = (Map<String,Object>) mapJson.get("metadata");
@@ -187,6 +208,7 @@ public class PullService {
 					log.info("Time metadata check success!");
 				}
 			} else if (type.equals("Item")) {
+				
 				saveItem(mapJson);
 			} else {
 				Map<String,Object> data = (Map<String,Object>) mapJson.get("data");
