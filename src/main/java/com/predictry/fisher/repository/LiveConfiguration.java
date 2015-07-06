@@ -1,4 +1,4 @@
-package com.predictry.fisher.config;
+package com.predictry.fisher.repository;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -2,7 +2,7 @@ package com.predictry.fisher.domain;
 
 import java.util.List;
 
-import com.predictry.fisher.config.LiveConfiguration;
+import com.predictry.fisher.repository.LiveConfiguration;
 
 import static org.junit.Assert.*;
 

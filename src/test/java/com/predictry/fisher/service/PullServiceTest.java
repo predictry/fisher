@@ -1,6 +1,8 @@
 package com.predictry.fisher.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -27,6 +29,7 @@ import com.predictry.fisher.domain.aggregation.ViewsAggregation;
 import com.predictry.fisher.domain.item.Item;
 import com.predictry.fisher.domain.item.TopScore;
 import com.predictry.fisher.domain.item.TopScoreType;
+import com.predictry.fisher.domain.pull.PullTime;
 import com.predictry.fisher.domain.stat.Stat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -139,7 +142,18 @@ public class PullServiceTest {
 		assertEquals(19.0, tenant2Sales.getItemAtRank(1).getScore(), 0.1);
 		assertEquals("item03", tenant2Sales.getItemAtRank(2).getId());
 		assertEquals(8.0, tenant2Sales.getItemAtRank(2).getScore(), 0.1);
+	}
 
+	@Test
+	public void update() {
+		PullTime pullTime = pullService.getDefaultPullTime();
+		assertNotNull(pullTime);
+		pullTime.setForTime(LocalDateTime.parse("2007-12-03T10:15:30"));
+		PullTime updatedPullTime = pullService.update(pullTime);
+		assertEquals(pullTime.getId(), updatedPullTime.getId());
+		assertEquals("2007-12-03T10:15:30", updatedPullTime.getForTime().toString());
+		assertNull(updatedPullTime.getLastExecutedTime());
+		assertEquals(0, updatedPullTime.getRepeat().intValue());
 	}
 	
 	@Test(expected=RuntimeException.class)

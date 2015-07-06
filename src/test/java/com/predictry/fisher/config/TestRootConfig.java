@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 
 @Configuration
-@ComponentScan(basePackages="com.predictry.fisher.service")
+@ComponentScan(basePackages={"com.predictry.fisher.service", "com.predictry.fisher.repository"})
 @EnableElasticsearchRepositories(basePackages="com.predictry.fisher.repository")
 public class TestRootConfig {
 	

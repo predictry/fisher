@@ -74,6 +74,10 @@ public class PullTime {
 	public LocalDateTime getForTime() {
 		return forTime;
 	}
+	
+	public void setForTime(LocalDateTime forTime) {
+		this.forTime = forTime;
+	}
 
 	public LocalDateTime getLastExecutedTime() {
 		return lastExecutedTime;

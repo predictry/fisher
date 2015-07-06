@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.predictry.fisher.config.LiveConfiguration;
 import com.predictry.fisher.domain.aggregation.Aggregation;
 import com.predictry.fisher.domain.aggregation.ItemPurchasedAggregation;
 import com.predictry.fisher.domain.aggregation.NumberOfSalesAggregation;
@@ -33,6 +32,7 @@ import com.predictry.fisher.domain.stat.Stat;
 import com.predictry.fisher.domain.tapirus.GetRecordsResult;
 import com.predictry.fisher.domain.tapirus.GetRecordsResult.STATUS;
 import com.predictry.fisher.domain.util.Helper;
+import com.predictry.fisher.repository.LiveConfiguration;
 import com.predictry.fisher.repository.PullTimeRepository;
 
 @Service
@@ -68,6 +68,20 @@ public class PullService {
 			pullTime = new PullTime("default", LocalDateTime.parse("2015-01-01T00:00:00"));
 		}
 		return pullTime;
+	}
+	
+	/**
+	 * Update information on pull time.
+	 * @param pullTime an instance of <code>PullTime</code> with new value.
+	 * @return the updated <code>PullTime</code>.
+	 */
+	public PullTime update(PullTime pullTime) {
+		PullTime existingPullTime = pullTimeRepository.findOne(pullTime.getId());
+		if (existingPullTime != null) {
+			existingPullTime.setForTime(pullTime.getForTime());
+			existingPullTime = pullTimeRepository.index(existingPullTime);
+		}
+		return existingPullTime;
 	}
 	
 	/**
