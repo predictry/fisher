@@ -32,13 +32,19 @@ public class StatController {
 	 * @param tenantId the tenant id to search for, for example, "Bukalapak".
 	 * @param startDate starting date for aggregation.
 	 * @param endDate end date for aggregation.
+	 * @param timeZone an optional time zone if the time zone is not in UTC.
 	 * @return JSON value (<code>StatOverview</code>).
 	 */
 	@RequestMapping("/stat/overview")
 	public StatOverview statOverview(@RequestParam String tenantId, 
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime startDate, 
-			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime endDate) {
+			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime endDate,
+			@RequestParam(required=false) String timeZone) {
 		tenantId = Helper.tenantIdRemapping(tenantId);
+		if (timeZone != null) {
+			startDate = Helper.convertTimeZone(startDate, timeZone, "Z");
+			endDate = Helper.convertTimeZone(endDate, timeZone, "Z");
+		}
 		log.info("Processing stat overview for tenantId [" + tenantId + "], startDate = [" + 
 				startDate + "], endDate = [" + endDate + "]" );
 		return statService.overview(startDate, endDate, tenantId);		
@@ -53,14 +59,20 @@ public class StatController {
 	 * @param metric name of metric to return.
 	 * @param interval is interval for aggregation.  Can be string like <code>"year"</code>, <code>"month"</code>, etc or
 	 * 				   expression such as <code>"1.5h"</code>.
+	 * @param timeZone an optional time zone if the time zone is not in UTC.
 	 * @return Array of JSON value.
 	 */
 	@RequestMapping("/stat")
 	public List<StatEntry> stat(@RequestParam String tenantId,
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime startDate,
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime endDate,
-			@RequestParam Metric metric, @RequestParam String interval) {
+			@RequestParam Metric metric, @RequestParam String interval,
+			@RequestParam(required=false) String timeZone) {
 		tenantId = Helper.tenantIdRemapping(tenantId);
+		if (timeZone != null) {
+			startDate = Helper.convertTimeZone(startDate, timeZone, "Z");
+			endDate = Helper.convertTimeZone(endDate, timeZone, "Z");
+		}
 		log.info("Processing stat for tenantId [" + tenantId + "], startDate [" + startDate + "], endDate = [" +
 			endDate + "], metric [" + metric + "], interval [" + interval + "]");
 		Interval bucketInterval = null;
@@ -79,7 +91,13 @@ public class StatController {
 		} else {
 			bucketInterval = new Interval(interval);
 		}
-		return statService.stat(startDate, endDate, tenantId, metric, bucketInterval);
+		List<StatEntry> stats = statService.stat(startDate, endDate, tenantId, metric, bucketInterval);
+		if (timeZone != null) {
+			for (StatEntry entry: stats) {
+				entry.setDate(Helper.convertTimeZone(entry.getDate(), "Z", timeZone));
+			}
+		}
+		return stats;
 	}
 			
 }

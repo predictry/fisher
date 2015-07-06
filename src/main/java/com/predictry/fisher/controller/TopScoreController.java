@@ -32,8 +32,13 @@ public class TopScoreController {
 	@RequestMapping("/top/hits")
 	public TopScore topView(@RequestParam String tenantId,
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime startDate,
-			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime endDate) {
+			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime endDate,
+			@RequestParam(required=false) String timeZone) {
 		tenantId = Helper.tenantIdRemapping(tenantId);
+		if (timeZone != null) {
+			startDate = Helper.convertTimeZone(startDate, timeZone, "Z");
+			endDate = Helper.convertTimeZone(endDate, timeZone, "Z");
+		}
 		log.info("Processing top hits for tenantId [" + tenantId + "], startDate = [" + startDate + "], endDate = [" + endDate + "]" );
 		return topScoreService.topScore(startDate, endDate, tenantId, TopScoreType.HIT);
 	}
@@ -46,8 +51,13 @@ public class TopScoreController {
 	@RequestMapping("/top/sales")
 	public TopScore topSales(@RequestParam String tenantId,
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime startDate,
-			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime endDate) {
+			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime endDate,
+			@RequestParam(required=false) String timeZone) {
 		tenantId = Helper.tenantIdRemapping(tenantId);
+		if (timeZone != null) {
+			startDate = Helper.convertTimeZone(startDate, timeZone, "Z");
+			endDate = Helper.convertTimeZone(endDate, timeZone, "Z");
+		}
 		log.info("Processing top sales for tenantId [" + tenantId + "], startDate = [" + startDate + "], endDate = [" + endDate + "]" );
 		return topScoreService.topScore(startDate, endDate, tenantId, TopScoreType.SALES);
 	}

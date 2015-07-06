@@ -35,4 +35,17 @@ public class HelperTest {
 		 assertTrue(Arrays.asList(result).contains("stat_2015"));
 	 }
 	 
+	 @Test
+	 public void convertToUTC() {
+		 LocalDateTime time = LocalDateTime.parse("2015-01-01T00:00:00");
+		 assertEquals(LocalDateTime.parse("2014-12-31T17:00:00"), Helper.convertTimeZone(time, "Asia/Jakarta", "Z"));
+		 assertEquals(LocalDateTime.parse("2014-12-31T16:00:00"), Helper.convertTimeZone(time, "Asia/Kuala_Lumpur", "Z"));
+		 
+		 LocalDateTime time2 = LocalDateTime.parse("2014-12-31T17:00:00");
+		 assertEquals(time, Helper.convertTimeZone(time2, "Z", "Asia/Jakarta"));
+		 
+		 LocalDateTime time3 = LocalDateTime.parse("2014-12-31T16:00:00");
+		 assertEquals(time, Helper.convertTimeZone(time3, "Z", "Asia/Kuala_Lumpur"));
+	 }
+	 
 }

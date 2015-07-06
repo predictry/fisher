@@ -1,6 +1,7 @@
 package com.predictry.fisher.domain.util;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -71,6 +72,18 @@ public class Helper {
 			return "FAMILYNARA2014";
 		}
 		return oldTenantId;
+	}
+	
+	/**
+	 * Convert an time from a time zone information to a different time zone.
+	 * 
+	 * @param time the time to convert.
+	 * @param sourceTimeZone source time zone.
+	 * @param timeZoneId destination time zone.
+	 * @return the same time in destination time zone.
+	 */
+	public static LocalDateTime convertTimeZone(LocalDateTime time, String sourceTimeZone, String destinationTimeZone) {
+		return time.atZone(ZoneId.of(sourceTimeZone)).withZoneSameInstant(ZoneId.of(destinationTimeZone)).toLocalDateTime();
 	}
 	
 }
