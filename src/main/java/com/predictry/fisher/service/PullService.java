@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.predictry.fisher.config.LiveConfiguration;
 import com.predictry.fisher.domain.aggregation.Aggregation;
 import com.predictry.fisher.domain.aggregation.ItemPurchasedAggregation;
 import com.predictry.fisher.domain.aggregation.NumberOfSalesAggregation;
@@ -55,6 +56,9 @@ public class PullService {
 	@Autowired
 	private ItemService itemService;
 	
+	@Autowired
+	private LiveConfiguration liveConfiguration;
+	
 	/**
 	 * @return retrieve default <code>PullTime</code> for default task.
 	 */
@@ -72,6 +76,7 @@ public class PullService {
 	 * @param pullTime a <code>PullTime</code> to process.
 	 */
 	public void processAggregation(PullTime pullTime) {
+		if (!liveConfiguration.isPullEnabled()) return;
 		if ((pullTime != null) && pullTime.getForTime().isBefore(LocalDateTime.now())) {
 			log.info("Processing aggregation for " + pullTime);
 			try {
@@ -139,25 +144,29 @@ public class PullService {
 		// Top score for hits
 		ScoreStore topScoreForViews = viewsAggr.getScoreStore();
 		topScoreForViews.getData().forEach((tenantId, itemScores) -> {
-			TopScore topScore = new TopScore(TopScoreType.HIT);
-			topScore.setTenantId(tenantId);
-			topScore.setTime(expectedTime);
-			itemScores.forEach(i -> {
-				topScore.addNewScore(i);
-			});
-			results.add(topScore);
+			if (!liveConfiguration.isBlacklist(tenantId)) {
+	 			TopScore topScore = new TopScore(TopScoreType.HIT);
+				topScore.setTenantId(tenantId);
+				topScore.setTime(expectedTime);
+				itemScores.forEach(i -> {
+					topScore.addNewScore(i);
+				});
+				results.add(topScore);
+			}
 		});
 		
 		// Top score for sales
 		ScoreStore topScoreForSales = salesAggr.getScoreStore();
 		topScoreForSales.getData().forEach((tenantId, itemScores) -> {
-			TopScore topScore = new TopScore(TopScoreType.SALES);
-			topScore.setTenantId(tenantId);
-			topScore.setTime(expectedTime);
-			itemScores.forEach(i -> {
-				topScore.addNewScore(i);
-			});
-			results.add(topScore);
+			if (!liveConfiguration.isBlacklist(tenantId)) {
+	 			TopScore topScore = new TopScore(TopScoreType.SALES);
+				topScore.setTenantId(tenantId);
+				topScore.setTime(expectedTime);
+				itemScores.forEach(i -> {
+					topScore.addNewScore(i);
+				});
+				results.add(topScore);
+			}
 		});
 		
 		return results;
@@ -207,14 +216,20 @@ public class PullService {
 				} else {
 					log.info("Time metadata check success!");
 				}
-			} else if (type.equals("Item")) {
-				
-				saveItem(mapJson);
 			} else {
+				// Skip tenant id if it is blacklisted
 				Map<String,Object> data = (Map<String,Object>) mapJson.get("data");
 				String tenantId = (String) data.get("tenant");
-				for (Aggregation aggr: aggrs) {
-					aggr.consume(mapJson, getStat(tenantId, expectedTime, results));
+				if (liveConfiguration.isBlacklist(tenantId)) {
+					log.info("Skip blacklisted tenant: [" + tenantId + "]");
+				} else {
+					if (type.equals("Item")) {
+						saveItem(mapJson);
+					} else {
+						for (Aggregation aggr: aggrs) {
+							aggr.consume(mapJson, getStat(tenantId, expectedTime, results));
+						}
+					}	
 				}
 			}
 		}
