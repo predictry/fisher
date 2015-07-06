@@ -100,10 +100,48 @@ Valid values for `metric` are `VIEWS`, `SALES_AMOUNT`, `ITEM_PER_CART`, `ITEM_PU
 
 `interval` can be predefined value such as `year`, `quarter`, `month`, `week`, `day`, and `hour`.  It can also be an expression such as `1.5h` (every `1.5` hours), `3M` (every `3` months), `2y` (every `2` year), etc.
 
+To return top ten most viewed items for a period, use resource `/top/hits`.  For example:
+
+    http://119.81.208.244:8090/fisher/top/hits?tenantId=FAMILYNARA2014&startDate=2015010100&endDate=2015020100
+    
+To return top ten most purchased items for a period, use resource `/top/sales`.  For example:
+
+    http://119.81.208.244:8090/fisher/top/sales?tenantId=FAMILYNARA2014&startDate=2015010100&endDate=2015020100
+    
+You can also find an information about item by using resource `/items`.  For example, to find information about item with id `11068` owned by tenant id `FAMILYNARA2014`, use the following URL:
+
+    http://119.81.208.244:8090/fisher/items/FAMILYNARA2014/11068
+    
 Whenever error in encountered (in application logic), fisher will return JSON such as:
 
     {
        "error": "This is the error message"
     }
     
- 
+## Database Schema
+
+Fisher stores aggregations into Elasticsearch in periodical indices.  Statistics are stored in indices with name starting with `stat_` and followed by four digit year.  For example: `stat_2011`, `stat_2012`, `stat_2013`, `stat_2014`.  Inside each indices, there will be a tenant id as type.
+
+The following Elasticsearch query can be used to retrieve an entry:
+
+    GET stat_2015/SUPERBUY/2015-02-01T10:00:00
+    
+Information about most viewed items is stored in periodical indices like `top_hits_2014`, `top_hits_2015`, etc.  The following Elasticsearch query can be used to retrieve an entry:
+
+    GET top_hits_2015/BUKALAPAK/2015-02-01T10:00
+    
+Information about most purchased items is stored in periodical indices like `top_views_2014`, `top_views_2015`, etc.  The following Elasticsearch query can be used to retrieve an entry:
+
+    GET top_sales_2015/grouponid/2015-01-01T04:00
+    
+Fisher also track items information for every tenant id.  For example, items for tenant id `bukalapak` is stored in `item_bukalapak`.  You can find information about an item of a tenant by using query like:
+
+    GET item_superbuymy/item/276995
+    
+To delete old items, use:
+
+    DELETE stat_2014/BUKALAPAK
+    
+or
+
+    DELETE stat_2014
