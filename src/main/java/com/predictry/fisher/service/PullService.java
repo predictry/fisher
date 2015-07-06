@@ -228,12 +228,12 @@ public class PullService {
 		item.setTenantId((String) Helper.getData(mapJson).get("tenant"));
 		@SuppressWarnings("unchecked")
 		Map<String,Object> fields = (Map<String, Object>) Helper.getData(mapJson).get("fields");
-		if ((fields != null) && (!fields.isEmpty())) {
-			item.setName((String) fields.get("name"));
-			item.setImageUrl((String) fields.get("img_url"));
-			item.setItemUrl((String) fields.get("item_url"));
-			item.setCategory((String) fields.get("category"));
-			itemService.save(item);
+		if ((fields != null) && (!fields.isEmpty()) && (fields.get("name") != null)) {
+				item.setName((String) fields.get("name"));
+				item.setImageUrl((String) fields.get("img_url"));
+				item.setItemUrl((String) fields.get("item_url"));
+				item.setCategory((String) fields.get("category"));
+				itemService.save(item);
 		}
 	}
 	
