@@ -118,6 +118,33 @@ Whenever error in encountered (in application logic), fisher will return JSON su
        "error": "This is the error message"
     }
     
+APIs that has time value accepts a `timeZone` parameter which determined which time zone there are in.  For example: `timeZone=Asia/Jakarta` or `timeZone=Asia/Kuala_Lumpur`.
+
+## Configuration API
+
+To retrieve information about current config, use the following resource:
+
+    http://119.81.208.244:8090/fisher/config
+    
+To set new value for blacklisted tenant ids, send the `PUT` request to `/fisher/config/blacklist_tenants`.  For example:
+
+    http://119.81.208.244:8090/fisher/config/blacklist_tenants/tenantid1,tenantid2,tenantid3
+    
+To clear blacklist value, send `DELETE` request to `/fisher/config/blacklist_tenants`.
+
+To enable or disable pulling operations from Tapirus, send `PUT` request to `/fisher/config/pull_enabled`.  For example:
+
+    http://119.81.208.244:8090/fisher/config/pull_enabled/false
+    
+or
+
+    http://119.81.208.244:8090/fisher/config/pull_enabled/false
+   
+To set a different time to pull from Tapirus than default one, send `PUT` request to `/fisher/config/execution_time`.  Don't forget to disable pull operation before changing time to pull. For example:
+
+    http://119.81.208.244:8090/fisher/config/execution_time/2015-01-01T00:00
+   
+    
 ## Database Schema
 
 Fisher stores aggregations into Elasticsearch in periodical indices.  Statistics are stored in indices with name starting with `stat_` and followed by four digit year.  For example: `stat_2011`, `stat_2012`, `stat_2013`, `stat_2014`.  Inside each indices, there will be a tenant id as type.
