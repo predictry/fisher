@@ -1,16 +1,17 @@
 package com.predictry.fisher.domain.tapirus;
 
+
 public class RecordFile {
 
-	private String tenantId;
+	private String tenant;
 	private String uri;
 	
 	public String getTenantId() {
-		return tenantId;
+		return tenant;
 	}
 	
 	public void setTenantId(String tenantId) {
-		this.tenantId = tenantId;
+		this.tenant = tenantId;
 	}
 	
 	public String getUri() {
@@ -23,7 +24,7 @@ public class RecordFile {
 
 	@Override
 	public String toString() {
-		return "RecordFile [tenantId=" + tenantId + ", uri=" + uri + "]";
+		return "RecordFile [tenantId=" + tenant + ", uri=" + uri + "]";
 	}
 	
 }
