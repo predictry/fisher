@@ -36,7 +36,7 @@ public class StatOverviewTest {
 		statOverview.setItemPurchased(new Value(1000.0, 0.0, 0.0));
 		assertEquals(new Value(100.0, 0.0, 0.0), statOverview.getItemPerCart());
 		
-		statOverview.setOrders(new Value(50.0, 0.0, 0.0));
+		statOverview.setOrders(new Value(60.0, 0.0, 0.0));
 		statOverview.setItemPurchased(new Value(120.0, 0.0, 0.0));
 		assertEquals(new Value(2.0, 0.0, 0.0), statOverview.getItemPerCart());
 	}

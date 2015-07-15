@@ -45,7 +45,7 @@ public class Value {
 		Value newValue = new Value();
 		newValue.setOverall(this.overall + anotherValue.getOverall());
 		newValue.setRecommended(this.recommended + anotherValue.getRecommended());
-		newValue.setRegular(this.regular + anotherValue.getRecommended());
+		newValue.setRegular(this.regular + anotherValue.getRegular());
 		return newValue;
 	}
 	
@@ -94,6 +94,12 @@ public class Value {
 		} else if (!regular.equals(other.regular))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Value [overall=" + overall + ", recommended=" + recommended
+				+ ", regular=" + regular + "]";
 	}
 	
 }

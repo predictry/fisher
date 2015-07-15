@@ -6,12 +6,12 @@ public class RecordFile {
 	private String tenant;
 	private String uri;
 	
-	public String getTenantId() {
+	public String getTenant() {
 		return tenant;
 	}
 	
-	public void setTenantId(String tenantId) {
-		this.tenant = tenantId;
+	public void setTenant(String tenant) {
+		this.tenant = tenant;
 	}
 	
 	public String getUri() {

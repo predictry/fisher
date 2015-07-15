@@ -33,8 +33,8 @@ public class TapirusServiceTest {
 	public void testGetRecords() {
 		LocalDateTime time = LocalDateTime.parse("2015-07-13T09:00:00");
 		GetRecordsResult result = tapirusService.getRecords(time);
-		assertEquals(LocalDate.parse("2015-06-01"), result.getDate());
-		assertEquals(1, result.getHour().intValue());
+		assertEquals(LocalDate.parse("2015-07-13"), result.getDate());
+		assertEquals(9, result.getHour().intValue());
 		assertEquals(GetRecordsResult.STATUS.PROCESSED, result.getStatus());
 		RecordFile[] recordFiles = result.getRecordFiles();
 		assertNotNull(recordFiles);
