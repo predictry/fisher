@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.predictry.fisher.domain.stat.Metric;
 import com.predictry.fisher.domain.stat.StatEntry;
 import com.predictry.fisher.domain.stat.StatOverview;
+import com.predictry.fisher.domain.stat.ValueType;
 import com.predictry.fisher.domain.util.Helper;
 import com.predictry.fisher.service.StatService;
 
@@ -67,14 +68,18 @@ public class StatController {
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime startDate,
 			@RequestParam @DateTimeFormat(pattern="yyyyMMddHH") LocalDateTime endDate,
 			@RequestParam Metric metric, @RequestParam String interval,
-			@RequestParam(required=false) String timeZone) {
+			@RequestParam(required=false) String timeZone,
+			@RequestParam(required=false) ValueType valueType) {
 		tenantId = Helper.tenantIdRemapping(tenantId);
 		if (timeZone != null) {
 			startDate = Helper.convertTimeZone(startDate, timeZone, "Z");
 			endDate = Helper.convertTimeZone(endDate, timeZone, "Z");
 		}
+		if (valueType == null) {
+			valueType = ValueType.OVERALL;
+		}
 		log.info("Processing stat for tenantId [" + tenantId + "], startDate [" + startDate + "], endDate = [" +
-			endDate + "], metric [" + metric + "], interval [" + interval + "]");
+			endDate + "], metric [" + metric + "], interval [" + interval + "], valueType [" + valueType + "]");
 		Interval bucketInterval = null;
 		if (interval.equals("year")) {
 			bucketInterval = Interval.YEAR;
@@ -91,7 +96,7 @@ public class StatController {
 		} else {
 			bucketInterval = new Interval(interval);
 		}
-		List<StatEntry> stats = statService.stat(startDate, endDate, tenantId, metric, bucketInterval);
+		List<StatEntry> stats = statService.stat(startDate, endDate, tenantId, metric, bucketInterval, valueType);
 		if (timeZone != null) {
 			for (StatEntry entry: stats) {
 				entry.setDate(Helper.convertTimeZone(entry.getDate(), "Z", timeZone));

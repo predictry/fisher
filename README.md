@@ -103,6 +103,8 @@ returns value such as:
             "value": 36
         }
     ]
+
+By default, this API will return the overall value.  To change to another type of value, add a `valueType` parameter which accepts the following values: `OVERALL`, `RECOMMENDED` and `REGULAR`.
     
 Valid values for `metric` are `VIEWS`, `SALES_AMOUNT`, `ITEM_PER_CART`, `ITEM_PURCHASED`, `UNIQUE_VISITOR`, and `ORDERS`.
 

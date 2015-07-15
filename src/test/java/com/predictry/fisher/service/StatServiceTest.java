@@ -26,6 +26,7 @@ import com.predictry.fisher.domain.stat.Stat;
 import com.predictry.fisher.domain.stat.StatEntry;
 import com.predictry.fisher.domain.stat.StatOverview;
 import com.predictry.fisher.domain.stat.Value;
+import com.predictry.fisher.domain.stat.ValueType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={TestRootConfig.class}, loader=AnnotationConfigContextLoader.class)
@@ -170,7 +171,8 @@ public class StatServiceTest {
 
         // Stat for Bukalapak hourly from 2014-01-01T01:00:00 to 2015-02-01T10:00:00
         List<StatEntry> result = statService.stat(LocalDateTime.parse("2014-01-01T01:00:00"), 
-    		LocalDateTime.parse("2014-01-01T05:00:00"), "BUKALAPAK", Metric.VIEWS, DateHistogram.Interval.HOUR);
+    		LocalDateTime.parse("2014-01-01T05:00:00"), "BUKALAPAK", Metric.VIEWS, DateHistogram.Interval.HOUR,
+    		ValueType.OVERALL);
         assertEquals(2, result.size());
         assertEquals(LocalDateTime.parse("2014-01-01T01:00:00"), result.get(0).getDate());
         assertEquals(100.0, result.get(0).getValue(), 0.1);
@@ -179,14 +181,16 @@ public class StatServiceTest {
         
         // Stat for Bukalapak daily from 2014-01-01T01:00:00 to 2016-01-01T10:00:00
         result = statService.stat(LocalDateTime.parse("2014-01-01T01:00:00"), 
-    		LocalDateTime.parse("2014-01-03T10:00:00"), "BUKALAPAK", Metric.VIEWS, DateHistogram.Interval.DAY);
+    		LocalDateTime.parse("2014-01-03T10:00:00"), "BUKALAPAK", Metric.VIEWS, DateHistogram.Interval.DAY,
+    		ValueType.OVERALL);
         assertEquals(1, result.size());
         assertEquals(LocalDateTime.parse("2014-01-01T00:00:00"), result.get(0).getDate());
         assertEquals(300.0, result.get(0).getValue(), 0.1);
         
         // Stat for Superbuy daily from 2014-01-01T01:00:00 to 2015-12-31T10:00:00
         result = statService.stat(LocalDateTime.parse("2014-01-01T01:00:00"), 
-    		LocalDateTime.parse("2014-01-03T10:00:00"), "SUPERBUY", Metric.VIEWS, DateHistogram.Interval.DAY);
+    		LocalDateTime.parse("2014-01-03T10:00:00"), "SUPERBUY", Metric.VIEWS, DateHistogram.Interval.DAY,
+    		ValueType.OVERALL);
         assertEquals(2, result.size());
         assertEquals(LocalDateTime.parse("2014-01-01T00:00:00"), result.get(0).getDate());
         assertEquals(30.0, result.get(0).getValue(), 0.1);

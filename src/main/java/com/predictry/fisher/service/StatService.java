@@ -29,6 +29,7 @@ import com.predictry.fisher.domain.stat.Stat;
 import com.predictry.fisher.domain.stat.StatEntry;
 import com.predictry.fisher.domain.stat.StatOverview;
 import com.predictry.fisher.domain.stat.Value;
+import com.predictry.fisher.domain.stat.ValueType;
 import com.predictry.fisher.domain.util.Helper;
 
 @Service
@@ -117,10 +118,11 @@ public class StatService {
 	 * @param tenantId is the tenant id to calculate.
 	 * @param metric is the metric to calculate.
 	 * @param interval is the bucket interval.
+	 * @param valueType is the type value to return.
 	 * @return list of <code>StatEntry</code> for every bucket.
 	 */
 	public List<StatEntry> stat(LocalDateTime startTime, LocalDateTime endTime, String tenantId, 
-			Metric metric, DateHistogram.Interval interval) {
+			Metric metric, DateHistogram.Interval interval, ValueType valueType) {
 		SearchQuery searchQuery = new NativeSearchQueryBuilder()
 			.withIndices(Helper.convertToIndices("stat", startTime, endTime))
 			.withTypes(tenantId)
@@ -132,8 +134,8 @@ public class StatService {
 					.minDocCount(0l)
 					.subAggregation(
 						(metric == Metric.ITEM_PER_CART)?
-						AggregationBuilders.avg("value").field(metric.getKeyword()):
-						AggregationBuilders.sum("value").field(metric.getKeyword())))
+						AggregationBuilders.avg("value").field(metric.getKeyword() + "." + valueType.getKeyword()):
+						AggregationBuilders.sum("value").field(metric.getKeyword() + "." + valueType.getKeyword())))
 			.build();
 		Aggregations aggregations = template.query(searchQuery, new ResultsExtractor<Aggregations>() {
 			@Override
