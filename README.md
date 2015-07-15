@@ -55,13 +55,21 @@ returns value such as:
           "recommended": 0,
           "regular": 0
       },
-      "orders": 0,
+      "orders": {
+          "overall": 0,
+          "recommended": 0,
+          "regular": 0
+      },
       "itemPurchased": {
           "overall": 0,
           "recommended": 0,
           "regular": 0
       },
-      "conversionRate": 0,
+      "conversionRate": {
+          "overall": 0,
+          "recommended": 0,
+          "regular": 0
+      },
       "salesPerCart": {
           "overall": 0,
           "recommended": 0,

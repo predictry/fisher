@@ -70,11 +70,21 @@ public class StatService {
 			.withIndices(Helper.convertToIndices("stat", startTime, endTime))
 			.withTypes(tenantId)
 			.withQuery(new FilteredQueryBuilder(null, rangeFilter("time").from(startTime).to(endTime)))
-			.addAggregation(AggregationBuilders.sum("views").field("views"))
-			.addAggregation(AggregationBuilders.sum("salesAmount").field("sales"))
-			.addAggregation(AggregationBuilders.sum("itemPurchased").field("itemPurchased"))
-			.addAggregation(AggregationBuilders.sum("uniqueVisitor").field("uniqueVisitor"))
-			.addAggregation(AggregationBuilders.sum("orders").field("orders"))
+			.addAggregation(AggregationBuilders.sum("views.overall").field("views.overall"))
+			.addAggregation(AggregationBuilders.sum("views.recommended").field("views.recommended"))
+			.addAggregation(AggregationBuilders.sum("views.regular").field("views.regular"))
+			.addAggregation(AggregationBuilders.sum("sales.overall").field("sales.overall"))
+			.addAggregation(AggregationBuilders.sum("sales.recommended").field("sales.recommended"))
+			.addAggregation(AggregationBuilders.sum("sales.regular").field("sales.regular"))
+			.addAggregation(AggregationBuilders.sum("itemPurchased.overall").field("itemPurchased.overall"))
+			.addAggregation(AggregationBuilders.sum("itemPurchased.recommended").field("itemPurchased.recommended"))
+			.addAggregation(AggregationBuilders.sum("itemPurchased.regular").field("itemPurchased.regular"))
+			.addAggregation(AggregationBuilders.sum("uniqueVisitor.overall").field("uniqueVisitor.overall"))
+			.addAggregation(AggregationBuilders.sum("uniqueVisitor.recommended").field("uniqueVisitor.recommended"))
+			.addAggregation(AggregationBuilders.sum("uniqueVisitor.regular").field("uniqueVisitor.regular"))
+			.addAggregation(AggregationBuilders.sum("orders.overall").field("orders.overall"))
+			.addAggregation(AggregationBuilders.sum("orders.recommended").field("orders.recommended"))
+			.addAggregation(AggregationBuilders.sum("orders.regular").field("orders.regular"))
 			.build();
 		Aggregations aggregations = template.query(searchQuery, new ResultsExtractor<Aggregations>() {
 			@Override
@@ -82,19 +92,21 @@ public class StatService {
 				return response.getAggregations();
 			}
 		});
-		
-		double totalViews = (double) ((InternalSum) aggregations.get("views")).getValue();
-		double totalSalesAmount = (double) ((InternalSum) aggregations.get("salesAmount")).getValue();
-		double itemPurchased = (double) ((InternalSum) aggregations.get("itemPurchased")).getValue();
-		double uniqueVisitor = (double) ((InternalSum) aggregations.get("uniqueVisitor")).getValue();
-		double order = (double) ((InternalSum) aggregations.get("orders")).getValue();
+
 		StatOverview overview = new StatOverview();
-		overview.setPageView(new Value(totalViews, 0.0, 0.0));
-		overview.setSalesAmount(new Value(totalSalesAmount, 0.0, 0.0));
-		overview.setItemPurchased(new Value(itemPurchased, 0.0, 0.0));
-		overview.setUniqueVisitor(new Value(uniqueVisitor, 0.0, 0.0));
-		overview.setOrders(new Value(order, 0.0, 0.0));
+		overview.setPageView(getAggregationValue(aggregations, "views"));
+		overview.setSalesAmount(getAggregationValue(aggregations, "sales"));
+		overview.setItemPurchased(getAggregationValue(aggregations, "itemPurchased"));
+		overview.setUniqueVisitor(getAggregationValue(aggregations, "uniqueVisitor"));
+		overview.setOrders(getAggregationValue(aggregations, "orders"));
 		return overview;
+	}
+	
+	private Value getAggregationValue(Aggregations aggregations, String aggregationName) {
+		double overall = ((InternalSum) aggregations.get(aggregationName + ".overall")).getValue();
+		double recommended = ((InternalSum) aggregations.get(aggregationName + ".recommended")).getValue();
+		double regular = ((InternalSum) aggregations.get(aggregationName + ".regular")).getValue();
+		return new Value(overall, recommended, regular);
 	}
 	
 	/**
