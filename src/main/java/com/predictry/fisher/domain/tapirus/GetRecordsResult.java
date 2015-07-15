@@ -2,6 +2,9 @@ package com.predictry.fisher.domain.tapirus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GetRecordsResult {
 	
@@ -10,7 +13,8 @@ public class GetRecordsResult {
 	private LocalDate date;
 	private Integer hour;
 	private STATUS status;
-	private String uri;
+	@JsonProperty("record_files")
+	private RecordFile[] recordFiles;
 	private LocalDateTime lastUpdate;
 	
 	public GetRecordsResult() {}
@@ -20,7 +24,6 @@ public class GetRecordsResult {
 		this.date = date;
 		this.hour = hour;
 		this.status = status;
-		this.uri = uri;
 		this.lastUpdate = lastUpdate;
 	}
 
@@ -47,15 +50,7 @@ public class GetRecordsResult {
 	public void setStatus(STATUS status) {
 		this.status = status;
 	}
-	
-	public String getUri() {
-		return uri;
-	}
-	
-	public void setUri(String uri) {
-		this.uri = uri;
-	}
-	
+		
 	public LocalDateTime getLastUpdate() {
 		return lastUpdate;
 	}
@@ -63,12 +58,21 @@ public class GetRecordsResult {
 	public void setLastUpdate(LocalDateTime lastUpdate) {
 		this.lastUpdate = lastUpdate;
 	}
+	
+	public RecordFile[] getRecordFiles() {
+		return recordFiles;
+	}
+
+	public void setRecordFiles(RecordFile[] recordFiles) {
+		this.recordFiles = recordFiles;
+	}
 
 	@Override
 	public String toString() {
 		return "GetRecordsResult [date=" + date + ", hour=" + hour
-				+ ", status=" + status + ", uri=" + uri + ", lastUpdate="
-				+ lastUpdate + "]";
+				+ ", status=" + status + ", recordFiles="
+				+ Arrays.toString(recordFiles) + ", lastUpdate=" + lastUpdate
+				+ "]";
 	}
-
+	
 }

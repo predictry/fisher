@@ -31,6 +31,7 @@ import com.predictry.fisher.domain.pull.PullTime;
 import com.predictry.fisher.domain.stat.Stat;
 import com.predictry.fisher.domain.tapirus.GetRecordsResult;
 import com.predictry.fisher.domain.tapirus.GetRecordsResult.STATUS;
+import com.predictry.fisher.domain.tapirus.RecordFile;
 import com.predictry.fisher.domain.util.Helper;
 import com.predictry.fisher.repository.LiveConfiguration;
 import com.predictry.fisher.repository.PullTimeRepository;
@@ -125,16 +126,18 @@ public class PullService {
 			if (tapResult.getStatus() == STATUS.PROCESSED) {
 				ViewsAggregation viewsAggr = new ViewsAggregation();
 				SalesAggregation salesAggr = new SalesAggregation();
-				List<String> data = tapirusService.readFile(tapResult);
 				
-				// Calculate and save stats
+				// Caculate and save stats
 				log.info("Calculating stats for [" + time + "]");
-				Map<String, Stat> stats = aggregate(data, time, viewsAggr, salesAggr);
-				for (Stat stat: stats.values()) {
-					statService.save(stat);
+				for (RecordFile recordFile: tapResult.getRecordFiles()) {
+					List<String> data = tapirusService.readFile(recordFile);
+					Map<String, Stat> stats = aggregate(data, time, viewsAggr, salesAggr);
+					for (Stat stat: stats.values()) {
+						statService.save(stat);
+					}
 				}
 				log.info("Finish calculating stat.");
-				
+								
 				// Calculate and save top scores
 				log.info("Calculating top score for [" + time + "]");
 				List<TopScore> topScores = topScore(viewsAggr, salesAggr, time);

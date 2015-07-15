@@ -1,6 +1,9 @@
 package com.predictry.fisher.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -17,6 +20,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import com.predictry.fisher.config.TestRootConfig;
 import com.predictry.fisher.domain.tapirus.GetRecordsResult;
+import com.predictry.fisher.domain.tapirus.RecordFile;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={TestRootConfig.class}, loader=AnnotationConfigContextLoader.class)
@@ -27,15 +31,18 @@ public class TapirusServiceTest {
 	
 	@Test
 	public void testGetRecords() {
-		LocalDateTime time = LocalDateTime.parse("2015-06-01T01:00:00");
+		LocalDateTime time = LocalDateTime.parse("2015-07-13T09:00:00");
 		GetRecordsResult result = tapirusService.getRecords(time);
 		assertEquals(LocalDate.parse("2015-06-01"), result.getDate());
 		assertEquals(1, result.getHour().intValue());
 		assertEquals(GetRecordsResult.STATUS.PROCESSED, result.getStatus());
-		assertEquals("trackings/records/2015/06/01/2015-06-01-01.gz", result.getUri());
+		RecordFile[] recordFiles = result.getRecordFiles();
+		assertNotNull(recordFiles);
+		assertTrue(recordFiles.length > 0);
 		try {
-			List<String> results = tapirusService.readFile(result);
-			assertEquals(468608, results.size());
+			List<String> results = tapirusService.readFile(recordFiles[0]);
+			assertNotNull(results);
+			assertFalse(results.isEmpty());
 		} catch (IOException e) {
 			fail("Exception: " + e.getMessage());
 		}

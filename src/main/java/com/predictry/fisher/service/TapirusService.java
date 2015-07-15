@@ -22,6 +22,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.predictry.fisher.domain.tapirus.GetRecordsResult;
+import com.predictry.fisher.domain.tapirus.RecordFile;
 
 @Service
 public class TapirusService {
@@ -57,12 +58,13 @@ public class TapirusService {
 		}
 	}
 	
-	public List<String> readFile(GetRecordsResult response) throws IOException {
-		log.info("Fetching " + response.getUri() + " from S3");
+	public List<String> readFile(RecordFile recordFile) throws IOException {
 		List<String> results = new ArrayList<>();
+		String uri = recordFile.getUri().replaceFirst(S3_BUCKET_NAME + "/", "");
+		log.info("Fetching " + uri + " from S3");
 		AmazonS3Client s3Client = new AmazonS3Client(new ProfileCredentialsProvider("fisher"));
 		S3ObjectInputStream s3InputStream = null;
-		try (S3Object s3Object = s3Client.getObject(S3_BUCKET_NAME, response.getUri().replaceFirst(S3_BUCKET_NAME + "/", ""))) {			
+		try (S3Object s3Object = s3Client.getObject(S3_BUCKET_NAME, uri)) {			
 			s3InputStream = s3Object.getObjectContent();
 			try (GZIPInputStream gzipInputStream = new GZIPInputStream(s3InputStream)) {
 				try (InputStreamReader isr = new InputStreamReader(gzipInputStream)) {
@@ -79,7 +81,40 @@ public class TapirusService {
 				s3InputStream.close();
 			}
 		}
-		log.info("Done fetching " + response.getUri());
+		log.info("Done fetching " + uri);
+		return results;
+	}
+	
+	/**
+	 * @deprecated It is not recommended to use this method since this will execute many
+	 * requests to S3 and causes garbage collection problem.
+	 */
+	public List<String> readFile(GetRecordsResult response) throws IOException {
+		List<String> results = new ArrayList<>();
+		for (RecordFile recordFile: response.getRecordFiles()) {
+			String uri = recordFile.getUri().replaceFirst(S3_BUCKET_NAME + "/", "");
+			log.info("Fetching " + uri + " from S3");
+			AmazonS3Client s3Client = new AmazonS3Client(new ProfileCredentialsProvider("fisher"));
+			S3ObjectInputStream s3InputStream = null;
+			try (S3Object s3Object = s3Client.getObject(S3_BUCKET_NAME, uri)) {			
+				s3InputStream = s3Object.getObjectContent();
+				try (GZIPInputStream gzipInputStream = new GZIPInputStream(s3InputStream)) {
+					try (InputStreamReader isr = new InputStreamReader(gzipInputStream)) {
+						try (BufferedReader reader = new BufferedReader(isr)) {
+							String line;
+							while ((line = reader.readLine()) != null) {
+								results.add(line);
+							}	
+						}
+					}
+				}
+			} finally {
+				if (s3InputStream != null) {
+					s3InputStream.close();
+				}
+			}
+			log.info("Done fetching " + uri);
+		}
 		return results;
 	}
 	
