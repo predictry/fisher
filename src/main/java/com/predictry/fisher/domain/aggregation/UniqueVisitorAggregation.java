@@ -3,8 +3,11 @@ package com.predictry.fisher.domain.aggregation;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
 import static com.predictry.fisher.domain.util.Helper.*;
+
 import com.predictry.fisher.domain.stat.Stat;
+import com.predictry.fisher.domain.stat.Value;
 
 public class UniqueVisitorAggregation implements Aggregation {
 
@@ -15,7 +18,7 @@ public class UniqueVisitorAggregation implements Aggregation {
 		if (getType(mapJson).equals("User") && getData(mapJson).containsKey("id")) {
 			String id = (String) getData(mapJson).get("id");
 			if (!existingIds.contains(id)) {
-				stat.addUniqueVisitor(1l);
+				stat.addUniqueVisitor(new Value(1.0, isRecommended(mapJson)?1.0:0.0, 0.0));
 				existingIds.add(id);
 			}
 		}		

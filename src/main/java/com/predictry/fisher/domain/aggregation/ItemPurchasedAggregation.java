@@ -1,8 +1,11 @@
 package com.predictry.fisher.domain.aggregation;
 
 import java.util.Map;
+
 import static com.predictry.fisher.domain.util.Helper.*;
+
 import com.predictry.fisher.domain.stat.Stat;
+import com.predictry.fisher.domain.stat.Value;
 
 public class ItemPurchasedAggregation implements Aggregation {
 
@@ -11,11 +14,13 @@ public class ItemPurchasedAggregation implements Aggregation {
 		if (getType(mapJson).equals("Action") && getDataName(mapJson).equals("BUY")) {
 			@SuppressWarnings("unchecked")
 			Map<String,Object> fields = (Map<String,Object>) getData(mapJson).get("fields");
+			double qty = 0;
 			if (fields.containsKey("quantity")) {
-				stat.addItemPurchased(Long.parseLong(fields.get("quantity").toString()));
+				qty = Double.parseDouble(fields.get("quantity").toString());
 			} else {
-				stat.addItemPurchased(1l);
+				qty = 1;
 			}
+			stat.addItemPurchased(new Value(qty, isRecommended(mapJson)? qty: 0.0, 0.0));
 		}				
 	}
 

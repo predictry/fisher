@@ -21,10 +21,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import com.predictry.fisher.config.TestRootConfig;
-import com.predictry.fisher.domain.overview.StatOverview;
 import com.predictry.fisher.domain.stat.Metric;
 import com.predictry.fisher.domain.stat.Stat;
 import com.predictry.fisher.domain.stat.StatEntry;
+import com.predictry.fisher.domain.stat.StatOverview;
+import com.predictry.fisher.domain.stat.Value;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={TestRootConfig.class}, loader=AnnotationConfigContextLoader.class)
@@ -48,7 +49,7 @@ public class StatServiceTest {
 	
 	@Test
 	public void createLogIndexIfDoesNotExist() {
-		Stat stat = new Stat("2015-12-15T10:00:00", "BUKALAPAK", 10l, 1000.0, 20l, 10l, 5l);
+		Stat stat = new Stat("2015-12-15T10:00:00", "BUKALAPAK", 10.0, 1000.0, 20.0, 10.0, 5.0);
 		statService.save(stat);
 		
 		// Check if index is created
@@ -65,21 +66,21 @@ public class StatServiceTest {
 		assertEquals(1, searchResult.size());
 		Stat savedStat = searchResult.get(0);
 		assertEquals("2015-12-15T10:00:00", savedStat.getTime());
-		assertEquals(10l, savedStat.getViews().longValue());
-		assertEquals(1000.0, savedStat.getSales(), 0.1);
-		assertEquals(20l, savedStat.getItemPurchased().longValue());
-		assertEquals(10l, savedStat.getOrders().longValue());
-		assertEquals(5l, savedStat.getUniqueVisitor().longValue());
+		assertEquals(10l, savedStat.getViews().getOverall().longValue());
+		assertEquals(1000.0, savedStat.getSales().getOverall().doubleValue(), 0.1);
+		assertEquals(20l, savedStat.getItemPurchased().getOverall().longValue());
+		assertEquals(10l, savedStat.getOrders().getOverall().longValue());
+		assertEquals(5l, savedStat.getUniqueVisitor().getOverall().longValue());
 	}
 	
 	@Test
 	public void updateExisting() {
 		// Create new stat
-		Stat stat = new Stat("2015-12-15T10:00:00", "BUKALAPAK", 10l, 1000.0, 20l, 10l, 5l);
+		Stat stat = new Stat("2015-12-15T10:00:00", "BUKALAPAK", 10.0, 1000.0, 20.0, 10.0, 5.0);
 		statService.save(stat);
 		
 		// Update this stat
-		stat.addViews(200l);
+		stat.addViews(new Value(200.0, 0.0, 0.0));
 		statService.save(stat);
 		
 		// Check if it is updated
@@ -92,11 +93,11 @@ public class StatServiceTest {
 		assertEquals(1, searchResult.size());
 		Stat savedStat = searchResult.get(0);
 		assertEquals("2015-12-15T10:00:00", savedStat.getTime());
-		assertEquals(210l, savedStat.getViews().longValue());
-		assertEquals(1000.0, savedStat.getSales(), 0.1);
-		assertEquals(20l, savedStat.getItemPurchased().longValue());
-		assertEquals(10l, savedStat.getOrders().longValue());
-		assertEquals(5l, savedStat.getUniqueVisitor().longValue());
+		assertEquals(210l, savedStat.getViews().getOverall().longValue());
+		assertEquals(1000.0, savedStat.getSales().getOverall().doubleValue(), 0.1);
+		assertEquals(20l, savedStat.getItemPurchased().getOverall().longValue());
+		assertEquals(10l, savedStat.getOrders().getOverall().longValue());
+		assertEquals(5l, savedStat.getUniqueVisitor().getOverall().longValue());
 	}
 	
 	@Test
@@ -108,49 +109,49 @@ public class StatServiceTest {
 		template.refresh("stat_2014", true);
 		
 		IndexQuery idxStat1 = new IndexQuery();
-		Stat stat1 = new Stat("2014-01-01T01:00:00", "BUKALAPAK", 100l, 10.0, 20l, 1l, 90l);
+		Stat stat1 = new Stat("2014-01-01T01:00:00", "BUKALAPAK", 100.0, 10.0, 20.0, 1.0, 90.0);
 		idxStat1.setIndexName("stat_2014");
 		idxStat1.setType("BUKALAPAK");
 		idxStat1.setId(stat1.getTime());
 		idxStat1.setObject(stat1);
 		
 		IndexQuery idxStat2 = new IndexQuery();
-		Stat stat2 = new Stat("2014-01-01T02:00:00", "BUKALAPAK", 200l, 5.0, 10l, 2l, 80l);
+		Stat stat2 = new Stat("2014-01-01T02:00:00", "BUKALAPAK", 200.0, 5.0, 10.0, 2.0, 80.0);
 		idxStat2.setIndexName("stat_2014");
 		idxStat2.setType("BUKALAPAK");
 		idxStat2.setId(stat2.getTime());
 		idxStat2.setObject(stat2);
 		
 		IndexQuery idxStat3 = new IndexQuery();
-		Stat stat3 = new Stat("2015-02-01T10:00:00", "BUKALAPAK", 50l, 3.0, 15l, 3l, 70l);
+		Stat stat3 = new Stat("2015-02-01T10:00:00", "BUKALAPAK", 50.0, 3.0, 15.0, 3.0, 70.0);
 		idxStat3.setIndexName("stat_2015");
 		idxStat3.setType("BUKALAPAK");
 		idxStat3.setId(stat3.getTime());
 		idxStat3.setObject(stat3);
 		
 		IndexQuery idxStat4 = new IndexQuery();
-		Stat stat4 = new Stat("2015-03-01T11:00:00", "BUKALAPAK", 30l, 2.0, 13l, 2l, 60l);
+		Stat stat4 = new Stat("2015-03-01T11:00:00", "BUKALAPAK", 30.0, 2.0, 13.0, 2.0, 60.0);
 		idxStat4.setIndexName("stat_2015");
 		idxStat4.setType("BUKALAPAK");
 		idxStat4.setId(stat4.getTime());
 		idxStat4.setObject(stat4);
 		
 		IndexQuery idxStat5 = new IndexQuery();
-		Stat stat5 = new Stat("2014-01-01T01:00:00", "SUPERBUY", 10l, 1.0, 2l, 1l, 9l);
+		Stat stat5 = new Stat("2014-01-01T01:00:00", "SUPERBUY", 10.0, 1.0, 2.0, 1.0, 9.0);
 		idxStat5.setIndexName("stat_2014");
 		idxStat5.setType("SUPERBUY");
 		idxStat5.setId(stat5.getTime());
 		idxStat5.setObject(stat5);
 		
 		IndexQuery idxStat6 = new IndexQuery();
-		Stat stat6 = new Stat("2014-01-01T02:00:00", "SUPERBUY", 20l, 3.0, 1l, 2l, 8l);
+		Stat stat6 = new Stat("2014-01-01T02:00:00", "SUPERBUY", 20.0, 3.0, 1.0, 2.0, 8.0);
 		idxStat6.setIndexName("stat_2014");
 		idxStat6.setType("SUPERBUY");
 		idxStat6.setId(stat6.getTime());
 		idxStat6.setObject(stat6);
 		
 		IndexQuery idxStat7 = new IndexQuery();
-		Stat stat7 = new Stat("2014-01-02T10:00:00", "SUPERBUY", 10l, 1.0, 1l, 3l, 7l);
+		Stat stat7 = new Stat("2014-01-02T10:00:00", "SUPERBUY", 10.0, 1.0, 1.0, 3.0, 7.0);
 		idxStat7.setIndexName("stat_2014");
 		idxStat7.setType("SUPERBUY");
 		idxStat7.setId(stat7.getTime());
@@ -202,49 +203,49 @@ public class StatServiceTest {
 		template.refresh("stat_2014", true);
 		
 		IndexQuery idxStat1 = new IndexQuery();
-		Stat stat1 = new Stat("2014-01-01T01:00:00", "BUKALAPAK", 100l, 10.0, 20l, 1l, 90l);
+		Stat stat1 = new Stat("2014-01-01T01:00:00", "BUKALAPAK", 100.0, 10.0, 20.0, 1.0, 90.0);
 		idxStat1.setIndexName("stat_2014");
 		idxStat1.setType("BUKALAPAK");
 		idxStat1.setId(stat1.getTime());
 		idxStat1.setObject(stat1);
 		
 		IndexQuery idxStat2 = new IndexQuery();
-		Stat stat2 = new Stat("2014-01-01T02:00:00", "BUKALAPAK", 200l, 5.0, 10l, 2l, 80l);
+		Stat stat2 = new Stat("2014-01-01T02:00:00", "BUKALAPAK", 200.0, 5.0, 10.0, 2.0, 80.0);
 		idxStat2.setIndexName("stat_2014");
 		idxStat2.setType("BUKALAPAK");
 		idxStat2.setId(stat2.getTime());
 		idxStat2.setObject(stat2);
 		
 		IndexQuery idxStat3 = new IndexQuery();
-		Stat stat3 = new Stat("2015-02-01T10:00:00", "BUKALAPAK", 50l, 3.0, 15l, 3l, 70l);
+		Stat stat3 = new Stat("2015-02-01T10:00:00", "BUKALAPAK", 50.0, 3.0, 15.0, 3.0, 70.0);
 		idxStat3.setIndexName("stat_2015");
 		idxStat3.setType("BUKALAPAK");
 		idxStat3.setId(stat3.getTime());
 		idxStat3.setObject(stat3);
 		
 		IndexQuery idxStat4 = new IndexQuery();
-		Stat stat4 = new Stat("2015-03-01T11:00:00", "BUKALAPAK", 30l, 2.0, 13l, 2l, 60l);
+		Stat stat4 = new Stat("2015-03-01T11:00:00", "BUKALAPAK", 30.0, 2.0, 13.0, 2.0, 60.0);
 		idxStat4.setIndexName("stat_2015");
 		idxStat4.setType("BUKALAPAK");
 		idxStat4.setId(stat4.getTime());
 		idxStat4.setObject(stat4);
 		
 		IndexQuery idxStat5 = new IndexQuery();
-		Stat stat5 = new Stat("2014-01-01T01:00:00", "BUKALAPAK", 10l, 1.0, 2l, 1l, 9l);
+		Stat stat5 = new Stat("2014-01-01T01:00:00", "BUKALAPAK", 10.0, 1.0, 2.0, 1.0, 9.0);
 		idxStat5.setIndexName("stat_2014");
 		idxStat5.setType("SUPERBUY");
 		idxStat5.setId(stat5.getTime());
 		idxStat5.setObject(stat5);
 		
 		IndexQuery idxStat6 = new IndexQuery();
-		Stat stat6 = new Stat("2014-01-01T02:00:00", "BUKALAPAK", 20l, 3.0, 1l, 2l, 8l);
+		Stat stat6 = new Stat("2014-01-01T02:00:00", "BUKALAPAK", 20.0, 3.0, 1.0, 2.0, 8.0);
 		idxStat6.setIndexName("stat_2014");
 		idxStat6.setType("SUPERBUY");
 		idxStat6.setId(stat6.getTime());
 		idxStat6.setObject(stat6);
 		
 		IndexQuery idxStat7 = new IndexQuery();
-		Stat stat7 = new Stat("2015-02-01T10:00:00", "BUKALAPAK", 10l, 1.0, 1l, 3l, 7l);
+		Stat stat7 = new Stat("2015-02-01T10:00:00", "BUKALAPAK", 10.0, 1.0, 1.0, 3.0, 7.0);
 		idxStat7.setIndexName("stat_2015");
 		idxStat7.setType("SUPERBUY");
 		idxStat7.setId(stat7.getTime());
@@ -267,7 +268,7 @@ public class StatServiceTest {
         assertEquals(15.0, statOverview.getSalesAmount().getOverall(), 0.5);
         assertEquals(10l, statOverview.getItemPerCart().getOverall().longValue());
         assertEquals(30l, statOverview.getItemPurchased().getOverall().longValue());
-        assertEquals(3l, statOverview.getOrders().longValue());
+        assertEquals(3l, statOverview.getOrders().getOverall().longValue());
         assertEquals(170l, statOverview.getUniqueVisitor().getOverall().longValue());
         
         // Stat for Bukalapak at 2015 month 2
@@ -276,7 +277,7 @@ public class StatServiceTest {
         assertEquals(3.0, statOverview.getSalesAmount().getOverall(), 0.5);
         assertEquals(5l, statOverview.getItemPerCart().getOverall().longValue());
         assertEquals(15l, statOverview.getItemPurchased().getOverall().longValue());
-        assertEquals(3l, statOverview.getOrders().longValue());
+        assertEquals(3l, statOverview.getOrders().getOverall().longValue());
         assertEquals(70l, statOverview.getUniqueVisitor().getOverall().longValue());
         
         // Stat for Bukalapak at 2014-2015
@@ -285,7 +286,7 @@ public class StatServiceTest {
         assertEquals(20.0, statOverview.getSalesAmount().getOverall(), 0.5);
         assertEquals(7l, statOverview.getItemPerCart().getOverall().longValue());
         assertEquals(58l, statOverview.getItemPurchased().getOverall().longValue());
-        assertEquals(8l, statOverview.getOrders().longValue());
+        assertEquals(8l, statOverview.getOrders().getOverall().longValue());
         assertEquals(300l, statOverview.getUniqueVisitor().getOverall().longValue());
         
         // Stat for Superbuy at 2014
@@ -294,7 +295,7 @@ public class StatServiceTest {
         assertEquals(4.0, statOverview.getSalesAmount().getOverall(), 0.5);
         assertEquals(1l, statOverview.getItemPerCart().getOverall().longValue());
         assertEquals(3l, statOverview.getItemPurchased().getOverall().longValue());
-        assertEquals(3l, statOverview.getOrders().longValue());
+        assertEquals(3l, statOverview.getOrders().getOverall().longValue());
         assertEquals(17l, statOverview.getUniqueVisitor().getOverall().longValue());
         
         // Stat for Superbuy at 2015
@@ -303,7 +304,7 @@ public class StatServiceTest {
         assertEquals(1.0, statOverview.getSalesAmount().getOverall(), 0.5);
         assertEquals(0l, statOverview.getItemPerCart().getOverall().longValue());
         assertEquals(1l, statOverview.getItemPurchased().getOverall().longValue());
-        assertEquals(3l, statOverview.getOrders().longValue());
+        assertEquals(3l, statOverview.getOrders().getOverall().longValue());
         assertEquals(7l, statOverview.getUniqueVisitor().getOverall().longValue());   
 	}
 

@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.predictry.fisher.domain.overview.StatOverview;
 import com.predictry.fisher.domain.stat.Metric;
 import com.predictry.fisher.domain.stat.StatEntry;
+import com.predictry.fisher.domain.stat.StatOverview;
 import com.predictry.fisher.domain.util.Helper;
 import com.predictry.fisher.service.StatService;
 

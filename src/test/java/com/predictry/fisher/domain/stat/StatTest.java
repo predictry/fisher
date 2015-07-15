@@ -29,37 +29,37 @@ public class StatTest {
 	@Test
 	public void addSales() {
 		Stat stat = new Stat();
-		stat.addSales(1000.5);
-		assertEquals(1000.5, stat.getSales(), 0.5);
-		stat.addSales(50.5);
-		assertEquals(1051, stat.getSales(), 0.5);
+		stat.addSales(new Value(1000.5, 100.0, 0.0));
+		assertEquals(new Value(1000.5, 100.0, 0.0), stat.getSales());
+		stat.addSales(new Value(50.5, 10.0, 0.0));
+		assertEquals(new Value(1051.0, 110.0, 0.0), stat.getSales());
 	}
 	
 	@Test
 	public void addView() {
 		Stat stat = new Stat();
-		stat.addViews(10l);
-		assertEquals(10l, stat.getViews().longValue());
-		stat.addViews(15l);
-		assertEquals(25l, stat.getViews().longValue());
+		stat.addViews(new Value(10.0, 100.0, 0.0));
+		assertEquals(new Value(10.0, 100.0, 0.0), stat.getViews());
+		stat.addViews(new Value(15.0, 10.0, 0.0));
+		assertEquals(new Value(25.0, 110.0, 0.0), stat.getViews());
 	}
 		
 	@Test
 	public void addItemPurchased() {
 		Stat stat = new Stat();
-		stat.addItemPurchased(10l);
-		assertEquals(10l, stat.getItemPurchased().longValue());
-		stat.addItemPurchased(20l);
-		assertEquals(30l, stat.getItemPurchased().longValue());
+		stat.addItemPurchased(new Value(10.0, 100.0, 0.0));
+		assertEquals(new Value(10.0, 100.0, 0.0), stat.getItemPurchased());
+		stat.addItemPurchased(new Value(20.0, 10.0, 0.0));
+		assertEquals(new Value(30.0, 110.0, 0.0), stat.getItemPurchased());
 	}
 	
 	@Test
 	public void addUniqueVisitor() {
 		Stat stat = new Stat();
-		stat.addUniqueVisitor(100l);
-		assertEquals(100l, stat.getUniqueVisitor().longValue());
-		stat.addUniqueVisitor(150l);
-		assertEquals(250l, stat.getUniqueVisitor().longValue());
+		stat.addUniqueVisitor(new Value(100.0, 10.0, 0.0));
+		assertEquals(new Value(100.0, 10.0, 0.0), stat.getUniqueVisitor());
+		stat.addUniqueVisitor(new Value(150.0, 20.0, 0.0));
+		assertEquals(new Value(250.0, 30.0, 0.0), stat.getUniqueVisitor());
 	}
 	
 }

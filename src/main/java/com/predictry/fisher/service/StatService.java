@@ -24,11 +24,11 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Service;
 
-import com.predictry.fisher.domain.overview.StatOverview;
-import com.predictry.fisher.domain.overview.Value;
 import com.predictry.fisher.domain.stat.Metric;
 import com.predictry.fisher.domain.stat.Stat;
 import com.predictry.fisher.domain.stat.StatEntry;
+import com.predictry.fisher.domain.stat.StatOverview;
+import com.predictry.fisher.domain.stat.Value;
 import com.predictry.fisher.domain.util.Helper;
 
 @Service
@@ -83,17 +83,17 @@ public class StatService {
 			}
 		});
 		
-		long totalViews = (long) ((InternalSum) aggregations.get("views")).getValue();
+		double totalViews = (double) ((InternalSum) aggregations.get("views")).getValue();
 		double totalSalesAmount = (double) ((InternalSum) aggregations.get("salesAmount")).getValue();
-		long itemPurchased = (long) ((InternalSum) aggregations.get("itemPurchased")).getValue();
-		long uniqueVisitor = (long) ((InternalSum) aggregations.get("uniqueVisitor")).getValue();
-		long order = (long) ((InternalSum) aggregations.get("orders")).getValue();
+		double itemPurchased = (double) ((InternalSum) aggregations.get("itemPurchased")).getValue();
+		double uniqueVisitor = (double) ((InternalSum) aggregations.get("uniqueVisitor")).getValue();
+		double order = (double) ((InternalSum) aggregations.get("orders")).getValue();
 		StatOverview overview = new StatOverview();
-		overview.setPageView(new Value<Long>(totalViews, 0l, 0l));
-		overview.setSalesAmount(new Value<Double>(totalSalesAmount, 0.0, 0.0));
-		overview.setItemPurchased(new Value<Long>(itemPurchased, 0l, 0l));
-		overview.setUniqueVisitor(new Value<Long>(uniqueVisitor, 0l, 0l));
-		overview.setOrders(order);
+		overview.setPageView(new Value(totalViews, 0.0, 0.0));
+		overview.setSalesAmount(new Value(totalSalesAmount, 0.0, 0.0));
+		overview.setItemPurchased(new Value(itemPurchased, 0.0, 0.0));
+		overview.setUniqueVisitor(new Value(uniqueVisitor, 0.0, 0.0));
+		overview.setOrders(new Value(order, 0.0, 0.0));
 		return overview;
 	}
 	

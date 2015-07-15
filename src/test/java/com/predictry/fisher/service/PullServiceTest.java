@@ -50,19 +50,19 @@ public class PullServiceTest {
 		
 		// Stat for 'tenant1'
 		Stat statTenant1 = stats.get("tenant1");
-		assertEquals(2l, statTenant1.getViews().longValue());
-		assertEquals(1000001.1, statTenant1.getSales(), 0.5);
-		assertEquals(28l, statTenant1.getItemPurchased().longValue());
-		assertEquals(2l, statTenant1.getUniqueVisitor().longValue());
-		assertEquals(4l, statTenant1.getOrders().longValue());
+		assertEquals(2l, statTenant1.getViews().getOverall().longValue());
+		assertEquals(1000001.1, statTenant1.getSales().getOverall().doubleValue(), 0.5);
+		assertEquals(28l, statTenant1.getItemPurchased().getOverall().longValue());
+		assertEquals(2l, statTenant1.getUniqueVisitor().getOverall().longValue());
+		assertEquals(4l, statTenant1.getOrders().getOverall().longValue());
 		
 		// Stat for 'tenant2'
 		Stat statTenant2 = stats.get("tenant2");
-		assertEquals(3l, statTenant2.getViews().longValue());
-		assertEquals(18000.0, statTenant2.getSales(), 0.5);
-		assertEquals(27l, statTenant2.getItemPurchased().longValue());
-		assertEquals(3l, statTenant2.getUniqueVisitor().longValue());
-		assertEquals(3l, statTenant2.getOrders().longValue());
+		assertEquals(3l, statTenant2.getViews().getOverall().longValue());
+		assertEquals(18000.0, statTenant2.getSales().getOverall().doubleValue(), 0.5);
+		assertEquals(27l, statTenant2.getItemPurchased().getOverall().longValue());
+		assertEquals(3l, statTenant2.getUniqueVisitor().getOverall().longValue());
+		assertEquals(3l, statTenant2.getOrders().getOverall().longValue());
 		
 		// Check if items were created
 		assertTrue(template.indexExists("item_tenant1"));
@@ -101,8 +101,8 @@ public class PullServiceTest {
 		Map<String, Stat> stats = pullService.aggregate(sources, LocalDateTime.parse("2015-06-19T03:00:00"));
 		
 		Stat statTenant1 = stats.get("tenant1");
-		assertEquals(2l, statTenant1.getOrders().longValue());
-		assertEquals(21l, statTenant1.getItemPurchased().longValue());
+		assertEquals(2l, statTenant1.getOrders().getOverall().longValue());
+		assertEquals(21l, statTenant1.getItemPurchased().getOverall().longValue());
 	}
 	
 	@Test

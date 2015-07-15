@@ -59,6 +59,21 @@ public class Helper {
 	}
 	
 	/**
+	 * Check if JSON map has a flag that indicates it is an recommendation.
+	 * 
+	 * @param mapJson a JSON map that represents result from Tapirus.
+	 * @return <code>true</code> if the map contains recommendation flag.
+	 */
+	@SuppressWarnings("unchecked")
+	public static boolean isRecommended(Map<String,Object> mapJson) {
+		if (mapJson.containsKey("recommendation")) {
+			return (boolean) ((Map<String,Object>) mapJson.get("recommendation")).get("recommended");
+		} else {
+			return false;
+		}
+	}
+	
+	/**
 	 * A temporary solution to do tenant id remapping.
 	 * 
 	 * @param oldTenantId the tenant id to remap.

@@ -14,24 +14,24 @@ public class Stat {
 	private String time;
 	@JsonIgnore
 	private String tenantId;
-	private Long views = 0l;
-	private Double sales = 0.0;
-	private Long itemPurchased = 0l;
-	private Long orders = 0l;
-	private Long uniqueVisitor = 0l;
+	private Value views = new Value();
+	private Value sales = new Value();
+	private Value itemPurchased = new Value();
+	private Value orders = new Value();
+	private Value uniqueVisitor = new Value();
 		
 	public Stat() {}
 	
-	public Stat(String time, String tenantId, Long views, Double sales,
-			Long itemPurchased, Long orders, Long uniqueVisitor) {
+	public Stat(String time, String tenantId, Double views, Double sales,
+			Double itemPurchased, Double orders, Double uniqueVisitor) {
 		super();
 		this.time = time;
 		this.tenantId = tenantId;
-		this.views = views;
-		this.sales = sales;
-		this.itemPurchased = itemPurchased;
-		this.orders = orders;
-		this.uniqueVisitor = uniqueVisitor;
+		this.views = new Value(views, 0.0, 0.0);
+		this.sales = new Value(sales, 0.0, 0.0);
+		this.itemPurchased = new Value(itemPurchased, 0.0, 0.0);
+		this.orders = new Value(orders, 0.0, 0.0);
+		this.uniqueVisitor = new Value(uniqueVisitor, 0.0, 0.0);
 	}
 
 	@Id
@@ -55,43 +55,43 @@ public class Stat {
 		this.time = time.toString();
 	}
 	
-	public Long getViews() {
+	public Value getViews() {
 		return views;
 	}
 	
-	public void setViews(Long views) {
+	public void setViews(Value views) {
 		this.views = views;
 	}
 	
-	public Double getSales() {
+	public Value getSales() {
 		return sales;
 	}
 	
-	public void setSales(Double sales) {
+	public void setSales(Value sales) {
 		this.sales = sales;
 	}
 		
-	public Long getItemPurchased() {
+	public Value getItemPurchased() {
 		return itemPurchased;
 	}
 	
-	public void setItemPurchased(Long itemPurchased) {
+	public void setItemPurchased(Value itemPurchased) {
 		this.itemPurchased = itemPurchased;
 	}
 	
-	public Long getOrders() {
+	public Value getOrders() {
 		return orders;
 	}
 	
-	public void setOrders(Long orders) {
+	public void setOrders(Value orders) {
 		this.orders = orders;
 	}
 	
-	public Long getUniqueVisitor() {
+	public Value getUniqueVisitor() {
 		return uniqueVisitor;
 	}
 	
-	public void setUniqueVisitor(Long uniqueVisitor) {
+	public void setUniqueVisitor(Value uniqueVisitor) {
 		this.uniqueVisitor = uniqueVisitor;
 	}
 	
@@ -127,8 +127,8 @@ public class Stat {
 	 * 
 	 * @param views the amount of views to be added to current views.
 	 */
-	public void addViews(Long views) {
-		this.views += views;
+	public void addViews(Value views) {
+		this.views = this.views.plus(views);
 	}
 	
 	/**
@@ -136,8 +136,8 @@ public class Stat {
 	 * 
 	 * @param sales the amount of sales to be added to current sales.
 	 */
-	public void addSales(Double sales) {
-		this.sales += sales;
+	public void addSales(Value sales) {
+		this.sales = this.sales.plus(sales);
 	}
 		
 	/**
@@ -145,8 +145,8 @@ public class Stat {
 	 * 
 	 * @param order is number of sales (orders) to add to current value.
 	 */
-	public void addOrder(Long orders) {
-		this.orders += orders;
+	public void addOrder(Value orders) {
+		this.orders = this.orders.plus(orders);
 	}
 	
 	/**
@@ -154,8 +154,8 @@ public class Stat {
 	 * 
 	 * @param itemPurchased the number of item purchased to be added to current views.
 	 */
-	public void addItemPurchased(Long itemPurchased) {
-		this.itemPurchased += itemPurchased;
+	public void addItemPurchased(Value itemPurchased) {
+		this.itemPurchased = this.itemPurchased.plus(itemPurchased);
 	}
 	
 	/**
@@ -163,8 +163,8 @@ public class Stat {
 	 * 
 	 * @param uniqueVisitor the number of unique visitor to be added to current unique visitors.
 	 */
-	public void addUniqueVisitor(Long uniqueVisitor) {
-		this.uniqueVisitor += uniqueVisitor;
+	public void addUniqueVisitor(Value uniqueVisitor) {
+		this.uniqueVisitor = this.uniqueVisitor.plus(uniqueVisitor);
 	}
 	
 }

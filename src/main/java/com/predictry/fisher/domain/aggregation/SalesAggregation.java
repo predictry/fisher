@@ -3,12 +3,14 @@ package com.predictry.fisher.domain.aggregation;
 import static com.predictry.fisher.domain.util.Helper.getData;
 import static com.predictry.fisher.domain.util.Helper.getDataName;
 import static com.predictry.fisher.domain.util.Helper.getType;
+import static com.predictry.fisher.domain.util.Helper.isRecommended;
 
 import java.util.Map;
 
 import com.predictry.fisher.domain.item.ItemScore;
 import com.predictry.fisher.domain.item.ScoreStore;
 import com.predictry.fisher.domain.stat.Stat;
+import com.predictry.fisher.domain.stat.Value;
 
 public class SalesAggregation implements Aggregation {
 	
@@ -21,7 +23,11 @@ public class SalesAggregation implements Aggregation {
 			Map<String,Object> fields = (Map<String,Object>) getData(mapJson).get("fields");
 			if (fields.containsKey("sub_total")) {
 				Double subTotal = Double.parseDouble(fields.get("sub_total").toString());
-				stat.addSales(subTotal);
+				stat.addSales(new Value(
+					subTotal,
+					isRecommended(mapJson)? subTotal: 0.0,
+					0.0
+				));
 				
 				// Add sales amount per item
 				Map<String,Object> data = getData(mapJson);
