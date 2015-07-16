@@ -13,6 +13,7 @@ import java.util.zip.GZIPInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -29,8 +30,11 @@ public class TapirusService {
 
 	private static final Logger log = LoggerFactory.getLogger(PullService.class);
 	
-	private static final String TAPIRUS_URL = "http://119.81.208.244:7870";
-	private static final String S3_BUCKET_NAME = "trackings";
+	@Value("#{environment['FISHER_TAPIRUS_URL']?:'http://119.81.208.244:7870'}")
+	public String TAPIRUS_URL;
+	
+	@Value("#{environment['FISHER_S3_BUCKET_NAME']?:'trackings'}")
+	public String S3_BUCKET_NAME;
 	
 	/**
 	 * Read result from Tapirus. If it is not found, this method will return <code>null</code>.
@@ -53,6 +57,7 @@ public class TapirusService {
 			if (httpError.getStatusCode().value() == 404) {
 				return null;
 			} else {
+				log.error("Exception while retrieving records: " + httpError.getMessage(), httpError);
 				throw httpError;
 			}
 		}

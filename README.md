@@ -134,7 +134,7 @@ Whenever error in encountered (in application logic), fisher will return JSON su
     
 APIs that has time value accepts a `timeZone` parameter which determined which time zone there are in.  For example: `timeZone=Asia/Jakarta` or `timeZone=Asia/Kuala_Lumpur`.
 
-## Configuration API
+## Configuration
 
 To retrieve information about current config, use the following resource:
 
@@ -158,7 +158,15 @@ To set a different time to pull from Tapirus than default one, send `PUT` reques
 
     http://119.81.208.244:8090/fisher/config/execution_time/2015-01-01T00:00
    
+To point to another Tapirus' deployment, set the value for `FISHER_TAPIRUS_URL` environment variable before running Fisher.  For example:
+
+    export FISHER_TAPIRUS_URL=http://12.23.44.55:9999
     
+If Tapirus returns another bucket, set the value for `FISHER_S3_BUCKET_NAME` environment variable before running Fisher.  For example:
+
+    export FISHER_S3_BUCKET_NAME=newbuckets
+    
+
 ## Database Schema
 
 Fisher stores aggregations into Elasticsearch in periodical indices.  Statistics are stored in indices with name starting with `stat_` and followed by four digit year.  For example: `stat_2011`, `stat_2012`, `stat_2013`, `stat_2014`.  Inside each indices, there will be a tenant id as type.

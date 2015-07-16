@@ -126,7 +126,7 @@ public class PullService {
 				ViewsAggregation viewsAggr = new ViewsAggregation();
 				SalesAggregation salesAggr = new SalesAggregation();
 				
-				// Caculate and save stats
+				// Calculate and save stats
 				log.info("Calculating stats for [" + time + "]");
 				for (RecordFile recordFile: tapResult.getRecordFiles()) {
 					if (liveConfiguration.isBlacklist(recordFile.getTenant())) {
