@@ -66,8 +66,9 @@ public class Helper {
 	 */
 	@SuppressWarnings("unchecked")
 	public static boolean isRecommended(Map<String,Object> mapJson) {
-		if (mapJson.containsKey("recommendation")) {
-			return (boolean) ((Map<String,Object>) mapJson.get("recommendation")).get("recommended");
+		Map<String, Object> data = getData(mapJson);
+		if (data.containsKey("recommendation")) {
+			return (boolean) ((Map<String,Object>) data.get("recommendation")).get("recommended");
 		} else {
 			return false;
 		}

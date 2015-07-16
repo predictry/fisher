@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,16 @@ public class PullServiceTest {
 	
 	@Autowired
 	private ElasticsearchTemplate template;
+	
+	@Before
+	public void clean() {
+		if (template.indexExists("stat_2015")) {
+			template.deleteIndex("stat_2015");
+		}
+		if (template.indexExists("stat_2014")) {
+			template.deleteIndex("stat_2014");
+		}
+	}
 	
 	@Test
 	public void aggregateFile() throws IOException {
@@ -103,6 +114,18 @@ public class PullServiceTest {
 		Stat statTenant1 = stats.get("tenant1");
 		assertEquals(2l, statTenant1.getOrders().getOverall().longValue());
 		assertEquals(21l, statTenant1.getItemPurchased().getOverall().longValue());
+	}
+	
+	@Test
+	public void aggregateRecommendation() throws IOException {
+		File file = new File(getClass().getResource("/sample_recommendation.log").getFile());
+		List<String> sources = Files.readAllLines(file.toPath());
+		Map<String, Stat> stats = pullService.aggregate(sources, LocalDateTime.parse("2015-06-19T03:00:00"));
+		
+		Stat statTenant1 = stats.get("tenant1");
+		assertEquals(6, statTenant1.getViews().getOverall().intValue());
+		assertEquals(4, statTenant1.getViews().getRecommended().intValue());
+		assertEquals(0, statTenant1.getViews().getRegular().intValue());
 	}
 	
 	@Test
