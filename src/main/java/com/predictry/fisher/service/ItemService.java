@@ -1,7 +1,8 @@
 package com.predictry.fisher.service;
 
+import static org.elasticsearch.index.query.FilterBuilders.termFilter;
+
 import java.util.Arrays;
-import static org.elasticsearch.index.query.FilterBuilders.*;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -65,6 +66,20 @@ public class ItemService {
 			result.setTenantId(tenantId);
 			return result;
 		}
+	}
+	
+	/**
+	 * Count number of items owned by a tenant.
+	 * 
+	 * @param tenantId is the tenant id.
+	 * @return number of items for this tenant id.
+	 */
+	public long count(String tenantId) {
+		Asserts.notNull(tenantId, "Tenant id can't be null.");
+		SearchQuery searchQuery = new NativeSearchQueryBuilder().withIndices("item_" + tenantId.toLowerCase())
+			.withTypes("item")
+			.build();
+		return template.count(searchQuery);
 	}
 	
 }

@@ -58,9 +58,14 @@ public class TapirusService {
 		}
 	}
 	
-	public List<String> readFile(RecordFile recordFile) throws IOException {
+	/**
+	 * Read any extra data in the S3 bucket if it is available.
+	 * 
+	 * @param time the time to search for.
+	 * @return the content of the file in form of list of <code>String</code>.
+	 */
+	public List<String> readFromS3(String uri) throws IOException {
 		List<String> results = new ArrayList<>();
-		String uri = recordFile.getUri().replaceFirst(S3_BUCKET_NAME + "/", "");
 		log.info("Fetching " + uri + " from S3");
 		AmazonS3Client s3Client = new AmazonS3Client(new ProfileCredentialsProvider("fisher"));
 		S3ObjectInputStream s3InputStream = null;
@@ -83,6 +88,17 @@ public class TapirusService {
 		}
 		log.info("Done fetching " + uri);
 		return results;
+	}
+		
+	/**
+	 * Read from S3 bucket based on Tapirus results.
+	 * 
+	 * @param recordFile is the <code>RecordFile</code> that contains uri to read.
+	 * @return the content of the file in form of list of <code>String</code>.
+	 */
+	public List<String> readFile(RecordFile recordFile) throws IOException {
+		String uri = recordFile.getUri().replaceFirst(S3_BUCKET_NAME + "/", "");
+		return readFromS3(uri);
 	}
 	
 	/**

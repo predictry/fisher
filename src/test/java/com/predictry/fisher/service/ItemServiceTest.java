@@ -112,5 +112,26 @@ public class ItemServiceTest {
 		assertEquals("http://image.url", result.getImageUrl());
 		assertEquals("category1", result.getCategory());
 	}
+	
+	@Test
+	public void count() {
+		Item item = new Item("id1", "item1", "http://item.url", "http://image.url", "category1");
+		item.setTenantId("BUKALAPAK");
+		itemService.save(item);
+		template.refresh("item_bukalapak", true);
+		assertEquals(1l, itemService.count("BUKALAPAK"));
+		
+		item = new Item("id2", "item2", "http://item.url", "http://image.url", "category1");
+		item.setTenantId("BUKALAPAK");
+		itemService.save(item);
+		template.refresh("item_bukalapak", true);
+		assertEquals(2l, itemService.count("BUKALAPAK"));
+		
+		item = new Item("id3", "item3", "http://item.url", "http://image.url", "category1");
+		item.setTenantId("BUKALAPAK");
+		itemService.save(item);
+		template.refresh("item_bukalapak", true);
+		assertEquals(3l, itemService.count("BUKALAPAK"));
+	}
 
 }

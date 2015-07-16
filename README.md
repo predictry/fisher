@@ -122,6 +122,10 @@ You can also find an information about item by using resource `/items`.  For exa
 
     http://119.81.208.244:8090/fisher/items/FAMILYNARA2014/11068
     
+To return number of stored items for a tenant, use the following URL:
+
+    http://119.81.208.244:8090/fisher/items/{tenantId}/count 
+
 Whenever error in encountered (in application logic), fisher will return JSON such as:
 
     {

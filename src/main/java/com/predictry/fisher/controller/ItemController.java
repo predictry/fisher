@@ -31,4 +31,15 @@ public class ItemController {
 		return itemService.find(tenantId, itemId);
 	}
 	
+	/**
+	 * Retrieve number of items stored for a tenant id.
+	 * 
+	 * @return number of items.
+	 */
+	@RequestMapping("/items/{tenantId}/count")
+	public Long count(@PathVariable String tenantId) {
+		tenantId = Helper.tenantIdRemapping(tenantId);
+		log.info("Calculating number of items for tenant id [" + tenantId + "]");
+		return itemService.count(tenantId);
+	}
 }
