@@ -2,7 +2,6 @@ package com.predictry.fisher.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -11,7 +10,6 @@ import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,12 +53,10 @@ public class PullServiceTest {
 	
 	@Test
 	public void aggregateFile() throws IOException {
-		File file = new File(getClass().getResource("/sample.log").getFile());
-		List<String> sources = Files.readAllLines(file.toPath());
-		Map<String, Stat> stats = pullService.aggregate(sources, LocalDateTime.parse("2015-06-19T03:00:00"));
-		
 		// Stat for 'tenant1'
-		Stat statTenant1 = stats.get("tenant1");
+		File file = new File(getClass().getResource("/sample_tenant1.log").getFile());
+		List<String> sources = Files.readAllLines(file.toPath());
+		Stat statTenant1 = pullService.aggregate(sources, "tenant1", LocalDateTime.parse("2015-06-19T03:00:00"));
 		assertEquals(2l, statTenant1.getViews().getOverall().longValue());
 		assertEquals(1000001.1, statTenant1.getSales().getOverall().doubleValue(), 0.5);
 		assertEquals(28l, statTenant1.getItemPurchased().getOverall().longValue());
@@ -68,7 +64,9 @@ public class PullServiceTest {
 		assertEquals(4l, statTenant1.getOrders().getOverall().longValue());
 		
 		// Stat for 'tenant2'
-		Stat statTenant2 = stats.get("tenant2");
+		file = new File(getClass().getResource("/sample_tenant2.log").getFile());
+		sources = Files.readAllLines(file.toPath());
+		Stat statTenant2 = pullService.aggregate(sources, "tenant2", LocalDateTime.parse("2015-06-19T03:00:00"));
 		assertEquals(3l, statTenant2.getViews().getOverall().longValue());
 		assertEquals(18000.0, statTenant2.getSales().getOverall().doubleValue(), 0.5);
 		assertEquals(27l, statTenant2.getItemPurchased().getOverall().longValue());
@@ -109,9 +107,8 @@ public class PullServiceTest {
 	public void aggregateBuy() throws IOException {
 		File file = new File(getClass().getResource("/sample_buy.log").getFile());
 		List<String> sources = Files.readAllLines(file.toPath());
-		Map<String, Stat> stats = pullService.aggregate(sources, LocalDateTime.parse("2015-06-19T03:00:00"));
 		
-		Stat statTenant1 = stats.get("tenant1");
+		Stat statTenant1 = pullService.aggregate(sources, "tenant1", LocalDateTime.parse("2015-06-19T03:00:00"));
 		assertEquals(2l, statTenant1.getOrders().getOverall().longValue());
 		assertEquals(21l, statTenant1.getItemPurchased().getOverall().longValue());
 	}
@@ -120,9 +117,8 @@ public class PullServiceTest {
 	public void aggregateRecommendation() throws IOException {
 		File file = new File(getClass().getResource("/sample_recommendation.log").getFile());
 		List<String> sources = Files.readAllLines(file.toPath());
-		Map<String, Stat> stats = pullService.aggregate(sources, LocalDateTime.parse("2015-06-19T03:00:00"));
 		
-		Stat statTenant1 = stats.get("tenant1");
+		Stat statTenant1 = pullService.aggregate(sources, "tenant1", LocalDateTime.parse("2015-06-19T03:00:00"));
 		assertEquals(6, statTenant1.getViews().getOverall().intValue());
 		assertEquals(4, statTenant1.getViews().getRecommended().intValue());
 		assertEquals(0, statTenant1.getViews().getRegular().intValue());
@@ -134,7 +130,7 @@ public class PullServiceTest {
 		List<String> sources = Files.readAllLines(file.toPath());
 		ViewsAggregation viewsAggregation = new ViewsAggregation();
 		SalesAggregation salesAggregation = new SalesAggregation();
-		pullService.aggregate(sources, LocalDateTime.parse("2015-06-19T03:00:00"), viewsAggregation, salesAggregation);
+		pullService.aggregate(sources, "tenant1", LocalDateTime.parse("2015-06-19T03:00:00"), viewsAggregation, salesAggregation);
 		List<TopScore> topScores = pullService.topScore(viewsAggregation, salesAggregation, LocalDateTime.parse("2015-06-19T03:00:00"));
 		assertEquals(4, topScores.size());
 		
@@ -175,15 +171,13 @@ public class PullServiceTest {
 		PullTime updatedPullTime = pullService.update(pullTime);
 		assertEquals(pullTime.getId(), updatedPullTime.getId());
 		assertEquals("2007-12-03T10:15:30", updatedPullTime.getForTime().toString());
-		assertNull(updatedPullTime.getLastExecutedTime());
-		assertEquals(0, updatedPullTime.getRepeat().intValue());
 	}
 	
 	@Test(expected=RuntimeException.class)
 	public void aggregateFileWithInvalidTimeMetadata() throws IOException {
 		File file = new File(getClass().getResource("/sample_invalid_metadata.log").getFile());
 		List<String> sources = Files.readAllLines(file.toPath());
-		pullService.aggregate(sources, LocalDateTime.parse("2015-06-19T03:00:00"));		
+		pullService.aggregate(sources, "tenant1", LocalDateTime.parse("2015-06-19T03:00:00"));		
 	}
 	
 }

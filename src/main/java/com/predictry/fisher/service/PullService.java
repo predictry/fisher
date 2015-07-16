@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -130,11 +129,13 @@ public class PullService {
 				// Caculate and save stats
 				log.info("Calculating stats for [" + time + "]");
 				for (RecordFile recordFile: tapResult.getRecordFiles()) {
-					List<String> data = tapirusService.readFile(recordFile);
-					Map<String, Stat> stats = aggregate(data, time, viewsAggr, salesAggr);
-					for (Stat stat: stats.values()) {
-						statService.save(stat);
+					if (liveConfiguration.isBlacklist(recordFile.getTenant())) {
+						log.info("Skip blacklisted tenant: [" + recordFile.getTenant() + "]");
+						continue;
 					}
+					List<String> data = tapirusService.readFile(recordFile);
+					Stat stat = aggregate(data, recordFile.getTenant(), time, viewsAggr, salesAggr);
+					statService.save(stat);
 				}
 				log.info("Finish calculating stat.");
 								
@@ -194,8 +195,8 @@ public class PullService {
 	 * 
 	 * @see #aggregate(List, LocalDateTime, ViewsAggregation, SalesAggregation)
 	 */
-	public Map<String,Stat> aggregate(List<String> sources, LocalDateTime expectedTime) throws IOException {
-		return aggregate(sources, expectedTime, new ViewsAggregation(), new SalesAggregation());
+	public Stat aggregate(List<String> sources, String tenantId, LocalDateTime expectedTime) throws IOException {
+		return aggregate(sources, tenantId, expectedTime, new ViewsAggregation(), new SalesAggregation());
 	}
 	
 	/**
@@ -206,8 +207,11 @@ public class PullService {
 	 * @return a <code>Map</code> that contains <code>Stat</code> for each tenant ids.
 	 */
 	@SuppressWarnings("unchecked")
-	public Map<String,Stat> aggregate(List<String> sources, LocalDateTime expectedTime, ViewsAggregation viewsAggregation, SalesAggregation salesAggregation) throws IOException {
-		Map<String,Stat> results = new HashMap<>();
+	public Stat aggregate(List<String> sources, String tenantId, LocalDateTime expectedTime, ViewsAggregation viewsAggregation, SalesAggregation salesAggregation) throws IOException {
+		Stat stat = new Stat();
+		stat.setTenantId(tenantId);
+		stat.setTimeFrom(expectedTime);
+		
 		ObjectMapper objectMapper = new ObjectMapper();
 		
 		// Define aggregation commands
@@ -234,24 +238,17 @@ public class PullService {
 					log.info("Time metadata check success!");
 				}
 			} else {
-				// Skip tenant id if it is blacklisted
-				Map<String,Object> data = (Map<String,Object>) mapJson.get("data");
-				String tenantId = (String) data.get("tenant");
-				if (liveConfiguration.isBlacklist(tenantId)) {
-					log.info("Skip blacklisted tenant: [" + tenantId + "]");
+				if (type.equals("Item")) {
+					saveItem(mapJson);
 				} else {
-					if (type.equals("Item")) {
-						saveItem(mapJson);
-					} else {
-						for (Aggregation aggr: aggrs) {
-							aggr.consume(mapJson, getStat(tenantId, expectedTime, results));
-						}
-					}	
-				}
+					for (Aggregation aggr: aggrs) {
+						aggr.consume(mapJson, stat);
+					}
+				}	
 			}
 		}
 				
-		return results;
+		return stat;
 	}
 	
 	private void saveItem(Map<String,Object> mapJson) {
@@ -267,20 +264,6 @@ public class PullService {
 				item.setCategory((String) fields.get("category"));
 				itemService.save(item);
 		}
-	}
-	
-	/**
-	 * Create new <code>Stat</code> or returns existing if available.
-	 */
-	private Stat getStat(String tenantId, LocalDateTime expectedTime, Map<String,Stat> stats) {
-		if (stats.containsKey(tenantId)) {
-			return stats.get(tenantId);
-		}
-		Stat stat = new Stat();
-		stat.setTenantId(tenantId);
-		stat.setTimeFrom(expectedTime);
-		stats.put(tenantId, stat);
-		return stat;
 	}
 	
 }
