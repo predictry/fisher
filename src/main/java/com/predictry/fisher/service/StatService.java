@@ -184,11 +184,7 @@ public class StatService {
 					.subAggregation(
 						(metric == Metric.ITEM_PER_CART)?
 						AggregationBuilders.avg("value.recommended").field(metric.getKeyword() + ".recommended"):
-						AggregationBuilders.sum("value.recommended").field(metric.getKeyword() + ".recommended"))
-					.subAggregation(
-						(metric == Metric.ITEM_PER_CART)?
-						AggregationBuilders.avg("value.regular").field(metric.getKeyword() + ".regular"):
-						AggregationBuilders.sum("value.regular").field(metric.getKeyword() + ".regular")))
+						AggregationBuilders.sum("value.recommended").field(metric.getKeyword() + ".recommended")))
 			.build();
 		Aggregations aggregations = template.query(searchQuery, new ResultsExtractor<Aggregations>() {
 			@Override
@@ -204,10 +200,9 @@ public class StatService {
 			LocalDateTime time = LocalDateTime.parse(bucket.getKey(), DateTimeFormatter.ISO_DATE_TIME);
 			Double overallValue = ((InternalNumericMetricsAggregation.SingleValue) bucket.getAggregations().get("value.overall")).value();
 			Double recommendedValue = ((InternalNumericMetricsAggregation.SingleValue) bucket.getAggregations().get("value.recommended")).value();
-			Double regularValue = ((InternalNumericMetricsAggregation.SingleValue) bucket.getAggregations().get("value.regular")).value();
 			overallValues.add(new StatEntry(time, overallValue));
 			recommendedValues.add(new StatEntry(time, recommendedValue));
-			regularValues.add(new StatEntry(time, regularValue));
+			regularValues.add(new StatEntry(time, overallValue - recommendedValue));
 		}
 		
 		Map<String, List<StatEntry>> results = new HashMap<>();
