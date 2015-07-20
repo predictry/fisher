@@ -20,7 +20,7 @@ public class Helper {
 	public static String[] convertToIndices(String prefix, LocalDateTime startTime, LocalDateTime endTime) {
 		Set<String> results = new HashSet<>();
 		LocalDateTime time = startTime;
-		while (!time.isAfter(endTime)) {
+		while (time.getYear() <= endTime.getYear()) {
 			results.add(prefix + "_" + time.getYear());
 			time = time.plusYears(1);
 		}
