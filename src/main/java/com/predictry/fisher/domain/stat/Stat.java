@@ -167,4 +167,17 @@ public class Stat {
 		this.uniqueVisitor = this.uniqueVisitor.plus(uniqueVisitor);
 	}
 	
+	/**
+	 * Add another stat values to current stat.
+	 * 
+	 * @param anotherStat an instance of <code>Stat</code> to merge into this instance.
+	 */
+	public void merge(Stat anotherStat) {
+		addViews(anotherStat.getViews());
+		addSales(anotherStat.getSales());
+		addOrder(anotherStat.getOrders());
+		addItemPurchased(anotherStat.getItemPurchased());
+		addUniqueVisitor(anotherStat.getUniqueVisitor());
+	}
+	
 }

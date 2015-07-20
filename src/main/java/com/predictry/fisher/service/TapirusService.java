@@ -22,6 +22,7 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.predictry.fisher.domain.tapirus.GetRecordsResult;
 import com.predictry.fisher.domain.tapirus.RecordFile;
 
@@ -69,12 +70,12 @@ public class TapirusService {
 	 * @param time the time to search for.
 	 * @return the content of the file in form of list of <code>String</code>.
 	 */
-	public List<String> readFromS3(String uri) throws IOException {
+	public List<String> readFromS3(String key) throws IOException {
 		List<String> results = new ArrayList<>();
-		log.info("Fetching " + uri + " from S3");
+		log.info("Fetching " + key + " from S3");
 		AmazonS3Client s3Client = new AmazonS3Client(new ProfileCredentialsProvider("fisher"));
 		S3ObjectInputStream s3InputStream = null;
-		try (S3Object s3Object = s3Client.getObject(S3_BUCKET_NAME, uri)) {			
+		try (S3Object s3Object = s3Client.getObject(S3_BUCKET_NAME, key)) {			
 			s3InputStream = s3Object.getObjectContent();
 			try (GZIPInputStream gzipInputStream = new GZIPInputStream(s3InputStream)) {
 				try (InputStreamReader isr = new InputStreamReader(gzipInputStream)) {
@@ -91,7 +92,7 @@ public class TapirusService {
 				s3InputStream.close();
 			}
 		}
-		log.info("Done fetching " + uri);
+		log.info("Done fetching " + key);
 		return results;
 	}
 		
@@ -104,6 +105,24 @@ public class TapirusService {
 	public List<String> readFile(RecordFile recordFile) throws IOException {
 		String uri = recordFile.getUri().replaceFirst(S3_BUCKET_NAME + "/", "");
 		return readFromS3(uri);
+	}
+	
+	/**
+	 * Read extra files to be processed.
+	 */
+	public List<String> readExtraFile(RecordFile recordFile, LocalDateTime time) throws IOException {
+		String key = "recovered/" + 
+			time.format(DateTimeFormatter.ofPattern("yyyy/MM/dd")) + "/" +
+			time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH")) + "-" +
+			recordFile.getTenant() + ".gz";
+		log.info("Trying to read extra file from s3: " + key);
+		AmazonS3Client s3Client = new AmazonS3Client(new ProfileCredentialsProvider("fisher"));
+		List<S3ObjectSummary> summaries = s3Client.listObjects(S3_BUCKET_NAME, key).getObjectSummaries();
+		if (summaries.isEmpty()) {
+			return null;
+		} else {
+			return readFromS3(summaries.get(0).getKey());
+		}
 	}
 	
 	/**

@@ -133,8 +133,18 @@ public class PullService {
 						log.info("Skip blacklisted tenant: [" + recordFile.getTenant() + "]");
 						continue;
 					}
+					
+					// Read main file
 					List<String> data = tapirusService.readFile(recordFile);
 					Stat stat = aggregate(data, recordFile.getTenant(), time, viewsAggr, salesAggr);
+					
+					// Read extra file
+					List<String> extraData = tapirusService.readExtraFile(recordFile, time);
+					if (extraData != null) {
+						Stat extraStat = aggregate(extraData, recordFile.getTenant(), time, viewsAggr, salesAggr);
+						stat.merge(extraStat);
+					}
+					
 					statService.save(stat);
 				}
 				log.info("Finish calculating stat.");
@@ -144,6 +154,7 @@ public class PullService {
 				List<TopScore> topScores = topScore(viewsAggr, salesAggr, time);
 				topScores.forEach(topScore -> topScoreService.save(topScore));
 				log.info("Finish calculating top score.");
+				
 			}
 		}
 		return tapResult;

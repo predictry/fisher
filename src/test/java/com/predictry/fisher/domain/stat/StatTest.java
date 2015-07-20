@@ -62,4 +62,23 @@ public class StatTest {
 		assertEquals(new Value(250.0, 30.0, 0.0), stat.getUniqueVisitor());
 	}
 	
+	@Test
+	public void merge() {
+		Stat stat1 = new Stat();
+		Stat stat2 = new Stat(LocalDateTime.now().toString(), "tenant1", 10.0, 20.0, 30.0, 40.0, 50.0);
+		stat1.merge(stat2);
+		assertEquals(10.0, stat1.getViews().getOverall(), 0.1);
+		assertEquals(20.0, stat1.getSales().getOverall(), 0.1);
+		assertEquals(30.0, stat1.getItemPurchased().getOverall(), 0.1);
+		assertEquals(40.0, stat1.getOrders().getOverall(), 0.1);
+		assertEquals(50.0, stat1.getUniqueVisitor().getOverall(), 0.1);
+		Stat stat3 = new Stat(LocalDateTime.now().toString(), "tenant1", 10.0, 20.0, 30.0, 40.0, 50.0);
+		stat1.merge(stat3);
+		assertEquals(20.0, stat1.getViews().getOverall(), 0.1);
+		assertEquals(40.0, stat1.getSales().getOverall(), 0.1);
+		assertEquals(60.0, stat1.getItemPurchased().getOverall(), 0.1);
+		assertEquals(80.0, stat1.getOrders().getOverall(), 0.1);
+		assertEquals(100.0, stat1.getUniqueVisitor().getOverall(), 0.1);
+	}
+	
 }
