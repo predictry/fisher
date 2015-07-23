@@ -106,7 +106,7 @@ returns value such as:
 
 By default, this API will return the overall value.  To change to another type of value, add a `valueType` parameter which accepts the following values: `OVERALL`, `RECOMMENDED` and `REGULAR`.
     
-Valid values for `metric` are `VIEWS`, `SALES_AMOUNT`, `ITEM_PER_CART`, `ITEM_PURCHASED`, `UNIQUE_VISITOR`, and `ORDERS`.
+Valid values for `metric` are `VIEWS`, `SALES_AMOUNT`, `ITEM_PER_CART`, `ITEM_PURCHASED`, `UNIQUE_VISITOR`, `ORDERS`, `UNIQUE_ITEM_PURCHASED`.
 
 `interval` can be predefined value such as `year`, `quarter`, `month`, `week`, `day`, and `hour`.  It can also be an expression such as `1.5h` (every `1.5` hours), `3M` (every `3` months), `2y` (every `2` year), etc.
 

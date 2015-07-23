@@ -63,22 +63,33 @@ public class StatTest {
 	}
 	
 	@Test
+	public void addUniqueItemPurchased() {
+		Stat stat = new Stat();
+		stat.addUniqueItemPurchased(new Value(100.0, 10.0, 0.0));
+		assertEquals(new Value(100.0, 10.0, 0.0), stat.getUniqueItemPurchased());
+		stat.addUniqueItemPurchased(new Value(150.0, 20.0, 0.0));
+		assertEquals(new Value(250.0, 30.0, 0.0), stat.getUniqueItemPurchased());
+	}
+	
+	@Test
 	public void merge() {
 		Stat stat1 = new Stat();
-		Stat stat2 = new Stat(LocalDateTime.now().toString(), "tenant1", 10.0, 20.0, 30.0, 40.0, 50.0);
+		Stat stat2 = new Stat(LocalDateTime.now().toString(), "tenant1", 10.0, 20.0, 30.0, 40.0, 50.0, 60.0);
 		stat1.merge(stat2);
 		assertEquals(10.0, stat1.getViews().getOverall(), 0.1);
 		assertEquals(20.0, stat1.getSales().getOverall(), 0.1);
 		assertEquals(30.0, stat1.getItemPurchased().getOverall(), 0.1);
 		assertEquals(40.0, stat1.getOrders().getOverall(), 0.1);
 		assertEquals(50.0, stat1.getUniqueVisitor().getOverall(), 0.1);
-		Stat stat3 = new Stat(LocalDateTime.now().toString(), "tenant1", 10.0, 20.0, 30.0, 40.0, 50.0);
+		assertEquals(60.0, stat1.getUniqueItemPurchased().getOverall(), 0.1);
+		Stat stat3 = new Stat(LocalDateTime.now().toString(), "tenant1", 10.0, 20.0, 30.0, 40.0, 50.0, 60.0);
 		stat1.merge(stat3);
 		assertEquals(20.0, stat1.getViews().getOverall(), 0.1);
 		assertEquals(40.0, stat1.getSales().getOverall(), 0.1);
 		assertEquals(60.0, stat1.getItemPurchased().getOverall(), 0.1);
 		assertEquals(80.0, stat1.getOrders().getOverall(), 0.1);
 		assertEquals(100.0, stat1.getUniqueVisitor().getOverall(), 0.1);
+		assertEquals(120.0, stat1.getUniqueItemPurchased().getOverall(), 0.1);
 	}
 	
 }

@@ -19,8 +19,16 @@ public class Stat {
 	private Value itemPurchased = new Value();
 	private Value orders = new Value();
 	private Value uniqueVisitor = new Value();
+	private Value uniqueItemPurchased = new Value();
 		
 	public Stat() {}
+	
+	public Stat(String time, String tenantId, Double views, Double sales,
+			Double itemPurchased, Double orders, Double uniqueVisitor,
+			Double uniqueItemPurchased) {
+		this(time, tenantId, views, sales, itemPurchased, orders, uniqueVisitor);
+		this.uniqueItemPurchased = new Value(uniqueItemPurchased, 0.0, 0.0);
+	}
 	
 	public Stat(String time, String tenantId, Double views, Double sales,
 			Double itemPurchased, Double orders, Double uniqueVisitor) {
@@ -93,6 +101,14 @@ public class Stat {
 	
 	public void setUniqueVisitor(Value uniqueVisitor) {
 		this.uniqueVisitor = uniqueVisitor;
+	}
+	
+	public Value getUniqueItemPurchased() {
+		return uniqueItemPurchased;
+	}
+	
+	public void setUniqueItemPurchased(Value uniqueItemPurchased) {
+		this.uniqueItemPurchased = uniqueItemPurchased;
 	}
 	
 	public LocalDateTime time() {
@@ -168,6 +184,15 @@ public class Stat {
 	}
 	
 	/**
+	 * Increase unique item purchased.
+	 * 
+	 * @param uniqueItemPurchased the number of unique item purchased to current value.
+	 */
+	public void addUniqueItemPurchased(Value uniqueItemPurchased) {
+		this.uniqueItemPurchased = this.uniqueItemPurchased.plus(uniqueItemPurchased);
+	}
+	
+	/**
 	 * Add another stat values to current stat.
 	 * 
 	 * @param anotherStat an instance of <code>Stat</code> to merge into this instance.
@@ -178,6 +203,7 @@ public class Stat {
 		addOrder(anotherStat.getOrders());
 		addItemPurchased(anotherStat.getItemPurchased());
 		addUniqueVisitor(anotherStat.getUniqueVisitor());
+		addUniqueItemPurchased(anotherStat.getUniqueItemPurchased());
 	}
 	
 }

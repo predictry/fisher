@@ -7,8 +7,15 @@ public class StatOverview {
 	private Value salesAmount;
 	private Value orders;
 	private Value itemPurchased;
+	private Value uniqueItemPurchased;
 	
 	public StatOverview() {}
+	
+	public StatOverview(Double pageView, Double uniqueVisitor, Double salesAmount, Double orders, Double itemPurchased,
+			Double uniqueItemPurchased) {
+		this(pageView, uniqueVisitor, salesAmount, orders, itemPurchased);
+		this.uniqueItemPurchased = new Value(uniqueItemPurchased, 0.0, 0.0);
+	}
 	
 	public StatOverview(Double pageView, Double uniqueVisitor, Double salesAmount, Double orders, Double itemPurchased) {
 		this.pageView = new Value(pageView, 0.0, 0.0);
@@ -56,6 +63,14 @@ public class StatOverview {
 
 	public void setItemPurchased(Value itemPurchased) {
 		this.itemPurchased = itemPurchased;
+	}
+	
+	public Value getUniqueItemPurchased() {
+		return uniqueItemPurchased;
+	}
+
+	public void setUniqueItemPurchased(Value uniqueItemPurchased) {
+		this.uniqueItemPurchased = uniqueItemPurchased;
 	}
 
 	public Value getConversionRate() {

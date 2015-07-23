@@ -20,6 +20,7 @@ import com.predictry.fisher.domain.aggregation.Aggregation;
 import com.predictry.fisher.domain.aggregation.ItemPurchasedAggregation;
 import com.predictry.fisher.domain.aggregation.NumberOfSalesAggregation;
 import com.predictry.fisher.domain.aggregation.SalesAggregation;
+import com.predictry.fisher.domain.aggregation.UniqueItemPurchasedAggregation;
 import com.predictry.fisher.domain.aggregation.UniqueVisitorAggregation;
 import com.predictry.fisher.domain.aggregation.ViewsAggregation;
 import com.predictry.fisher.domain.item.Item;
@@ -233,6 +234,7 @@ public class PullService {
 		aggrs.add(new ItemPurchasedAggregation());
 		aggrs.add(new UniqueVisitorAggregation());
 		aggrs.add(new NumberOfSalesAggregation());
+		aggrs.add(new UniqueItemPurchasedAggregation());
 		
 		for (String line: sources) {
 			Map<String,Object> mapJson = objectMapper.readValue(line, new TypeReference<Map<String,Object>>() {});

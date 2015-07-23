@@ -88,6 +88,9 @@ public class StatService {
 			.addAggregation(AggregationBuilders.sum("orders.overall").field("orders.overall"))
 			.addAggregation(AggregationBuilders.sum("orders.recommended").field("orders.recommended"))
 			.addAggregation(AggregationBuilders.sum("orders.regular").field("orders.regular"))
+			.addAggregation(AggregationBuilders.sum("uniqueItemPurchased.overall").field("uniqueItemPurchased.overall"))
+			.addAggregation(AggregationBuilders.sum("uniqueItemPurchased.recommended").field("uniqueItemPurchased.recommended"))
+			.addAggregation(AggregationBuilders.sum("uniqueItemPurchased.regular").field("uniqueItemPurchased.regular"))
 			.build();
 		Aggregations aggregations = template.query(searchQuery, new ResultsExtractor<Aggregations>() {
 			@Override
@@ -102,6 +105,7 @@ public class StatService {
 		overview.setItemPurchased(getAggregationValue(aggregations, "itemPurchased"));
 		overview.setUniqueVisitor(getAggregationValue(aggregations, "uniqueVisitor"));
 		overview.setOrders(getAggregationValue(aggregations, "orders"));
+		overview.setUniqueItemPurchased(getAggregationValue(aggregations, "uniqueItemPurchased"));
 		return overview;
 	}
 	

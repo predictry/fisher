@@ -30,6 +30,7 @@ import com.predictry.fisher.domain.item.TopScore;
 import com.predictry.fisher.domain.item.TopScoreType;
 import com.predictry.fisher.domain.pull.PullTime;
 import com.predictry.fisher.domain.stat.Stat;
+import com.predictry.fisher.domain.stat.Value;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={TestRootConfig.class}, loader=AnnotationConfigContextLoader.class)
@@ -62,6 +63,7 @@ public class PullServiceTest {
 		assertEquals(28l, statTenant1.getItemPurchased().getOverall().longValue());
 		assertEquals(2l, statTenant1.getUniqueVisitor().getOverall().longValue());
 		assertEquals(4l, statTenant1.getOrders().getOverall().longValue());
+		assertEquals(2l, statTenant1.getUniqueItemPurchased().getOverall().longValue());
 		
 		// Stat for 'tenant2'
 		file = new File(getClass().getResource("/sample_tenant2.log").getFile());
@@ -72,6 +74,7 @@ public class PullServiceTest {
 		assertEquals(27l, statTenant2.getItemPurchased().getOverall().longValue());
 		assertEquals(3l, statTenant2.getUniqueVisitor().getOverall().longValue());
 		assertEquals(3l, statTenant2.getOrders().getOverall().longValue());
+		assertEquals(2l, statTenant2.getUniqueItemPurchased().getOverall().longValue());
 		
 		// Check if items were created
 		assertTrue(template.indexExists("item_tenant1"));
@@ -111,6 +114,7 @@ public class PullServiceTest {
 		Stat statTenant1 = pullService.aggregate(sources, "tenant1", LocalDateTime.parse("2015-06-19T03:00:00"));
 		assertEquals(2l, statTenant1.getOrders().getOverall().longValue());
 		assertEquals(21l, statTenant1.getItemPurchased().getOverall().longValue());
+		assertEquals(5l, statTenant1.getUniqueItemPurchased().getOverall().longValue());
 	}
 	
 	@Test
@@ -122,6 +126,18 @@ public class PullServiceTest {
 		assertEquals(6, statTenant1.getViews().getOverall().intValue());
 		assertEquals(4, statTenant1.getViews().getRecommended().intValue());
 		assertEquals(0, statTenant1.getViews().getRegular().intValue());
+	}
+	
+	@Test
+	public void aggregateBuyRecommendation() throws IOException {
+		File file = new File(getClass().getResource("/sample_buy_recommendation.log").getFile());
+		List<String> sources = Files.readAllLines(file.toPath());
+		
+		Stat statTenant1 = pullService.aggregate(sources, "tenant1", LocalDateTime.parse("2015-06-19T03:00:00"));
+		Value uniqueItemPurchased = statTenant1.getUniqueItemPurchased();
+		assertEquals(5, uniqueItemPurchased.getOverall().longValue());
+		assertEquals(3, uniqueItemPurchased.getRecommended().longValue());
+		assertEquals(0, uniqueItemPurchased.getRegular().longValue());
 	}
 	
 	@Test
