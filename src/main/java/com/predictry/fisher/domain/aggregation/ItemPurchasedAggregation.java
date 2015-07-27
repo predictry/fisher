@@ -24,4 +24,8 @@ public class ItemPurchasedAggregation implements Aggregation {
 		}				
 	}
 
+	@Override
+	public void postProcessing(Stat stat) {
+	}
+
 }

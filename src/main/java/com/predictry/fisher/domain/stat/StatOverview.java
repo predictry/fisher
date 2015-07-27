@@ -8,6 +8,7 @@ public class StatOverview {
 	private Value orders;
 	private Value itemPurchased;
 	private Value uniqueItemPurchased;
+	private Double cartBoost;
 	
 	public StatOverview() {}
 	
@@ -71,6 +72,14 @@ public class StatOverview {
 
 	public void setUniqueItemPurchased(Value uniqueItemPurchased) {
 		this.uniqueItemPurchased = uniqueItemPurchased;
+	}
+	
+	public Double getCartBoost() {
+		return cartBoost;
+	}
+
+	public void setCartBoost(Double cartBoost) {
+		this.cartBoost = cartBoost.isNaN()? 0.0: cartBoost;
 	}
 
 	public Value getConversionRate() {

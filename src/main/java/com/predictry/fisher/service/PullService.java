@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.predictry.fisher.domain.aggregation.Aggregation;
+import com.predictry.fisher.domain.aggregation.CartBoostAggregation;
 import com.predictry.fisher.domain.aggregation.ItemPurchasedAggregation;
 import com.predictry.fisher.domain.aggregation.NumberOfSalesAggregation;
 import com.predictry.fisher.domain.aggregation.SalesAggregation;
@@ -235,6 +236,7 @@ public class PullService {
 		aggrs.add(new UniqueVisitorAggregation());
 		aggrs.add(new NumberOfSalesAggregation());
 		aggrs.add(new UniqueItemPurchasedAggregation());
+		aggrs.add(new CartBoostAggregation());
 		
 		for (String line: sources) {
 			Map<String,Object> mapJson = objectMapper.readValue(line, new TypeReference<Map<String,Object>>() {});
@@ -259,6 +261,11 @@ public class PullService {
 					}
 				}	
 			}
+		}
+		
+		// Post processing...
+		for (Aggregation aggr: aggrs) {
+			aggr.postProcessing(stat);
 		}
 				
 		return stat;

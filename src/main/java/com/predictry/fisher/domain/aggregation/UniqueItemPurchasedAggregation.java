@@ -32,4 +32,8 @@ public class UniqueItemPurchasedAggregation implements Aggregation {
 		}				
 	}
 
+	@Override
+	public void postProcessing(Stat stat) {
+	}
+
 }

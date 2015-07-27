@@ -8,4 +8,6 @@ public interface Aggregation {
 
 	public void consume(Map<String, Object> mapJson, Stat stat);
 	
+	public void postProcessing(Stat stat);
+	
 }

@@ -126,6 +126,8 @@ public class PullServiceTest {
 		assertEquals(6, statTenant1.getViews().getOverall().intValue());
 		assertEquals(4, statTenant1.getViews().getRecommended().intValue());
 		assertEquals(0, statTenant1.getViews().getRegular().intValue());
+		
+		assertEquals(0, statTenant1.getCartBoost().longValue());
 	}
 	
 	@Test
@@ -138,6 +140,8 @@ public class PullServiceTest {
 		assertEquals(5, uniqueItemPurchased.getOverall().longValue());
 		assertEquals(3, uniqueItemPurchased.getRecommended().longValue());
 		assertEquals(0, uniqueItemPurchased.getRegular().longValue());
+		
+		assertEquals(0.75, statTenant1.getCartBoost(), 0.001);
 	}
 	
 	@Test

@@ -27,4 +27,8 @@ public class NumberOfSalesAggregation implements Aggregation {
 		}		
 	}
 
+	@Override
+	public void postProcessing(Stat stat) {
+	}
+
 }

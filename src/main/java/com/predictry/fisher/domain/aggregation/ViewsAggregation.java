@@ -32,5 +32,9 @@ public class ViewsAggregation implements Aggregation {
 	public ScoreStore getScoreStore() {
 		return scoreStore;
 	}
+
+	@Override
+	public void postProcessing(Stat stat) {
+	}
 	
 }

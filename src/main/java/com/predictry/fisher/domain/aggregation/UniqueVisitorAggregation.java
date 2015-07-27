@@ -35,4 +35,8 @@ public class UniqueVisitorAggregation implements Aggregation {
 		}		
 	}
 
+	@Override
+	public void postProcessing(Stat stat) {
+	}
+
 }

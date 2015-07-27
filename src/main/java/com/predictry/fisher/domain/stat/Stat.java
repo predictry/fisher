@@ -20,6 +20,7 @@ public class Stat {
 	private Value orders = new Value();
 	private Value uniqueVisitor = new Value();
 	private Value uniqueItemPurchased = new Value();
+	private Double cartBoost = 0.0;
 		
 	public Stat() {}
 	
@@ -111,6 +112,14 @@ public class Stat {
 		this.uniqueItemPurchased = uniqueItemPurchased;
 	}
 	
+	public Double getCartBoost() {
+		return this.cartBoost;
+	}
+
+	public void setCartBoost(Double cartBoost) {
+		this.cartBoost = cartBoost;
+	}
+
 	public LocalDateTime time() {
 		return LocalDateTime.parse(time);
 	}
@@ -204,6 +213,7 @@ public class Stat {
 		addItemPurchased(anotherStat.getItemPurchased());
 		addUniqueVisitor(anotherStat.getUniqueVisitor());
 		addUniqueItemPurchased(anotherStat.getUniqueItemPurchased());
+		setCartBoost((getCartBoost() + anotherStat.getCartBoost()) / 2); 
 	}
 	
 }

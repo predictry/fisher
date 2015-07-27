@@ -43,4 +43,8 @@ public class SalesAggregation implements Aggregation {
 		return scoreStore;
 	}
 
+	@Override
+	public void postProcessing(Stat stat) {
+	}
+
 }

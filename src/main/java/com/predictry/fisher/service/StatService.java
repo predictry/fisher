@@ -17,6 +17,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.metrics.InternalNumericMetricsAggregation;
+import org.elasticsearch.search.aggregations.metrics.avg.InternalAvg;
 import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -91,6 +92,7 @@ public class StatService {
 			.addAggregation(AggregationBuilders.sum("uniqueItemPurchased.overall").field("uniqueItemPurchased.overall"))
 			.addAggregation(AggregationBuilders.sum("uniqueItemPurchased.recommended").field("uniqueItemPurchased.recommended"))
 			.addAggregation(AggregationBuilders.sum("uniqueItemPurchased.regular").field("uniqueItemPurchased.regular"))
+			.addAggregation(AggregationBuilders.avg("cartBoost").field("cartBoost"))
 			.build();
 		Aggregations aggregations = template.query(searchQuery, new ResultsExtractor<Aggregations>() {
 			@Override
@@ -106,6 +108,7 @@ public class StatService {
 		overview.setUniqueVisitor(getAggregationValue(aggregations, "uniqueVisitor"));
 		overview.setOrders(getAggregationValue(aggregations, "orders"));
 		overview.setUniqueItemPurchased(getAggregationValue(aggregations, "uniqueItemPurchased"));
+		overview.setCartBoost(((InternalAvg) aggregations.get("cartBoost")).getValue());
 		return overview;
 	}
 	
