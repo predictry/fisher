@@ -1,6 +1,9 @@
 package com.predictry.fisher.config;
 
+import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
+
+import javax.annotation.PostConstruct;
 
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
@@ -16,6 +19,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.util.Log4jConfigurer;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
@@ -54,6 +58,18 @@ public class RootConfig {
 			.serializerByType(LocalDateTime.class, new JacksonTimeSerializer())
 			.deserializerByType(LocalDateTime.class, new JacksonTimeDeserializer())
 			.featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+	}
+	
+	/**
+	 * Select log4j configuration file based on active Spring's profile
+	 */
+	@PostConstruct
+	public void initLog4j() throws FileNotFoundException {
+		if (env.acceptsProfiles("dev", "test")) {
+			Log4jConfigurer.initLogging("classpath:log4j-development.xml");
+		} else {
+			Log4jConfigurer.initLogging("classpath:log4j-production.xml");
+		}
 	}
 
 }
