@@ -23,6 +23,7 @@ dependencies {
     compile 'org.springframework:spring-webmvc:4.1.6.RELEASE'
     compile 'org.springframework:spring-aspects:4.1.6.RELEASE'
     compile 'org.springframework:spring-test:4.1.6.RELEASE'
+    compile 'org.springframework:spring-jms:4.1.6.RELEASE'
     
     // Elasticsearch
     compile 'org.elasticsearch:elasticsearch:1.6.0'
@@ -30,6 +31,9 @@ dependencies {
     
     // Amazon SDK
     compile 'com.amazonaws:aws-java-sdk-s3:1.10.1'
+    
+    // JMS
+    compile 'org.apache.activemq:activemq-client:5.11.1'
      
     // Others
     compile 'com.fasterxml.jackson.core:jackson-databind:2.5.3'

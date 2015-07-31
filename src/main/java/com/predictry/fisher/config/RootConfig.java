@@ -4,7 +4,9 @@ import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 
 import javax.annotation.PostConstruct;
+import javax.jms.ConnectionFactory;
 
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -18,6 +20,9 @@ import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.jms.annotation.EnableJms;
+import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.util.Log4jConfigurer;
 
@@ -29,6 +34,7 @@ import com.predictry.fisher.domain.util.JacksonTimeSerializer;
 @Configuration
 @EnableElasticsearchRepositories(basePackages="com.predictry.fisher.repository")
 @EnableScheduling
+@EnableJms
 public class RootConfig {
 	
 	@Autowired
@@ -58,6 +64,24 @@ public class RootConfig {
 			.serializerByType(LocalDateTime.class, new JacksonTimeSerializer())
 			.deserializerByType(LocalDateTime.class, new JacksonTimeDeserializer())
 			.featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+	}
+	
+	@Bean 
+	public ConnectionFactory connectionFactory() {
+		CachingConnectionFactory factory = new CachingConnectionFactory();
+		ActiveMQConnectionFactory targetFactory = new ActiveMQConnectionFactory();
+		targetFactory.setUserName("admin");
+		targetFactory.setPassword("password");
+		targetFactory.setBrokerURL("tcp://localhost:61616");
+		factory.setTargetConnectionFactory(targetFactory);
+		return targetFactory;
+	}
+	
+	@Bean
+	public DefaultJmsListenerContainerFactory jmsListenerContainerFactory() {
+		DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
+		factory.setConnectionFactory(connectionFactory());
+		return factory;
 	}
 	
 	/**
