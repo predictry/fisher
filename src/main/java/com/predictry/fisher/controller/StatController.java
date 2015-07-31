@@ -158,7 +158,7 @@ public class StatController {
 		}
 		List<List<StatEntry>> arrResults = new ArrayList<>();
 		arrResults.add(results.get("overall"));
-		arrResults.add(results.get("regular"));
+		arrResults.add(results.get("recommended"));
 		return arrResults;
 	}
 			
