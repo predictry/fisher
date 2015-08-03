@@ -138,7 +138,11 @@ public class TopScoreService {
 				String id = bucket.getKey();
 				double total = (double) ((InternalSum) bucket.getAggregations().get("total")).getValue();
 				Item item = itemService.find(tenantId, id);
-				topScore.addNewScore(id, (item==null)?"":item.getName(), (item==null)?"":item.getItemUrl(), total);
+				if (item != null) {
+					topScore.addNewScore(id, item.getName(), item.getItemUrl(), total);
+				} else {
+					log.warn("Can't find item for id [" + id + "]");
+				}
 			}
 		}
 		return topScore;

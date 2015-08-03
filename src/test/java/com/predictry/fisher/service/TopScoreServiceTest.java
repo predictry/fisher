@@ -20,6 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import com.predictry.fisher.config.TestRootConfig;
+import com.predictry.fisher.domain.item.Item;
 import com.predictry.fisher.domain.item.TopScore;
 import com.predictry.fisher.domain.item.TopScoreType;
 
@@ -29,6 +30,9 @@ public class TopScoreServiceTest {
 
 	@Autowired
 	private TopScoreService topScoreService;
+	
+	@Autowired
+	private ItemService itemService;
 	
 	@Autowired
 	private ElasticsearchTemplate template;
@@ -81,6 +85,20 @@ public class TopScoreServiceTest {
 	
 	@Test
 	public void updateExistingTopScore() {
+		Item item = new Item("itemA", "Product A", "http://item.url", "http://image.url", "category1");
+		item.setTenantId("BUKALAPAK");
+		itemService.save(item);
+		item = new Item("itemB", "Product B", "http://item.url", "http://image.url", "category1");
+		item.setTenantId("BUKALAPAK");
+		itemService.save(item);
+		item = new Item("itemC", "Product C", "http://item.url", "http://image.url", "category1");
+		item.setTenantId("BUKALAPAK");
+		itemService.save(item);
+		item = new Item("itemD", "Product D", "http://item.url", "http://image.url", "category1");
+		item.setTenantId("BUKALAPAK");
+		itemService.save(item);
+		template.refresh("item_bukalapak", true);
+		
 		TopScore topScore = new TopScore();
 		topScore.addNewScore("itemB", "Product B", "http://www.xxx.com", 28.0);
 		topScore.addNewScore("itemD", "Product D", "http://www.yyy.com", 20.0);
@@ -120,6 +138,16 @@ public class TopScoreServiceTest {
 	@Test
 	public void topView() {
 		// Create dummy data
+		Item item = new Item("11989", "Product A", "http://item.url", "http://image.url", "category1");
+		item.setTenantId("BUKALAPAK");
+		itemService.save(item);
+		item = new Item("10541", "Product B", "http://item.url", "http://image.url", "category1");
+		item.setTenantId("BUKALAPAK");
+		itemService.save(item);
+		item = new Item("11851", "Product C", "http://item.url", "http://image.url", "category1");
+		item.setTenantId("BUKALAPAK");
+		itemService.save(item);
+		
 		TopScore topScore1 = new TopScore();
 		topScore1.setTime(LocalDateTime.parse("2015-01-01T04:00:00"));
 		topScore1.setTenantId("BUKALAPAK");
