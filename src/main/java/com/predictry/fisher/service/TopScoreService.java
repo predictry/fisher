@@ -4,6 +4,7 @@ import static org.elasticsearch.index.query.FilterBuilders.rangeFilter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -28,7 +29,6 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Service;
 
-import com.predictry.fisher.domain.item.Item;
 import com.predictry.fisher.domain.item.TopScore;
 import com.predictry.fisher.domain.item.TopScoreType;
 import com.predictry.fisher.domain.util.Helper;
@@ -43,7 +43,7 @@ public class TopScoreService {
 	private ElasticsearchOperations template;
 	
 	@Autowired
-	private ItemService itemService;
+	private ItemAsMapService itemAsMapService;
 	
 	/**
 	 * Save a new hourly <code>TopScore</code> in Elasticsearch.  Depending on the time for this top score,
@@ -137,9 +137,13 @@ public class TopScoreService {
 			for (Bucket bucket: topItems.getBuckets()) {
 				String id = bucket.getKey();
 				double total = (double) ((InternalSum) bucket.getAggregations().get("total")).getValue();
-				Item item = itemService.find(tenantId, id);
-				if (item != null) {
-					topScore.addNewScore(id, item.getName(), item.getItemUrl(), total);
+				Map<String, Object> mapItem = itemAsMapService.find(tenantId, id);
+				if ((mapItem != null) && (!mapItem.isEmpty())) {
+					String name = (String) mapItem.get("name");
+					String itemUrl = (String) mapItem.get("item_url");
+					if ((name != null) && (itemUrl != null)) {
+						topScore.addNewScore(id, name, itemUrl, total);
+					}
 				} else {
 					log.warn("Can't find item for id [" + id + "]");
 				}

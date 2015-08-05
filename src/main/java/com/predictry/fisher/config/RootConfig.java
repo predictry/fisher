@@ -26,6 +26,7 @@ import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.util.Log4jConfigurer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.predictry.fisher.domain.util.JacksonTimeDeserializer;
@@ -39,10 +40,10 @@ public class RootConfig {
 	
 	@Autowired
 	Environment env;
-
+	
 	@SuppressWarnings("resource")
 	@Bean
-	public ElasticsearchOperations elasticsearchTemplate() {
+	public Client elasticsearchClient() {
 		Client client;
 		if (env.acceptsProfiles("dev")) {
 			client = new TransportClient().addTransportAddress(
@@ -54,7 +55,12 @@ public class RootConfig {
 				new InetSocketTransportAddress("localhost", 9500));
 			
 		}
-		return new ElasticsearchTemplate(client);
+		return client;
+	}
+
+	@Bean
+	public ElasticsearchOperations elasticsearchTemplate() {
+		return new ElasticsearchTemplate(elasticsearchClient());
 	}
 	
 	@Bean	
@@ -94,6 +100,11 @@ public class RootConfig {
 		} else {
 			Log4jConfigurer.initLogging("classpath:log4j-production.xml");
 		}
+	}
+	
+	@Bean
+	public ObjectMapper objectMapper() {
+		return new ObjectMapper();
 	}
 
 }

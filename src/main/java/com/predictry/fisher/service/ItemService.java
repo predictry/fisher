@@ -18,8 +18,17 @@ import org.springframework.stereotype.Service;
 
 import com.predictry.fisher.domain.item.Item;
 
+/**
+ * This class is deprecated because we now save all information about
+ * items which can be flexible, not just a certain properties defined
+ * in <code>Item</code>.
+ *  
+ * @author jocki
+ *
+ */
 @Service
 @Transactional
+@Deprecated
 public class ItemService {
 
 	@Autowired
@@ -41,6 +50,7 @@ public class ItemService {
 		indexQuery.setObject(item);
 		indexQuery.setId(item.getId());
 		template.index(indexQuery);
+		
 	}
 	
 	/**

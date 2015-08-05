@@ -1,30 +1,28 @@
 package com.predictry.fisher.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import com.predictry.fisher.config.TestRootConfig;
-import com.predictry.fisher.domain.item.Item;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={TestRootConfig.class}, loader=AnnotationConfigContextLoader.class)
 public class ItemServiceTest {
 
 	@Autowired
-	private ItemService itemService;
+	private ItemAsMapService itemAsMapService;
 	
 	@Autowired
 	private ElasticsearchTemplate template;
@@ -38,9 +36,12 @@ public class ItemServiceTest {
 	
 	@Test
 	public void createItemIndexIfDoesNotExist() {
-		Item item = new Item("id1", "item1", "http://item.url", "http://image.url", "category1");
-		item.setTenantId("BUKALAPAK");
-		itemService.save(item);
+		Map<String, Object> item = new HashMap<>();
+		item.put("name", "item1");
+		item.put("item_url", "http://item.url");
+		item.put("img_url", "http://image.url");
+		item.put("category", "category1");
+		itemAsMapService.save("BUKALAPAK", "id1", item);
 		
 		// Check if index is created
 		assertTrue(template.indexExists("item_bukalapak"));
@@ -48,90 +49,90 @@ public class ItemServiceTest {
 		
 		// Check if row is created
 		template.refresh("item_bukalapak", true);
-		SearchQuery searchQuery = new NativeSearchQueryBuilder().withIndices("item_bukalapak")
-			.withTypes("item")
-			.withIds(Arrays.asList("id1"))
-			.build();
-		List<Item> searchResult = template.queryForList(searchQuery, Item.class);
-		assertEquals(1, searchResult.size());
-		Item savedItem = searchResult.get(0);
-		assertEquals("id1", savedItem.getId());
-		assertEquals("item1", savedItem.getName());
-		assertEquals("http://item.url", savedItem.getItemUrl());
-		assertEquals("http://image.url", savedItem.getImageUrl());
-		assertEquals("category1", savedItem.getCategory());
+		Map<String, Object> result = itemAsMapService.find("BUKALAPAK", "id1");
+		assertEquals("id1", result.get("id"));
+		assertEquals("item1", result.get("name"));
+		assertEquals("http://item.url", result.get("item_url"));
+		assertEquals("http://image.url", result.get("img_url"));
+		assertEquals("category1", result.get("category"));
 	}
 	
 	@Test
 	public void updateExisting() {
 		// Create new item
-		Item item = new Item("id1", "item1", "http://item.url", "http://image.url", "category1");
-		item.setTenantId("BUKALAPAK");
-		itemService.save(item);
+		Map<String, Object> item = new HashMap<>();
+		item.put("name", "item1");
+		item.put("item_url", "http://item.url");
+		item.put("img_url", "http://image.url");
+		item.put("category", "category1");
+		itemAsMapService.save("BUKALAPAK", "id1", item);
 		
 		// Update this stat
-		item.setName("item1 updated");
-		itemService.save(item);
+		item.put("name", "item1 updated");
+		itemAsMapService.save("BUKALAPAK", "id1", item);
 		
-		// Check if it is updated
+		// Check if row is created
 		template.refresh("item_bukalapak", true);
-		SearchQuery searchQuery = new NativeSearchQueryBuilder().withIndices("item_bukalapak")
-			.withTypes("item")
-			.withIds(Arrays.asList("id1"))
-			.build();
-		List<Item> searchResult = template.queryForList(searchQuery, Item.class);
-		assertEquals(1, searchResult.size());
-		Item savedItem = searchResult.get(0);
-		assertEquals("id1", savedItem.getId());
-		assertEquals("item1 updated", savedItem.getName());
-		assertEquals("http://item.url", savedItem.getItemUrl());
-		assertEquals("http://image.url", savedItem.getImageUrl());
-		assertEquals("category1", savedItem.getCategory());
+		Map<String, Object> result = itemAsMapService.find("BUKALAPAK", "id1");
+		assertEquals("id1", result.get("id"));
+		assertEquals("item1 updated", result.get("name"));
+		assertEquals("http://item.url", result.get("item_url"));
+		assertEquals("http://image.url", result.get("img_url"));
+		assertEquals("category1", result.get("category"));
 	}
 	
 	@Test
 	public void find() {
-		Item item = new Item("id1", "item1", "http://item.url", "http://image.url", "category1");
-		item.setTenantId("BUKALAPAK");
-		itemService.save(item);
+		// Create new item
+		Map<String, Object> item = new HashMap<>();
+		item.put("name", "item1");
+		item.put("item_url", "http://item.url");
+		item.put("img_url", "http://image.url");
+		item.put("category", "category1");
+		itemAsMapService.save("BUKALAPAK", "id1", item);
 		template.refresh("item_bukalapak", true);
 		
-		Item result = itemService.find("BUKALAPAK", "id1");
-		assertNotNull(result);
-		assertEquals("id1", result.getId());
-		assertEquals("item1", result.getName());
-		assertEquals("http://item.url", result.getItemUrl());
-		assertEquals("http://image.url", result.getImageUrl());
-		assertEquals("category1", result.getCategory());
+		Map<String, Object> result = itemAsMapService.find("BUKALAPAK", "id1");
+		assertEquals("id1", result.get("id"));
+		assertEquals("item1", result.get("name"));
+		assertEquals("http://item.url", result.get("item_url"));
+		assertEquals("http://image.url", result.get("img_url"));
+		assertEquals("category1", result.get("category"));
 		
-		result = itemService.find("bukalapak", "id1");
-		assertNotNull(result);
-		assertEquals("id1", result.getId());
-		assertEquals("item1", result.getName());
-		assertEquals("http://item.url", result.getItemUrl());
-		assertEquals("http://image.url", result.getImageUrl());
-		assertEquals("category1", result.getCategory());
+		result = itemAsMapService.find("bukalapak", "id1");
+		assertEquals("id1", result.get("id"));
+		assertEquals("item1", result.get("name"));
+		assertEquals("http://item.url", result.get("item_url"));
+		assertEquals("http://image.url", result.get("img_url"));
+		assertEquals("category1", result.get("category"));
 	}
 	
 	@Test
 	public void count() {
-		Item item = new Item("id1", "item1", "http://item.url", "http://image.url", "category1");
-		item.setTenantId("BUKALAPAK");
-		itemService.save(item);
+		Map<String, Object> item = new HashMap<>();
+		item.put("name", "item1");
+		item.put("item_url", "http://item.url");
+		item.put("img_url", "http://image.url");
+		item.put("category", "category1");
+		itemAsMapService.save("BUKALAPAK", "id1", item);
 		template.refresh("item_bukalapak", true);
-		assertEquals(1l, itemService.count("BUKALAPAK"));
+		assertEquals(1l, itemAsMapService.count("BUKALAPAK"));
 		
-		item = new Item("id2", "item2", "http://item.url", "http://image.url", "category1");
-		item.setTenantId("BUKALAPAK");
-		itemService.save(item);
+		item.put("name", "item2");
+		item.put("item_url", "http://item.url");
+		item.put("img_url", "http://image.url");
+		item.put("category", "category1");
+		itemAsMapService.save("BUKALAPAK", "id2", item);
 		template.refresh("item_bukalapak", true);
-		assertEquals(2l, itemService.count("BUKALAPAK"));
+		assertEquals(2l, itemAsMapService.count("BUKALAPAK"));
 		
-		item = new Item("id3", "item3", "http://item.url", "http://image.url", "category1");
-		item.setTenantId("BUKALAPAK");
-		itemService.save(item);
+		item.put("name", "item3");
+		item.put("item_url", "http://item.url");
+		item.put("img_url", "http://image.url");
+		item.put("category", "category1");
+		itemAsMapService.save("BUKALAPAK", "id3", item);
 		template.refresh("item_bukalapak", true);
-		assertEquals(3l, itemService.count("BUKALAPAK"));
+		assertEquals(3l, itemAsMapService.count("BUKALAPAK"));
 	}
 
 }

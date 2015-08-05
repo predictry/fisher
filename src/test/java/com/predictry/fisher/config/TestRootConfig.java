@@ -13,6 +13,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 
@@ -23,6 +24,14 @@ public class TestRootConfig {
 	
 	@Autowired
 	Environment env;
+	
+	@SuppressWarnings("resource")
+	@Bean
+	public Client elasticsearchClient() {
+		Client client = new TransportClient().addTransportAddress(
+			new InetSocketTransportAddress("localhost", 9300));	
+		return client;
+	}
 	
 	@SuppressWarnings("resource")
 	@Bean
@@ -43,6 +52,11 @@ public class TestRootConfig {
 		return new Jackson2ObjectMapperBuilder()
 			.modulesToInstall(new JSR310Module())
 			.featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+	}
+	
+	@Bean
+	public ObjectMapper objectMapper() {
+		return new ObjectMapper();
 	}
 
 }

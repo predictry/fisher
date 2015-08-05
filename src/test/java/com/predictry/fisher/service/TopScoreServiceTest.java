@@ -6,7 +6,9 @@ import static org.junit.Assert.assertTrue;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,7 +22,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import com.predictry.fisher.config.TestRootConfig;
-import com.predictry.fisher.domain.item.Item;
 import com.predictry.fisher.domain.item.TopScore;
 import com.predictry.fisher.domain.item.TopScoreType;
 
@@ -32,7 +33,7 @@ public class TopScoreServiceTest {
 	private TopScoreService topScoreService;
 	
 	@Autowired
-	private ItemService itemService;
+	private ItemAsMapService itemAsMapService;
 	
 	@Autowired
 	private ElasticsearchTemplate template;
@@ -85,18 +86,18 @@ public class TopScoreServiceTest {
 	
 	@Test
 	public void updateExistingTopScore() {
-		Item item = new Item("itemA", "Product A", "http://item.url", "http://image.url", "category1");
-		item.setTenantId("BUKALAPAK");
-		itemService.save(item);
-		item = new Item("itemB", "Product B", "http://item.url", "http://image.url", "category1");
-		item.setTenantId("BUKALAPAK");
-		itemService.save(item);
-		item = new Item("itemC", "Product C", "http://item.url", "http://image.url", "category1");
-		item.setTenantId("BUKALAPAK");
-		itemService.save(item);
-		item = new Item("itemD", "Product D", "http://item.url", "http://image.url", "category1");
-		item.setTenantId("BUKALAPAK");
-		itemService.save(item);
+		Map<String, Object> item = new HashMap<>();
+		item.put("name", "Product A");
+		item.put("item_url", "http://item.url");
+		item.put("img_url", "http://image.url");
+		item.put("category", "category1");
+		itemAsMapService.save("BUKALAPAK", "itemA", item);
+		item.put("name", "Product B");
+		itemAsMapService.save("BUKALAPAK", "itemB", item);
+		item.put("name", "Product C");
+		itemAsMapService.save("BUKALAPAK", "itemC", item);
+		item.put("name", "Product D");
+		itemAsMapService.save("BUKALAPAK", "itemD", item);
 		template.refresh("item_bukalapak", true);
 		
 		TopScore topScore = new TopScore();
@@ -138,15 +139,16 @@ public class TopScoreServiceTest {
 	@Test
 	public void topView() {
 		// Create dummy data
-		Item item = new Item("11989", "Product A", "http://item.url", "http://image.url", "category1");
-		item.setTenantId("BUKALAPAK");
-		itemService.save(item);
-		item = new Item("10541", "Product B", "http://item.url", "http://image.url", "category1");
-		item.setTenantId("BUKALAPAK");
-		itemService.save(item);
-		item = new Item("11851", "Product C", "http://item.url", "http://image.url", "category1");
-		item.setTenantId("BUKALAPAK");
-		itemService.save(item);
+		Map<String, Object> item = new HashMap<>();
+		item.put("name", "Product A");
+		item.put("item_url", "http://item.url");
+		item.put("img_url", "http://image.url");
+		item.put("category", "category1");
+		itemAsMapService.save("BUKALAPAK", "11989", item);
+		item.put("name", "Product B");
+		itemAsMapService.save("BUKALAPAK", "10541", item);
+		item.put("name", "Product C");
+		itemAsMapService.save("BUKALAPAK", "11851", item);
 		
 		TopScore topScore1 = new TopScore();
 		topScore1.setTime(LocalDateTime.parse("2015-01-01T04:00:00"));

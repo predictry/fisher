@@ -24,7 +24,6 @@ import com.predictry.fisher.domain.aggregation.SalesAggregation;
 import com.predictry.fisher.domain.aggregation.UniqueItemPurchasedAggregation;
 import com.predictry.fisher.domain.aggregation.UniqueVisitorAggregation;
 import com.predictry.fisher.domain.aggregation.ViewsAggregation;
-import com.predictry.fisher.domain.item.Item;
 import com.predictry.fisher.domain.item.ScoreStore;
 import com.predictry.fisher.domain.item.TopScore;
 import com.predictry.fisher.domain.item.TopScoreType;
@@ -56,10 +55,13 @@ public class PullService {
 	private TopScoreService topScoreService;
 	
 	@Autowired
-	private ItemService itemService;
+	private ItemAsMapService itemAsMapService;
 	
 	@Autowired
 	private LiveConfiguration liveConfiguration;
+	
+	@Autowired
+	private ObjectMapper objectMapper;
 	
 	/**
 	 * @return retrieve default <code>PullTime</code> for default task.
@@ -225,8 +227,6 @@ public class PullService {
 		stat.setTenantId(tenantId);
 		stat.setTimeFrom(expectedTime);
 		
-		ObjectMapper objectMapper = new ObjectMapper();
-		
 		// Define aggregation commands
 		// Don't forget to register here everytime new aggregation command is created.
 		List<Aggregation> aggrs = new ArrayList<>();
@@ -272,17 +272,12 @@ public class PullService {
 	}
 	
 	private void saveItem(Map<String,Object> mapJson) {
-		Item item = new Item();
-		item.setId((String) Helper.getData(mapJson).get("id"));
-		item.setTenantId((String) Helper.getData(mapJson).get("tenant"));
+		String id = (String) Helper.getData(mapJson).get("id");
+		String tenantId = (String) Helper.getData(mapJson).get("tenant"); 
 		@SuppressWarnings("unchecked")
 		Map<String,Object> fields = (Map<String, Object>) Helper.getData(mapJson).get("fields");
-		if ((fields != null) && (!fields.isEmpty()) && (fields.get("name") != null)) {
-				item.setName((String) fields.get("name"));
-				item.setImageUrl((String) fields.get("img_url"));
-				item.setItemUrl((String) fields.get("item_url"));
-				item.setCategory((String) fields.get("category"));
-				itemService.save(item);
+		if ((id != null) && (tenantId != null) && (!fields.isEmpty()) && (fields.containsKey("name"))) {
+			itemAsMapService.save(tenantId, id, fields);
 		}
 	}
 	

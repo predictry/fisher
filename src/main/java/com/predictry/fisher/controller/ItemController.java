@@ -1,5 +1,7 @@
 package com.predictry.fisher.controller;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,9 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.predictry.fisher.domain.item.Item;
 import com.predictry.fisher.domain.util.Helper;
-import com.predictry.fisher.service.ItemService;
+import com.predictry.fisher.service.ItemAsMapService;
 
 @RestController
 public class ItemController {
@@ -17,7 +18,7 @@ public class ItemController {
 	private static final Logger log = LoggerFactory.getLogger(ItemController.class);
 
 	@Autowired
-	private ItemService itemService;
+	private ItemAsMapService itemAsMapService;
 	
 	/**
 	 * Retrieve information about an item based on tenant id and item id.
@@ -25,10 +26,10 @@ public class ItemController {
 	 * @return JSON value (<code>Item</code>).
 	 */
 	@RequestMapping("/items/{tenantId}/{itemId}")
-	public Item findItem(@PathVariable String tenantId, @PathVariable String itemId) {
+	public Map<String, Object> findItem(@PathVariable String tenantId, @PathVariable String itemId) {
 		tenantId = Helper.tenantIdRemapping(tenantId);
 		log.info("Find item [" + itemId + "] for tenant id [" + tenantId + "]" );
-		return itemService.find(tenantId, itemId);
+		return itemAsMapService.find(tenantId, itemId);
 	}
 	
 	/**
@@ -40,6 +41,6 @@ public class ItemController {
 	public Long count(@PathVariable String tenantId) {
 		tenantId = Helper.tenantIdRemapping(tenantId);
 		log.info("Calculating number of items for tenant id [" + tenantId + "]");
-		return itemService.count(tenantId);
+		return itemAsMapService.count(tenantId);
 	}
 }
