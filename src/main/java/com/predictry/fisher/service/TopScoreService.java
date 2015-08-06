@@ -141,6 +141,12 @@ public class TopScoreService {
 				if ((mapItem != null) && (!mapItem.isEmpty())) {
 					String name = (String) mapItem.get("name");
 					String itemUrl = (String) mapItem.get("item_url");
+					
+					// What is the item still in old format?
+					if (itemUrl == null) {
+						itemUrl = (String) mapItem.get("itemUrl");
+					}
+					
 					if ((name != null) && (itemUrl != null)) {
 						topScore.addNewScore(id, name, itemUrl, total);
 					}
