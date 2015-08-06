@@ -5,17 +5,25 @@ import java.util.Map;
 import javax.transaction.Transactional;
 
 import org.apache.http.util.Asserts;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.predictry.fisher.repository.BasicRepository;
 
 @Service
 @Transactional
 public class ItemAsMapService {
 
+	private static final Logger log = LoggerFactory.getLogger(ItemAsMapService.class);
+	
 	@Autowired
 	private BasicRepository repository;
+	
+	@Autowired
+	private ItemS3Service itemS3Service;
 	
 	/**
 	 * Save a new item into database.
@@ -24,6 +32,11 @@ public class ItemAsMapService {
 	 */
 	public void save(String tenantId, String id, Map<String, Object> mapItem) {
 		repository.saveOrUpdate("item_" + tenantId.toLowerCase(), "item", id, mapItem);
+		try {
+			itemS3Service.putFile(id, tenantId, mapItem);
+		} catch (JsonProcessingException e) {
+			log.error("Exception while trying to push item to S3", e);
+		}
 	}
 	
 	/**

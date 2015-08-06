@@ -70,7 +70,9 @@ public class BasicRepository {
 		builder.setId(id);
 		createIndex(index);
 		IndexResponse response = builder.setSource(json).setRefresh(true).execute().actionGet();
-		LOG.info("Id [" + response.getId() + "] is " + (response.isCreated() ? "created" : "updated"));
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Id [" + response.getId() + "] is " + (response.isCreated() ? "created" : "updated"));
+		}
 		return response.getId();
 	}
 	
