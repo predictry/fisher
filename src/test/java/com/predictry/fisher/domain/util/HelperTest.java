@@ -48,4 +48,14 @@ public class HelperTest {
 		 assertEquals(time, Helper.convertTimeZone(time3, "Z", "Asia/Kuala_Lumpur"));
 	 }
 	 
+	 @Test
+	 public void convertToRelativeUrl() {
+		 assertEquals("/test/score/1", Helper.convertToRelativeUrl("http://www.example.com/test/score/1"));
+		 assertEquals("/test/score/1", Helper.convertToRelativeUrl("http://www.example.com:8080/test/score/1"));
+		 assertEquals("/test/score/1", Helper.convertToRelativeUrl("https://www.example.com/test/score/1"));
+		 assertEquals("/test/score/1", Helper.convertToRelativeUrl("https://www.example.com:8080/test/score/1"));
+		 assertEquals("/test/score/1", Helper.convertToRelativeUrl("/test/score/1"));
+		 assertEquals("test/score/1", Helper.convertToRelativeUrl("test/score/1"));
+	 }
+	 
 }

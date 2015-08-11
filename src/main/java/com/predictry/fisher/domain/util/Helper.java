@@ -1,5 +1,7 @@
 package com.predictry.fisher.domain.util;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.HashSet;
@@ -102,4 +104,24 @@ public class Helper {
 		return time.atZone(ZoneId.of(sourceTimeZone)).withZoneSameInstant(ZoneId.of(destinationTimeZone)).toLocalDateTime();
 	}
 	
+	/**
+	 * Conver absolute url into relative url.  For example, absolute url such as
+	 * <code>http://www.xxx.com/exercises/1</code> will be converted into
+	 * <code>/exercises/1</code>.
+	 * 
+	 * @param url
+	 * @return relative url from the absolute url, or the original url if it can't
+	 *         be converted.
+	 */
+	public static String convertToRelativeUrl(String url) {
+		if (url.startsWith("http") || url.startsWith("https")) {
+			try {
+				return new URL(url).getPath();
+			} catch (MalformedURLException e) {
+				return url;
+			}
+		} else {
+			return url;
+		}
+	}
 }

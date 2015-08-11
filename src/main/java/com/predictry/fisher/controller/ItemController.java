@@ -60,10 +60,12 @@ public class ItemController {
 	 * @return information about the upload status.
 	 */
 	@RequestMapping(value="/items/{tenantId}/upload", method=RequestMethod.POST)
-	public Map<String, Object> upload(@PathVariable String tenantId, @RequestParam("file") MultipartFile file) {
+	public Map<String, Object> upload(@PathVariable String tenantId, @RequestParam("file") MultipartFile file,
+			@RequestParam(value="convertUrlToRelative", required=false, defaultValue="false") Boolean convertUrlToRelative) {
 		int lineCount = 0;
 		int errCount = 0;
 		String errMessages = null;
+		log.info("Importing item from CSV file [" + file.getOriginalFilename() + "], convertUrlToRelative = [" + convertUrlToRelative + "]");
 		if (!file.isEmpty()) {
 			Map<String, Map<String, Object>> items = new HashMap<>();
 			try (InputStream is = file.getInputStream()) {
@@ -86,7 +88,11 @@ public class ItemController {
 									String id = fields[0];
 									Map<String, Object> item = new HashMap<>();
 									for (int i=0; i<fieldNames.length; i++) {
-										item.put(fieldNames[i], fields[i]);
+										if (convertUrlToRelative) {
+											item.put(fieldNames[i], Helper.convertToRelativeUrl(fields[i]));
+										} else {
+											item.put(fieldNames[i], fields[i]);
+										}
 									}
 									items.put(id, item);
 								}
@@ -108,6 +114,7 @@ public class ItemController {
 		if (errMessages != null) {
 			result.put("errMessages", errMessages);
 		}
+		log.info("Importing item from CSV file [" + file.getOriginalFilename() + "] was done.");		
 		return result;
 	}
 }
