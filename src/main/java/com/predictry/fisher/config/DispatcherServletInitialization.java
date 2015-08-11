@@ -1,5 +1,8 @@
 package com.predictry.fisher.config;
 
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletRegistration.Dynamic;
+
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 public class DispatcherServletInitialization extends AbstractAnnotationConfigDispatcherServletInitializer {
@@ -19,4 +22,10 @@ public class DispatcherServletInitialization extends AbstractAnnotationConfigDis
 		return new String[] { "/*" };
 	}
 
+	@Override
+	protected void customizeRegistration(Dynamic registration) {
+		MultipartConfigElement multipartConfigElement = new MultipartConfigElement("/tmp");
+		registration.setMultipartConfig(multipartConfigElement);
+	}
+	
 }

@@ -26,9 +26,11 @@ public class ItemAsMapService {
 	private ItemS3Service itemS3Service;
 	
 	/**
-	 * Save a new item into database.
+	 * Save a new item into database and publish them into S3.
 	 * 
-	 * @param item an <code>Item</code> to save.
+	 * @param tenantId is the tenant id.
+	 * @param id is the id of the item.
+	 * @param mapItem an <code>Item</code> to save.
 	 */
 	public void save(String tenantId, String id, Map<String, Object> mapItem) {
 		repository.saveOrUpdate("item_" + tenantId.toLowerCase(), "item", id, mapItem);
@@ -37,6 +39,23 @@ public class ItemAsMapService {
 		} catch (JsonProcessingException e) {
 			log.error("Exception while trying to push item to S3", e);
 		}
+	}
+	
+	/**
+	 * Save a bulk of item into database and publish them into S3.
+	 * 
+	 * @param tenantId is the tenant id.
+	 * @param mapItems is the collection of <code>Item</code> to save.
+	 */
+	public void saveBatch(String tenantId, Map<String, Map<String, Object>> mapItems) {
+		repository.saveBatch("item_" + tenantId.toLowerCase(), "item", mapItems);
+		mapItems.forEach((id,item) -> {
+			try {
+				itemS3Service.putFile(id, tenantId, item);
+			} catch (JsonProcessingException e) {
+				log.error("Exception while trying to push item to S3", e);
+			}
+		});
 	}
 	
 	/**

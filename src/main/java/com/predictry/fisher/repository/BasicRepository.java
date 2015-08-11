@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.count.CountResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
@@ -74,6 +76,25 @@ public class BasicRepository {
 			LOG.debug("Id [" + response.getId() + "] is " + (response.isCreated() ? "created" : "updated"));
 		}
 		return response.getId();
+	}
+	
+	/**
+	 * Save multiple of documents in one batch.
+	 * 
+	 * @param index is the index name to store this document.
+	 * @param type is the type name to store this document.
+	 * @param objects is content of the documents where key is the id of the document.
+	 * @return error messages if they are exists or <code>null</code> if there is no failures.
+	 */
+	public void saveBatch(String index, String type, Map<String, Map<String, Object>> objects) {
+		BulkRequestBuilder bulkRequest = client.prepareBulk();
+		objects.forEach((id,json) -> {
+			bulkRequest.add(client.prepareIndex(index, type, id).setSource(json));
+		});
+		BulkResponse bulkResponse = bulkRequest.execute().actionGet();
+		if (bulkResponse.hasFailures()) {
+			throw new RuntimeException(bulkResponse.buildFailureMessage());
+		}
 	}
 	
 	/**
