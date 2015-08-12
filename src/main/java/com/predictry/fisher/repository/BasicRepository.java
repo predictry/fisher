@@ -63,6 +63,30 @@ public class BasicRepository {
 	}
 	
 	/**
+	 * Find similiar item based on certain string on one or more fields.
+	 * 
+	 * @param indexName is the index name.
+	 * @param type is the type name.
+	 * @param minTermFreq is the ES' minTermFreq.
+	 * @param likeText is the text to search for.
+	 * @param fields is the fields to searh for.
+	 * @return a <code>List</code> that contains matched ids or
+	 *         empty <code>List</code> if nothing matches.
+	 */
+	public List<String> similiar(String indexName, String type, int minTermFreq, String likeText, String... fields) {
+		SearchResponse response = client.prepareSearch(indexName)
+			.setTypes(type)
+			.setQuery(QueryBuilders.moreLikeThisQuery(fields).likeText(likeText).minTermFreq(minTermFreq))
+			.execute()
+			.actionGet();
+		List<String> results = new ArrayList<>();
+		for (SearchHit searchHit: response.getHits().getHits()) {
+			results.add(searchHit.getId());
+		}
+		return results;
+	}
+	
+	/**
 	 * Create a new index.
 	 * 
 	 * @param indexName is the new index name.

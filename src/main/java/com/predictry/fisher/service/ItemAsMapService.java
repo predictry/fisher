@@ -27,14 +27,28 @@ public class ItemAsMapService {
 	private ItemS3Service itemS3Service;
 	
 	/**
-	 * Search for a related item.
+	 * Search for related items based on existing item.
 	 * 
+	 * @param tenantId is the tenant id.
 	 * @param id is the id of item to search for.
 	 * @return <code>List</code> of id of related items, or empty <code>List</code>
 	 *         if nothing is found.
 	 */
 	public List<String> similiar(String tenantId, String id) {
 		return repository.similiar("item_" + tenantId.toLowerCase(), "item", 1, id);
+	}
+	
+	/**
+	 * Search for related item based on certain text.
+	 * 
+	 * @param tenantId is the tenant id.
+	 * @param likeText is the text to search for.
+	 * @param fields is the fields to search for.
+	 * @return <code>List</code> of id of related items, or empty <code>List</code>
+	 *         if nothing is found.
+	 */
+	public List<String> similiar(String tenantId, String likeText, String... fields) {
+		return repository.similiar("item_" + tenantId.toLowerCase(), "item", 1, likeText, fields);
 	}
 	
 	/**

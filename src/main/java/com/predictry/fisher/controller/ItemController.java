@@ -5,12 +5,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -56,14 +58,42 @@ public class ItemController {
 	/**
 	 * Search for similiar item.
 	 * 
-	 * @param item is a JSON document that contains structure similiar to 
-	 *             the items stored in this document.
 	 * @return a JSON document that is in the same format as current recommendation JSON.
 	 */
 	@RequestMapping("/items/{tenantId}/related/{id}")
 	public ItemRecommendation relatedItem(@PathVariable String tenantId, @PathVariable String id) {
+		log.info("Searching for related item for item [" + id + "]");
 		final ItemRecommendation itemRecommendation = new ItemRecommendation();
 		itemAsMapService.similiar(tenantId, id).forEach(itemRecommendation::addItem);
+		return itemRecommendation;
+	}
+	
+	/**
+	 * Search for similiar item (based on selected fields).
+	 * 
+	 * @return a JSON document that is in the same format as current recommendation JSON.
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/items/{tenantId}/related", method=RequestMethod.POST)
+	public ItemRecommendation relatedItem(@PathVariable String tenantId, @RequestBody Map<String, Object> searchFor) {
+		if (!searchFor.containsKey("value")) {
+			throw new RuntimeException("Json request should contains 'value'.");
+		}
+		if (!searchFor.containsKey("fields")) {
+			throw new RuntimeException("Json request should contains 'fields'");
+		}
+		String value = searchFor.get("value").toString();
+		String[] fields;
+		if (searchFor.get("fields") instanceof String) {
+			fields = new String[] { searchFor.get("fields").toString() };
+		} else if (searchFor.get("fields") instanceof List) {
+			fields = (String[]) ((List<String>) searchFor.get("fields")).toArray(new String[]{});
+		} else {
+			throw new RuntimeException("Invalid value for 'fields': " + searchFor.get("fields"));
+		}
+		log.info("Searching for related item for fields [" + fields + "] with value [" + value + "]");
+		final ItemRecommendation itemRecommendation = new ItemRecommendation();
+		itemAsMapService.similiar(tenantId, searchFor.get("value").toString(), fields).forEach(itemRecommendation::addItem);
 		return itemRecommendation;
 	}
 	

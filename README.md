@@ -143,7 +143,18 @@ To find related items for certain item, use the following URL:
 For example, if you want to find related items for item with id `11068` of tenant `tenant1`, you can use:
 
     http://119.81.208.244:8090/fisher/items/tenant1/related/11068
+
+To search based on a string on multiple fields, you can send a POST request to:
+
+    http://119.81.208.244:8090/fisher/items/{tenantId}/related
     
+It accepts a JSON that contains `fields` and `value`, for example:
+
+    {
+       "fields": ["name", "category"],
+       "value": "this is a string to search for"
+    }
+
 To upload CSV file that contains item, use the following URL:
 
     http://119.81.208.244:8090/fisher/items/{tenantId}/upload
