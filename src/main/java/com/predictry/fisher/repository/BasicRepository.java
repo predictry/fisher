@@ -1,5 +1,7 @@
 package com.predictry.fisher.repository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -11,7 +13,10 @@ import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +38,29 @@ public class BasicRepository {
 	
 	@Autowired
 	private Client client;
+	
+	/**
+	 * Find similiar item based on existing item.
+	 * 
+	 * @param indexName is the index name.
+	 * @param type is the type name.
+	 * @param minTermFreq is the ES' minTermFreq.
+	 * @param id is the id of the document to match for.
+	 * @return a <code>List</code> that contains matched ids or 
+	 *         empty <code>List</code> if nothing matches.
+	 */
+	public List<String> similiar(String indexName, String type, int minTermFreq, String id) {
+		SearchResponse response = client.prepareSearch(indexName)
+			.setTypes(type)
+			.setQuery(QueryBuilders.moreLikeThisQuery().ids(id).minTermFreq(minTermFreq))
+			.execute()
+			.actionGet();
+		List<String> results = new ArrayList<>();
+		for (SearchHit searchHit: response.getHits().getHits()) {
+			results.add(searchHit.getId());
+		}
+		return results;
+	}
 	
 	/**
 	 * Create a new index.

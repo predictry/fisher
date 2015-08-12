@@ -1,5 +1,6 @@
 package com.predictry.fisher.service;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.transaction.Transactional;
@@ -24,6 +25,17 @@ public class ItemAsMapService {
 	
 	@Autowired
 	private ItemS3Service itemS3Service;
+	
+	/**
+	 * Search for a related item.
+	 * 
+	 * @param id is the id of item to search for.
+	 * @return <code>List</code> of id of related items, or empty <code>List</code>
+	 *         if nothing is found.
+	 */
+	public List<String> similiar(String tenantId, String id) {
+		return repository.similiar("item_" + tenantId.toLowerCase(), "item", 1, id);
+	}
 	
 	/**
 	 * Save a new item into database and publish them into S3.

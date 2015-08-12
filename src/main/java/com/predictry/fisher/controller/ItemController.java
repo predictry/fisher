@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.predictry.fisher.domain.item.ItemRecommendation;
 import com.predictry.fisher.domain.util.Helper;
 import com.predictry.fisher.service.ItemAsMapService;
 
@@ -50,6 +51,20 @@ public class ItemController {
 		tenantId = Helper.tenantIdRemapping(tenantId);
 		log.info("Calculating number of items for tenant id [" + tenantId + "]");
 		return itemAsMapService.count(tenantId);
+	}
+	
+	/**
+	 * Search for similiar item.
+	 * 
+	 * @param item is a JSON document that contains structure similiar to 
+	 *             the items stored in this document.
+	 * @return a JSON document that is in the same format as current recommendation JSON.
+	 */
+	@RequestMapping("/items/{tenantId}/related/{id}")
+	public ItemRecommendation relatedItem(@PathVariable String tenantId, @PathVariable String id) {
+		final ItemRecommendation itemRecommendation = new ItemRecommendation();
+		itemAsMapService.similiar(tenantId, id).forEach(itemRecommendation::addItem);
+		return itemRecommendation;
 	}
 	
 	/**

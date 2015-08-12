@@ -118,14 +118,6 @@ To return top ten most purchased items for a period, use resource `/top/sales`. 
 
     http://119.81.208.244:8090/fisher/top/sales?tenantId=FAMILYNARA2014&startDate=2015010100&endDate=2015020100
     
-You can also find an information about item by using resource `/items`.  For example, to find information about item with id `11068` owned by tenant id `FAMILYNARA2014`, use the following URL:
-
-    http://119.81.208.244:8090/fisher/items/FAMILYNARA2014/11068
-    
-To return number of stored items for a tenant, use the following URL:
-
-    http://119.81.208.244:8090/fisher/items/{tenantId}/count 
-
 Whenever error in encountered (in application logic), fisher will return JSON such as:
 
     {
@@ -133,6 +125,30 @@ Whenever error in encountered (in application logic), fisher will return JSON su
     }
     
 APIs that has time value accepts a `timeZone` parameter which determined which time zone there are in.  For example: `timeZone=Asia/Jakarta` or `timeZone=Asia/Kuala_Lumpur`.
+    
+## Items
+
+You find information about item by using resource `/items`.  For example, to find information about item with id `11068` owned by tenant id `FAMILYNARA2014`, use the following URL:
+
+    http://119.81.208.244:8090/fisher/items/FAMILYNARA2014/11068
+    
+To return number of stored items for a tenant, use the following URL:
+
+    http://119.81.208.244:8090/fisher/items/{tenantId}/count 
+
+To find related items for certain item, use the following URL:
+
+    http://119.81.208.244:8090/fisher/items/{tenantId}/related/{id}
+    
+For example, if you want to find related items for item with id `11068` of tenant `tenant1`, you can use:
+
+    http://119.81.208.244:8090/fisher/items/tenant1/related/11068
+    
+To upload CSV file that contains item, use the following URL:
+
+    http://119.81.208.244:8090/fisher/items/{tenantId}/upload
+    
+The first line of CSV file must contains field names.
 
 ## Configuration
 
