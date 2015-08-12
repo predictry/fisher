@@ -146,7 +146,7 @@ For example, if you want to find related items for item with id `11068` of tenan
 
 To search based on a string on multiple fields, you can send a POST request to:
 
-    http://119.81.208.244:8090/fisher/items/{tenantId}/related
+    http://119.81.208.244:8090/fisher/items/{tenantId}/related/{id}
     
 It accepts a JSON that contains `fields` and `value`, for example:
 

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,10 +63,9 @@ public class ItemController {
 	 */
 	@RequestMapping("/items/{tenantId}/related/{id}")
 	public ItemRecommendation relatedItem(@PathVariable String tenantId, @PathVariable String id) {
+		tenantId = Helper.tenantIdRemapping(tenantId);
 		log.info("Searching for related item for item [" + id + "]");
-		final ItemRecommendation itemRecommendation = new ItemRecommendation();
-		itemAsMapService.similiar(tenantId, id).forEach(itemRecommendation::addItem);
-		return itemRecommendation;
+		return itemAsMapService.similiar(tenantId, id);
 	}
 	
 	/**
@@ -74,8 +74,10 @@ public class ItemController {
 	 * @return a JSON document that is in the same format as current recommendation JSON.
 	 */
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value="/items/{tenantId}/related", method=RequestMethod.POST)
-	public ItemRecommendation relatedItem(@PathVariable String tenantId, @RequestBody Map<String, Object> searchFor) {
+	@RequestMapping(value="/items/{tenantId}/related/{id}", method=RequestMethod.POST)
+	public ItemRecommendation relatedItem(@PathVariable String tenantId, @PathVariable String id,
+			@RequestBody Map<String, Object> searchFor) {
+		tenantId = Helper.tenantIdRemapping(tenantId);
 		if (!searchFor.containsKey("value")) {
 			throw new RuntimeException("Json request should contains 'value'.");
 		}
@@ -91,10 +93,8 @@ public class ItemController {
 		} else {
 			throw new RuntimeException("Invalid value for 'fields': " + searchFor.get("fields"));
 		}
-		log.info("Searching for related item for fields [" + fields + "] with value [" + value + "]");
-		final ItemRecommendation itemRecommendation = new ItemRecommendation();
-		itemAsMapService.similiar(tenantId, searchFor.get("value").toString(), fields).forEach(itemRecommendation::addItem);
-		return itemRecommendation;
+		log.info("Searching for related item for item [" + id + "] for fields [" + Strings.arrayToCommaDelimitedString(fields) + "] with value [" + value + "]");
+		return itemAsMapService.similiar(tenantId, id, value, fields);
 	}
 	
 	/**

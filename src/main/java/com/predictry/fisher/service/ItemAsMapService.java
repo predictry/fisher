@@ -1,6 +1,5 @@
 package com.predictry.fisher.service;
 
-import java.util.List;
 import java.util.Map;
 
 import javax.transaction.Transactional;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.predictry.fisher.domain.item.ItemRecommendation;
 import com.predictry.fisher.repository.BasicRepository;
 
 @Service
@@ -26,29 +26,45 @@ public class ItemAsMapService {
 	@Autowired
 	private ItemS3Service itemS3Service;
 	
+	@Autowired
+	private RecommendationS3Service recommendationS3Service;
+	
 	/**
 	 * Search for related items based on existing item.
 	 * 
 	 * @param tenantId is the tenant id.
 	 * @param id is the id of item to search for.
-	 * @return <code>List</code> of id of related items, or empty <code>List</code>
-	 *         if nothing is found.
+	 * @return an instance of <code>ItemRecommendation</code>.
 	 */
-	public List<String> similiar(String tenantId, String id) {
-		return repository.similiar("item_" + tenantId.toLowerCase(), "item", 1, id);
+	public ItemRecommendation similiar(String tenantId, String id) {
+		ItemRecommendation itemRecommendation = new ItemRecommendation();
+		repository.similiar("item_" + tenantId.toLowerCase(), "item", 1, id).forEach(itemRecommendation::addItem);
+		try {
+			recommendationS3Service.putFile(id, tenantId, itemRecommendation);
+		} catch (Exception e) {
+			log.error("Error pushing recommendation file to S3.", e);
+		}
+		return itemRecommendation;
 	}
 	
 	/**
 	 * Search for related item based on certain text.
 	 * 
 	 * @param tenantId is the tenant id.
+	 * @param id is current item id.
 	 * @param likeText is the text to search for.
 	 * @param fields is the fields to search for.
-	 * @return <code>List</code> of id of related items, or empty <code>List</code>
-	 *         if nothing is found.
+	 * @return an instance of <code>ItemRecommendation</code>.
 	 */
-	public List<String> similiar(String tenantId, String likeText, String... fields) {
-		return repository.similiar("item_" + tenantId.toLowerCase(), "item", 1, likeText, fields);
+	public ItemRecommendation similiar(String tenantId, String id, String likeText, String... fields) {
+		ItemRecommendation itemRecommendation = new ItemRecommendation();
+		repository.similiar("item_" + tenantId.toLowerCase(), "item", 1, likeText, fields).forEach(itemRecommendation::addItem);
+		try {
+			recommendationS3Service.putFile(id, tenantId, itemRecommendation);
+		} catch (Exception e) {
+			log.error("Error pushing recommendation file to S3.", e);
+		}
+		return itemRecommendation;
 	}
 	
 	/**
