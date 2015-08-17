@@ -98,6 +98,26 @@ public class ItemController {
 	}
 	
 	/**
+	 * Delete an item.
+	 * 
+	 * @return a JSON document that indicate the operation result.
+	 */
+	@RequestMapping(value="/items/{tenantId}/{id}", method=RequestMethod.DELETE)
+	public Map<String, Object> deleteItem(@PathVariable String tenantId, @PathVariable String id) {
+		tenantId = Helper.tenantIdRemapping(tenantId);
+		log.info("Deleting item [" + id + "] for tenant id [" + tenantId + "]");
+		
+		// Process
+		boolean status = itemAsMapService.delete(tenantId, id);
+		
+		// Result
+		Map<String, Object> result = new HashMap<>();
+		result.put("id", id);
+		result.put("success", status);
+		return result;
+	}
+	
+	/**
 	 * Upload file that contains list of items.
 	 * 
 	 * @param tenantId is the tenant id.

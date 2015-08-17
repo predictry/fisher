@@ -161,6 +161,10 @@ To upload CSV file that contains item, use the following URL:
     
 The first line of CSV file must contains field names.
 
+To delete an item, send DELETE request method to the following:
+
+    http://119.81.208.244:8090/fisher/items/{tenantId}/{id}
+
 ## Configuration
 
 To retrieve information about current config, use the following resource:

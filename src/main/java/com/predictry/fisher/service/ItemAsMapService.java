@@ -1,5 +1,6 @@
 package com.predictry.fisher.service;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.transaction.Transactional;
@@ -8,10 +9,14 @@ import org.apache.http.util.Asserts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.predictry.fisher.domain.item.ItemRecommendation;
+import com.predictry.fisher.domain.util.JsonMessageCreator;
 import com.predictry.fisher.repository.BasicRepository;
 
 @Service
@@ -29,6 +34,12 @@ public class ItemAsMapService {
 	@Autowired
 	private RecommendationS3Service recommendationS3Service;
 	
+	@Autowired @Qualifier("topic")
+	private JmsTemplate jmsTemplate;
+	
+	@Autowired
+	private ObjectMapper objectMapper;
+	
 	/**
 	 * Search for related items based on existing item.
 	 * 
@@ -39,11 +50,7 @@ public class ItemAsMapService {
 	public ItemRecommendation similiar(String tenantId, String id) {
 		ItemRecommendation itemRecommendation = new ItemRecommendation();
 		repository.similiar("item_" + tenantId.toLowerCase(), "item", 1, id).forEach(itemRecommendation::addItem);
-		try {
-			recommendationS3Service.putFile(id, tenantId, itemRecommendation);
-		} catch (Exception e) {
-			log.error("Error pushing recommendation file to S3.", e);
-		}
+		postProcessSimiliar(id, tenantId, itemRecommendation);
 		return itemRecommendation;
 	}
 	
@@ -59,12 +66,30 @@ public class ItemAsMapService {
 	public ItemRecommendation similiar(String tenantId, String id, String likeText, String... fields) {
 		ItemRecommendation itemRecommendation = new ItemRecommendation();
 		repository.similiar("item_" + tenantId.toLowerCase(), "item", 1, likeText, fields).forEach(itemRecommendation::addItem);
+		postProcessSimiliar(id, tenantId, itemRecommendation);
+		return itemRecommendation;
+	}
+	
+	/**
+	 * Post processing after searching for similiar items.  This will including putting the file
+	 * into S3 storage and sending message notification to queue.
+	 * 
+	 * @param id is the item id.
+	 * @param tenantId is the tenant id.
+	 * @param itemRecommendation is the recommendation result.
+	 */
+	private void postProcessSimiliar(String id, String tenantId, ItemRecommendation itemRecommendation) {
 		try {
 			recommendationS3Service.putFile(id, tenantId, itemRecommendation);
 		} catch (Exception e) {
 			log.error("Error pushing recommendation file to S3.", e);
 		}
-		return itemRecommendation;
+		
+		Map<String, Object> addSimiliarItemMessage = new HashMap<>();
+		addSimiliarItemMessage.put("id", id);
+		addSimiliarItemMessage.put("tenantId", tenantId);
+		addSimiliarItemMessage.put("recommendation", itemRecommendation);
+		jmsTemplate.send("FISHER.ADD_SIMILIAR_ITEM", new JsonMessageCreator(addSimiliarItemMessage, objectMapper));
 	}
 	
 	/**
@@ -81,6 +106,27 @@ public class ItemAsMapService {
 		} catch (JsonProcessingException e) {
 			log.error("Exception while trying to push item to S3", e);
 		}
+	}
+	
+	/**
+	 * Delete existing item from database and from S3.
+	 * 
+	 * @param tenantId is the tenant id.
+	 * @param id is the id of the item.
+	 * @return <code>true</code> if the item is deleted.
+	 */
+	public boolean delete(String tenantId, String id) {
+		boolean status = repository.delete("item_" + tenantId.toLowerCase(), "item", id); 
+		if (status) {
+			itemS3Service.deleteFile(id, tenantId);
+			recommendationS3Service.deleteFile(id, tenantId);
+			
+			Map<String,String> jsonMessage = new HashMap<>();
+			jsonMessage.put("tenantId", tenantId);
+			jsonMessage.put("id", id);
+			jmsTemplate.send("FISHER.DELETE_ITEM", new JsonMessageCreator(jsonMessage, objectMapper));
+		}
+		return status;
 	}
 	
 	/**

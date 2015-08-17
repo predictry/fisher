@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.connection.CachingConnectionFactory;
+import org.springframework.jms.core.JmsTemplate;
 
 @Configuration
 @EnableJms
@@ -23,6 +24,19 @@ public class JmsConfig {
 		targetFactory.setUseAsyncSend(true);
 		factory.setTargetConnectionFactory(targetFactory);
 		return targetFactory;
+	}
+	
+	@Bean(name = "queue")
+	public JmsTemplate jmsTemplateQueue() {
+		JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory());
+		return jmsTemplate;
+	}
+	
+	@Bean(name = "topic")
+	public JmsTemplate jmsTemplateTopic() {
+		JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory());
+		jmsTemplate.setPubSubDomain(true);
+		return jmsTemplate;
 	}
 	
 	@Bean
