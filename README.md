@@ -151,8 +151,8 @@ To search based on a string on multiple fields, you can send a POST request to:
 It accepts a JSON that contains `fields` and `value`, for example:
 
     {
-       "fields": ["name", "category"],
-       "value": "this is a string to search for"
+       "fields": ["name", "description", "category"],
+       "value": "{put the name} {put the description} {put the category}"
     }
 
 To upload CSV file that contains item, use the following URL:
