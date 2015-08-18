@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
@@ -20,6 +21,7 @@ import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 @Configuration
 @ComponentScan(basePackages={"com.predictry.fisher.service", "com.predictry.fisher.repository"})
 @EnableElasticsearchRepositories(basePackages="com.predictry.fisher.repository")
+@Import({JmsConfig.class})
 public class TestRootConfig {
 	
 	@Autowired

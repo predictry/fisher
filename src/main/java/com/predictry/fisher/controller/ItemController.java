@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,15 +106,31 @@ public class ItemController {
 	@RequestMapping(value="/items/{tenantId}/{id}", method=RequestMethod.DELETE)
 	public Map<String, Object> deleteItem(@PathVariable String tenantId, @PathVariable String id) {
 		tenantId = Helper.tenantIdRemapping(tenantId);
-		log.info("Deleting item [" + id + "] for tenant id [" + tenantId + "]");
+		List<String> ids = new ArrayList<>();
+		if (id.contains(",")) {
+			for (String itemId: id.split(",")) {
+				ids.add(itemId.trim());
+			}
+		} else {
+			ids.add(id.trim());
+		}
 		
-		// Process
-		boolean status = itemAsMapService.delete(tenantId, id);
+		List<String> failed = new ArrayList<>();
+		boolean ok = true;
+		for (String itemId: ids) {
+			log.info("Deleting item [" + itemId + "] for tenant id [" + tenantId + "]");
+			if (!itemAsMapService.delete(tenantId, itemId)) {
+				ok = false;
+				failed.add(itemId);
+			}
+		}
 		
-		// Result
 		Map<String, Object> result = new HashMap<>();
-		result.put("id", id);
-		result.put("success", status);
+		result.put("request_id", id);
+		result.put("success", ok);
+		if (!ok) {
+			result.put("failed_id", failed);
+		}
 		return result;
 	}
 	

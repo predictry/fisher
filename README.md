@@ -164,6 +164,25 @@ The first line of CSV file must contains field names.
 To delete an item, send DELETE request method to the following:
 
     http://119.81.208.244:8090/fisher/items/{tenantId}/{id}
+    
+If there are multiple items, use a comma separated item ids, for example:
+
+    http://119.81.208.244:8090/fisher/items/{tenantId}/{id1},{id2},{id3}
+    
+This request will return value such as:
+
+    {
+       "success": true,
+       "request_id": "{id1},{id2},{id3}"
+    }
+    
+If one of the ids are not successfully deleted, it will appears in `failed_id`, for example:
+
+    {
+       "success": false,
+       "request_id": "{id1},{id2},{id3}",
+       "failed_id": [ "id1", "id2" ]
+    }
 
 ## Configuration
 
