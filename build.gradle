@@ -20,10 +20,10 @@ repositories {
 
 dependencies {  
     // Spring Framework         
-    compile 'org.springframework:spring-webmvc:4.1.6.RELEASE'
-    compile 'org.springframework:spring-aspects:4.1.6.RELEASE'
-    compile 'org.springframework:spring-test:4.1.6.RELEASE'
-    compile 'org.springframework:spring-jms:4.1.6.RELEASE'
+    compile 'org.springframework:spring-webmvc:4.2.0.RELEASE'
+    compile 'org.springframework:spring-aspects:4.2.0.RELEASE'
+    compile 'org.springframework:spring-test:4.2.0.RELEASE'
+    compile 'org.springframework:spring-jms:4.2.0.RELEASE'
     
     // Elasticsearch
     compile 'org.elasticsearch:elasticsearch:1.6.0'
