@@ -53,9 +53,10 @@ ant.taskdef(name: 'scp', classname: 'org.apache.tools.ant.taskdefs.optional.ssh.
 
 
 task deployToServer(dependsOn: 'war') << {
-    ant.scp(todir: 'jocki:latihan12345@119.81.208.244:/home/jocki/apache-tomcat-8.0.23/webapps',
+    ant.scp(todir: "${sshTargetUser}:${sshTargetPassword}@${sshTargetIP}:${sshTargetLocation}",
         file: "${project.projectDir}/build/libs/fisher.war")
 }
+
 
 task testDomainClass(type: Test, dependsOn: testClasses) {
     include 'com/predictry/fisher/domain/**'

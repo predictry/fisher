@@ -31,7 +31,7 @@ To deploy this application to deployment server (**Don't run this command if not
 
     gradle deployToServer
     
-This command will override fisher application in live deployment server which is accessible through `fisher.predictry.com`.
+This command will override fisher application in live deployment server which is accessible through `fisher.predictry.com`.  To run this command, you need to create `gradle.properties` that contains `sshTargetUser`, `sshTargetPassword`, `sshTargetIP` and `sshTargetLocation`.  These properties contains the directory in target server in which the locally tested artifact will be copied into it.
 
 ## API
 
@@ -86,7 +86,7 @@ returns value such as:
 
 To return histogram (grouped by specific interval), use resource `/stat`.  For example:
 
-    http://fisher.predictry.com:8090/fisher/stat?tenantId=FAMILYNARA2014&startDate=2015010100&endDate=2015010323&metric=VIEWS&interval=day
+    http://fisher.predictry.com:8090/fisher/stat?tenantId=tenantId&startDate=2015010100&endDate=2015010323&metric=VIEWS&interval=day
     
 returns value such as:
 
@@ -114,11 +114,11 @@ Valid values for `metric` are `VIEWS`, `SALES_AMOUNT`, `ITEM_PER_CART`, `ITEM_PU
 
 To return top ten most viewed items for a period, use resource `/top/hits`.  For example:
 
-    http://fisher.predictry.com:8090/fisher/top/hits?tenantId=FAMILYNARA2014&startDate=2015010100&endDate=2015020100
+    http://fisher.predictry.com:8090/fisher/top/hits?tenantId=tenantId&startDate=2015010100&endDate=2015020100
     
 To return top ten most purchased items for a period, use resource `/top/sales`.  For example:
 
-    http://fisher.predictry.com:8090/fisher/top/sales?tenantId=FAMILYNARA2014&startDate=2015010100&endDate=2015020100
+    http://fisher.predictry.com:8090/fisher/top/sales?tenantId=tenantId&startDate=2015010100&endDate=2015020100
     
 Whenever error in encountered (in application logic), fisher will return JSON such as:
 
@@ -130,9 +130,9 @@ APIs that has time value accepts a `timeZone` parameter which determined which t
     
 ## Items
 
-You find information about item by using resource `/items`.  For example, to find information about item with id `11068` owned by tenant id `FAMILYNARA2014`, use the following URL:
+You find information about item by using resource `/items`.  For example, to find information about item with id `11068` owned by tenant id `tenantId`, use the following URL:
 
-    http://fisher.predictry.com:8090/fisher/items/FAMILYNARA2014/11068
+    http://fisher.predictry.com:8090/fisher/items/tenantId/11068
     
 To return number of stored items for a tenant, use the following URL:
 
@@ -224,23 +224,23 @@ Fisher stores aggregations into Elasticsearch in periodical indices.  Statistics
 
 The following Elasticsearch query can be used to retrieve an entry:
 
-    GET stat_2015/SUPERBUY/2015-02-01T10:00:00
+    GET stat_2015/tenantId/2015-02-01T10:00:00
     
 Information about most viewed items is stored in periodical indices like `top_hits_2014`, `top_hits_2015`, etc.  The following Elasticsearch query can be used to retrieve an entry:
 
-    GET top_hits_2015/BUKALAPAK/2015-02-01T10:00
+    GET top_hits_2015/tenantId/2015-02-01T10:00
     
 Information about most purchased items is stored in periodical indices like `top_views_2014`, `top_views_2015`, etc.  The following Elasticsearch query can be used to retrieve an entry:
 
-    GET top_sales_2015/grouponid/2015-01-01T04:00
+    GET top_sales_2015/tenantId/2015-01-01T04:00
     
-Fisher also track items information for every tenant id.  For example, items for tenant id `bukalapak` is stored in `item_bukalapak`.  You can find information about an item of a tenant by using query like:
+Fisher also track items information for every tenant id.  For example, items for tenant id `tenantId` is stored in `item_tenantId`.  You can find information about an item of a tenant by using query like:
 
-    GET item_superbuymy/item/276995
+    GET item_tenantId/item/276995
     
 To delete old items, use:
 
-    DELETE stat_2014/BUKALAPAK
+    DELETE stat_2014/tenantId
     
 or
 
