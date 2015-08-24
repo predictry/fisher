@@ -30,12 +30,14 @@ To generate executable WAR file for this application, use the following command:
 To deploy this application to deployment server (**Don't run this command if not necessary!**):
 
     gradle deployToServer
+    
+This command will override fisher application in live deployment server which is accessible through `fisher.predictry.com`.
 
 ## API
 
 To returns summary of statistics for a period, hits `/stat/overview` resource.  For example:
 
-    http://119.81.208.244:8090/fisher/stat/overview?tenantId=targettenantid&startDate=2015010100&endDate=2015010102
+    http://fisher.predictry.com:8090/fisher/stat/overview?tenantId=targettenantid&startDate=2015010100&endDate=2015010102
 
 returns value such as:
 
@@ -84,7 +86,7 @@ returns value such as:
 
 To return histogram (grouped by specific interval), use resource `/stat`.  For example:
 
-    http://119.81.208.244:8090/fisher/stat?tenantId=FAMILYNARA2014&startDate=2015010100&endDate=2015010323&metric=VIEWS&interval=day
+    http://fisher.predictry.com:8090/fisher/stat?tenantId=FAMILYNARA2014&startDate=2015010100&endDate=2015010323&metric=VIEWS&interval=day
     
 returns value such as:
 
@@ -112,11 +114,11 @@ Valid values for `metric` are `VIEWS`, `SALES_AMOUNT`, `ITEM_PER_CART`, `ITEM_PU
 
 To return top ten most viewed items for a period, use resource `/top/hits`.  For example:
 
-    http://119.81.208.244:8090/fisher/top/hits?tenantId=FAMILYNARA2014&startDate=2015010100&endDate=2015020100
+    http://fisher.predictry.com:8090/fisher/top/hits?tenantId=FAMILYNARA2014&startDate=2015010100&endDate=2015020100
     
 To return top ten most purchased items for a period, use resource `/top/sales`.  For example:
 
-    http://119.81.208.244:8090/fisher/top/sales?tenantId=FAMILYNARA2014&startDate=2015010100&endDate=2015020100
+    http://fisher.predictry.com:8090/fisher/top/sales?tenantId=FAMILYNARA2014&startDate=2015010100&endDate=2015020100
     
 Whenever error in encountered (in application logic), fisher will return JSON such as:
 
@@ -130,23 +132,23 @@ APIs that has time value accepts a `timeZone` parameter which determined which t
 
 You find information about item by using resource `/items`.  For example, to find information about item with id `11068` owned by tenant id `FAMILYNARA2014`, use the following URL:
 
-    http://119.81.208.244:8090/fisher/items/FAMILYNARA2014/11068
+    http://fisher.predictry.com:8090/fisher/items/FAMILYNARA2014/11068
     
 To return number of stored items for a tenant, use the following URL:
 
-    http://119.81.208.244:8090/fisher/items/{tenantId}/count 
+    http://fisher.predictry.com:8090/fisher/items/{tenantId}/count 
 
 To find related items for certain item, use the following URL:
 
-    http://119.81.208.244:8090/fisher/items/{tenantId}/related/{id}
+    http://fisher.predictry.com:8090/fisher/items/{tenantId}/related/{id}
     
 For example, if you want to find related items for item with id `11068` of tenant `tenant1`, you can use:
 
-    http://119.81.208.244:8090/fisher/items/tenant1/related/11068
+    http://fisher.predictry.com:8090/fisher/items/tenant1/related/11068
 
 To search based on a string on multiple fields, you can send a POST request to:
 
-    http://119.81.208.244:8090/fisher/items/{tenantId}/related/{id}
+    http://fisher.predictry.com:8090/fisher/items/{tenantId}/related/{id}
     
 It accepts a JSON that contains `fields` and `value`, for example:
 
@@ -157,17 +159,17 @@ It accepts a JSON that contains `fields` and `value`, for example:
 
 To upload CSV file that contains item, use the following URL:
 
-    http://119.81.208.244:8090/fisher/items/{tenantId}/upload
+    http://fisher.predictry.com:8090/fisher/items/{tenantId}/upload
     
 The first line of CSV file must contains field names.
 
 To delete an item, send DELETE request method to the following:
 
-    http://119.81.208.244:8090/fisher/items/{tenantId}/{id}
+    http://fisher.predictry.com:8090/fisher/items/{tenantId}/{id}
     
 If there are multiple items, use a comma separated item ids, for example:
 
-    http://119.81.208.244:8090/fisher/items/{tenantId}/{id1},{id2},{id3}
+    http://fisher.predictry.com:8090/fisher/items/{tenantId}/{id1},{id2},{id3}
     
 This request will return value such as:
 
@@ -184,39 +186,38 @@ If one of the ids are not successfully deleted, it will appears in `failed_id`, 
        "failed_id": [ "id1", "id2" ]
     }
 
+Like any other APIs in fisher, if deletion failed, it will still return 200 OK response code.  Use the flag `success` to indicate if the operation is success or failed.
+
 ## Configuration
 
 To retrieve information about current config, use the following resource:
 
-    http://119.81.208.244:8090/fisher/config
+    http://fisher.predictry.com:8090/fisher/config
     
 To set new value for blacklisted tenant ids, send the `PUT` request to `/fisher/config/blacklist_tenants`.  For example:
 
-    http://119.81.208.244:8090/fisher/config/blacklist_tenants/tenantid1,tenantid2,tenantid3
+    http://fisher.predictry.com:8090/fisher/config/blacklist_tenants/tenantid1,tenantid2,tenantid3
     
 To clear blacklist value, send `DELETE` request to `/fisher/config/blacklist_tenants`.
 
-To enable or disable pulling operations from Tapirus, send `PUT` request to `/fisher/config/pull_enabled`.  For example:
+To enable or disable pulling operations from Tapirus, send `PUT` request to `/fisher/config/pull_enabled`.  For example, to disable pulling operations from Tapirus, use the following URI:
 
-    http://119.81.208.244:8090/fisher/config/pull_enabled/false
+    http://fisher.predictry.com:8090/fisher/config/pull_enabled/false
     
-or
+To enable pulling operatins from Tapirus, use the following URI:
 
-    http://119.81.208.244:8090/fisher/config/pull_enabled/false
+    http://119.81.208.244:8090/fisher/config/pull_enabled/true
    
 To set a different time to pull from Tapirus than default one, send `PUT` request to `/fisher/config/execution_time`.  Don't forget to disable pull operation before changing time to pull. For example:
 
     http://119.81.208.244:8090/fisher/config/execution_time/2015-01-01T00:00
+
+If execution time is in the past, pulling operations will be performed started from that time.  If the execution time reachs a point that is current or in the future, pulling operation will be suspended until the specified execution time.
    
 To point to another Tapirus' deployment, set the value for `FISHER_TAPIRUS_URL` environment variable before running Fisher.  For example:
 
     export FISHER_TAPIRUS_URL=http://12.23.44.55:9999
     
-If Tapirus returns another bucket, set the value for `FISHER_S3_BUCKET_NAME` environment variable before running Fisher.  For example:
-
-    export FISHER_S3_BUCKET_NAME=newbuckets
-    
-
 ## Database Schema
 
 Fisher stores aggregations into Elasticsearch in periodical indices.  Statistics are stored in indices with name starting with `stat_` and followed by four digit year.  For example: `stat_2011`, `stat_2012`, `stat_2013`, `stat_2014`.  Inside each indices, there will be a tenant id as type.
