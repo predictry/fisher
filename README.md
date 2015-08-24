@@ -33,7 +33,9 @@ To deploy this application to deployment server (**Don't run this command if not
     
 This command will override fisher application in live deployment server which is accessible through `fisher.predictry.com`.  To run this command, you need to create `gradle.properties` that contains `sshTargetUser`, `sshTargetPassword`, `sshTargetIP` and `sshTargetLocation`.  These properties contains the directory in target server in which the locally tested artifact will be copied into it.
 
-## API
+## APIs
+
+### Statistics
 
 To returns summary of statistics for a period, hits `/stat/overview` resource.  For example:
 
@@ -128,7 +130,7 @@ Whenever error in encountered (in application logic), fisher will return JSON su
     
 APIs that has time value accepts a `timeZone` parameter which determined which time zone there are in.  For example: `timeZone=Asia/Jakarta` or `timeZone=Asia/Kuala_Lumpur`.
     
-## Items
+### Items
 
 You find information about item by using resource `/items`.  For example, to find information about item with id `11068` owned by tenant id `tenantId`, use the following URL:
 
