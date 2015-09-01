@@ -54,3 +54,7 @@ Temporary Items
 /bin/
 /build/
 /gradle.properties
+.settings/
+.gradle/
+.classpath
+.project

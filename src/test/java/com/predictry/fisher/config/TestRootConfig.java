@@ -35,7 +35,6 @@ public class TestRootConfig {
 		return client;
 	}
 	
-	@SuppressWarnings("resource")
 	@Bean
 	public ElasticsearchOperations elasticsearchTemplate() {
 		Client client;

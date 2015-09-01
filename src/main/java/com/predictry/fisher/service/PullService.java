@@ -70,6 +70,7 @@ public class PullService {
 		PullTime pullTime = pullTimeRepository.findOne("default");
 		if (pullTime == null) {
 			pullTime = new PullTime("default", LocalDateTime.parse("2015-01-01T00:00:00"));
+			pullTimeRepository.index(pullTime);
 		}
 		return pullTime;
 	}

@@ -54,11 +54,11 @@ public class StatServiceTest {
 		statService.save(stat);
 		
 		// Check if index is created
+		template.refresh("stat_2015", true);
 		assertTrue(template.indexExists("stat_2015"));
 		assertTrue(template.typeExists("stat_2015", "BUKALAPAK"));
 		
 		// Check if row is created
-		template.refresh("stat_2015", true);
 		SearchQuery searchQuery = new NativeSearchQueryBuilder().withIndices("stat_2015")
 			.withTypes("BUKALAPAK")
 			.withIds(Arrays.asList("2015-12-15T10:00:00"))
