@@ -73,6 +73,7 @@ public class TopScoreService {
 							.field("properties").startObject()
 								.startObject("id")
 									.field("type", "string")
+									.field("index", "not_analyzed")
 								.endObject()
 								.startObject("name")
 									.field("type", "string")

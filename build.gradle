@@ -5,12 +5,10 @@ apply plugin: 'war'
 sourceCompatibility = 1.8
 version = '0.1'
 
-configurations {
-    sshAntTask
-}
+def warFile = 'fisher.war'
 
 war {
-    archiveName = 'fisher.war'
+    archiveName = warFile
 }
 
 repositories {
@@ -45,18 +43,30 @@ dependencies {
     compile 'log4j:log4j:1.2.17'
     compile 'log4j:apache-log4j-extras:1.0'
     testCompile group: 'junit', name: 'junit', version: '4.+'
-    sshAntTask 'org.apache.ant:ant-jsch:1.9.5', 'com.jcraft:jsch:0.1.53'
 }
 
-ant.taskdef(name: 'scp', classname: 'org.apache.tools.ant.taskdefs.optional.ssh.Scp', 
-    classpath: configurations.sshAntTask.asPath)
-
-
-task deployToServer(dependsOn: 'war') << {
-    ant.scp(todir: "${sshTargetUser}:${sshTargetPassword}@${sshTargetIP}:${sshTargetLocation}",
-        file: "${project.projectDir}/build/libs/fisher.war")
+task remoteShutdownTomcat << {
+    exec {
+        executable "/usr/bin/ssh"
+        args sshTargetHost, "'${sshTargetShutdownScript}'"
+    }
 }
 
+task remoteStartTomcat << {
+    exec {
+        executable "/usr/bin/ssh"
+        args sshTargetHost, "'${sshTargetStartupScript}'"
+    }
+}
+
+task remoteDeploy(dependsOn: 'build') << {
+    // Copy War file
+    exec {
+        executable "/usr/bin/scp"
+        args "${buildDir}/libs/${warFile}", 
+            "${sshTargetHost}:${sshTargetTomcatWebapp}/${warFile}"
+    }
+}
 
 task testDomainClass(type: Test, dependsOn: testClasses) {
     include 'com/predictry/fisher/domain/**'
