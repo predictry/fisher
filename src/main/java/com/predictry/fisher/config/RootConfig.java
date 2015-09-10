@@ -22,7 +22,6 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.util.Log4jConfigurer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.predictry.fisher.domain.util.JacksonTimeDeserializer;
@@ -78,11 +77,6 @@ public class RootConfig {
 		} else {
 			Log4jConfigurer.initLogging("classpath:log4j-production.xml");
 		}
-	}
-	
-	@Bean
-	public ObjectMapper objectMapper() {
-		return new ObjectMapper();
 	}
 
 }

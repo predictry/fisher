@@ -1,6 +1,8 @@
 package com.predictry.fisher.domain.stat;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -21,6 +23,8 @@ public class Stat {
 	private Value uniqueVisitor = new Value();
 	private Value uniqueItemPurchased = new Value();
 	private Double cartBoost = 0.0;
+	@JsonIgnore
+	private Set<String> items = new HashSet<>();
 		
 	public Stat() {}
 	
@@ -119,6 +123,10 @@ public class Stat {
 	public void setCartBoost(Double cartBoost) {
 		this.cartBoost = cartBoost;
 	}
+	
+	public Set<String> getItems() {
+		return this.items;
+	}
 
 	public LocalDateTime time() {
 		return LocalDateTime.parse(time);
@@ -199,6 +207,17 @@ public class Stat {
 	 */
 	public void addUniqueItemPurchased(Value uniqueItemPurchased) {
 		this.uniqueItemPurchased = this.uniqueItemPurchased.plus(uniqueItemPurchased);
+	}
+	
+	/**
+	 * Add item id processed to this stat.
+	 * 
+	 * @param itemId is the item unique identifier.
+	 */
+	public void addItem(String itemId) {
+		if (itemId != null) {
+			this.items.add(itemId.trim());
+		}
 	}
 	
 	/**

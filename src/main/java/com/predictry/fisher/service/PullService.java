@@ -4,14 +4,18 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -28,11 +32,13 @@ import com.predictry.fisher.domain.item.ScoreStore;
 import com.predictry.fisher.domain.item.TopScore;
 import com.predictry.fisher.domain.item.TopScoreType;
 import com.predictry.fisher.domain.pull.PullTime;
+import com.predictry.fisher.domain.stat.AdminStatMetric;
 import com.predictry.fisher.domain.stat.Stat;
 import com.predictry.fisher.domain.tapirus.GetRecordsResult;
 import com.predictry.fisher.domain.tapirus.GetRecordsResult.STATUS;
 import com.predictry.fisher.domain.tapirus.RecordFile;
 import com.predictry.fisher.domain.util.Helper;
+import com.predictry.fisher.domain.util.JsonMessageCreator;
 import com.predictry.fisher.repository.LiveConfiguration;
 import com.predictry.fisher.repository.PullTimeRepository;
 
@@ -62,6 +68,9 @@ public class PullService {
 	
 	@Autowired
 	private ObjectMapper objectMapper;
+	
+	@Autowired @Qualifier("topic")
+	private JmsTemplate jmsTemplate;
 	
 	/**
 	 * @return retrieve default <code>PullTime</code> for default task.
@@ -131,6 +140,11 @@ public class PullService {
 				ViewsAggregation viewsAggr = new ViewsAggregation();
 				SalesAggregation salesAggr = new SalesAggregation();
 				
+				// Global metrics for admin
+				long totalUniqueVisitor = 0;
+				double totalSales = 0.0;
+				Set<String> allItems = new HashSet<>();
+				
 				// Calculate and save stats
 				log.info("Calculating stats for [" + time + "]");
 				for (RecordFile recordFile: tapResult.getRecordFiles()) {
@@ -151,8 +165,21 @@ public class PullService {
 					}
 					
 					statService.save(stat);
+					
+					// Process global metrics
+					totalUniqueVisitor += stat.getUniqueVisitor().getOverall();
+					totalSales += stat.getSales().getRecommended();
+					allItems.addAll(stat.getItems());
 				}
 				log.info("Finish calculating stat.");
+				
+				// Send global metrics to queue
+				AdminStatMetric adminStatMetric = new AdminStatMetric();
+				adminStatMetric.setTime(time);
+				adminStatMetric.setSales(totalSales);
+				adminStatMetric.setUniqueVisitor(totalUniqueVisitor);
+				adminStatMetric.setSkus((long) allItems.size());
+				jmsTemplate.send("ADMIN.METRIC", new JsonMessageCreator(adminStatMetric, objectMapper));
 								
 				// Calculate and save top scores
 				log.info("Calculating top score for [" + time + "]");
@@ -256,6 +283,7 @@ public class PullService {
 			} else {
 				if (type.equals("Item")) {
 					saveItem(mapJson);
+					stat.addItem((String) Helper.getData(mapJson).get("id"));
 				} else {
 					for (Aggregation aggr: aggrs) {
 						aggr.consume(mapJson, stat);
