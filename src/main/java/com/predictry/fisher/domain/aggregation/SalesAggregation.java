@@ -21,7 +21,7 @@ public class SalesAggregation implements Aggregation {
 		if (getType(mapJson).equals("Action") && getDataName(mapJson).equals("BUY")) {
 			@SuppressWarnings("unchecked")
 			Map<String,Object> fields = (Map<String,Object>) getData(mapJson).get("fields");
-			if (fields.containsKey("sub_total")) {
+			if (fields.containsKey("sub_total") && !fields.get("sub_total").equals("null")) {
 				Double subTotal = Double.parseDouble(fields.get("sub_total").toString());
 				stat.addSales(new Value(
 					subTotal,
