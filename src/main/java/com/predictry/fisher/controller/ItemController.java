@@ -36,6 +36,26 @@ public class ItemController {
 	private ItemAsMapService itemAsMapService;
 	
 	/**
+	 * Retrieve all items.
+	 */
+	@RequestMapping("/items/{tenantId}")
+	public List<Map<String, Object>> findAll(@PathVariable String tenantId, @RequestParam(name="size",required=false) Integer size, 
+			@RequestParam(name="from",required=false) Integer from, @RequestParam(name="sortField",required=false) String sortField) {
+		if (size==null) {
+			size=10;
+		}
+		if (from==null) {
+			from=0;
+		}
+		List<String> sortFields = new ArrayList<>();
+		if (sortField != null) {
+			sortFields.add(sortField);
+		}
+		log.info("Retrieve all items for tenant id [" + tenantId + "] size [" + size + "] from [" + from + "] sortFields [" + sortFields + "]");
+		return itemAsMapService.findAll(tenantId, size, from, sortFields);
+	}
+	
+	/**
 	 * Retrieve information about an item based on tenant id and item id.
 	 * 
 	 * @return JSON value (<code>Item</code>).

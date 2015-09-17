@@ -3,7 +3,9 @@ package com.predictry.fisher.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
@@ -19,7 +21,7 @@ import com.predictry.fisher.config.TestRootConfig;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={TestRootConfig.class}, loader=AnnotationConfigContextLoader.class)
-public class ItemServiceTest {
+public class ItemAsMapServiceTest {
 
 	@Autowired
 	private ItemAsMapService itemAsMapService;
@@ -31,6 +33,70 @@ public class ItemServiceTest {
 	public void clean() {
 		if (template.indexExists("item_bukalapak")) {
 			template.deleteIndex("item_bukalapak");
+		}
+	}
+	
+	@Test
+	public void findAll() {
+		// Saving items
+		for (int i=1; i<=15; i++) {
+			Map<String, Object> item = new HashMap<>();
+			item.put("name", "item" + String.format("%02d", i));
+			item.put("item_url", "http://item.url");
+			item.put("img_url", "http://image.url");
+			item.put("category", "category1");
+			itemAsMapService.save("BUKALAPAK", "id" + i, item);
+		}
+		
+		List<String> sortFields = new ArrayList<>();
+		sortFields.add("name");
+		
+		// Try to search for all of them
+		List<Map<String,Object>> results = itemAsMapService.findAll("BUKALAPAK", 15, 0, sortFields);
+		assertEquals(15, results.size());
+		for (int i=1; i<=15; i++) {
+			Map<String, Object> item = results.get(i-1);
+			assertEquals("id" + i, item.get("id"));
+			assertEquals("item" + String.format("%02d", i), item.get("name"));
+			assertEquals("http://item.url", item.get("item_url"));
+			assertEquals("http://image.url", item.get("img_url"));
+			assertEquals("category1", item.get("category"));
+		}
+		
+		// With a pagination with 5 items per page, select only the first page.
+		results = itemAsMapService.findAll("BUKALAPAK", 5, 0, sortFields);
+		assertEquals(5, results.size());
+		for (int i=1; i<=5; i++) {
+			Map<String, Object> item = results.get(i-1);
+			assertEquals("id" + i, item.get("id"));
+			assertEquals("item" + String.format("%02d", i), item.get("name"));
+			assertEquals("http://item.url", item.get("item_url"));
+			assertEquals("http://image.url", item.get("img_url"));
+			assertEquals("category1", item.get("category"));
+		}
+		
+		// With a pagination with 5 items per page, select only the second page.
+		results = itemAsMapService.findAll("BUKALAPAK", 5, 5, sortFields);
+		assertEquals(5, results.size());
+		for (int i=1; i<=5; i++) {
+			Map<String, Object> item = results.get(i-1);
+			assertEquals("id" + (5 + i), item.get("id"));
+			assertEquals("item" + String.format("%02d", (5 + i)), item.get("name"));
+			assertEquals("http://item.url", item.get("item_url"));
+			assertEquals("http://image.url", item.get("img_url"));
+			assertEquals("category1", item.get("category"));
+		}
+		
+		// With a pagination with 6 items per page, select only the third page.
+		results = itemAsMapService.findAll("BUKALAPAK", 5, 10, sortFields);
+		assertEquals(5, results.size());
+		for (int i=1; i<=5; i++) {
+			Map<String, Object> item = results.get(i-1);
+			assertEquals("id" + (10 + i), item.get("id"));
+			assertEquals("item" + String.format("%02d", (10 + i)), item.get("name"));
+			assertEquals("http://item.url", item.get("item_url"));
+			assertEquals("http://image.url", item.get("img_url"));
+			assertEquals("category1", item.get("category"));
 		}
 	}
 	

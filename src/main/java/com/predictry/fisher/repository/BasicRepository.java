@@ -13,10 +13,12 @@ import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,39 @@ public class BasicRepository {
 	
 	@Autowired
 	private Client client;
+
+	/**
+	 * Find all indexed documents.
+	 * 
+	 * @param indexName is the index name.
+	 * @param type is the type name.
+	 * @param size is number of results that should be returned.
+	 * @param from is number of initial results that should be skipped.
+	 * @param sortFields is name of fields used for sorting.
+	 * @return a <code>List</code> that contains documents or empty <code>List</code> if nothing found.
+	 */
+	public List<Map<String, Object>> findAll(String indexName, String type, int size, int from, List<String> sortFields) {
+		SearchRequestBuilder builder = client.prepareSearch(indexName)
+			.setTypes(type)
+			.setQuery(QueryBuilders.matchAllQuery())
+			.setFrom(from)
+			.setSize(size);
+		if (sortFields != null) {
+			sortFields.stream().forEach(s -> builder.addSort(s, SortOrder.ASC));
+		}
+		SearchResponse response = builder.execute().actionGet();	
+		List<Map<String, Object>> results = new ArrayList<>();
+		for (SearchHit searchHit: response.getHits().getHits()) {
+			Map<String, Object> item = searchHit.getSource();
+			if (item != null) {
+				if (!item.containsKey("id")) {
+					item.put("id", searchHit.getId());
+				}
+				results.add(item);
+			}
+		}
+		return results;
+	}
 	
 	/**
 	 * Find similiar item based on existing item.

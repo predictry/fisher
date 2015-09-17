@@ -1,6 +1,7 @@
 package com.predictry.fisher.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.transaction.Transactional;
@@ -39,6 +40,19 @@ public class ItemAsMapService {
 	
 	@Autowired
 	private ObjectMapper objectMapper;
+	
+	/**
+	 * This method return all existing items.
+	 * 
+	 * @param tenantId is the tenant id.
+	 * @param size is number of results that should be returned.
+	 * @param from is number of initial results that should be skipped.
+	 * @param sortFields is name of fields used for sorting.
+	 * @return a <code>List</code> that contains documents or empty <code>List</code> if nothing found.
+	 */
+	public List<Map<String, Object>> findAll(String tenantId, int size, int from, List<String> sortFields) {
+		return repository.findAll("item_" + tenantId.toLowerCase(), "item", size, from, sortFields);
+	}
 	
 	/**
 	 * Search for related items based on existing item.
