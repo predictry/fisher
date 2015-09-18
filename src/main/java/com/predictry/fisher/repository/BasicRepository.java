@@ -68,6 +68,15 @@ public class BasicRepository {
 				if (!item.containsKey("id")) {
 					item.put("id", searchHit.getId());
 				}
+				if (item.containsKey("imageUrl") && !item.containsKey("img_url")) {
+					item.put("img_url", item.get("imageUrl"));
+				}
+				if (item.containsKey("imgUrl") && !item.containsKey("img_url")) {
+					item.put("img_url", item.get("imgUrl"));
+				}
+				if (item.containsKey("itemUrl") && !item.containsKey("item_url")) {
+					item.put("item_url", item.get("itemUrl"));
+				}
 				results.add(item);
 			}
 		}
