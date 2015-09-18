@@ -134,23 +134,23 @@ APIs that has time value accepts a `timeZone` parameter which determined which t
 
 You can find all items for a specific tenants by sending `GET` request to `/items/{tenantId}`.  For example:
 
-    http://fisher.predictry.com:8090/fisher/item/tenantId
+    http://fisher.predictry.com:8090/fisher/items/tenantId
 
 will return maximum 10 items for the tenant id.  You can creating paging by specifying `size` (number of documents per page) and `from` (number of documents to skip) request parameter.  For example, in paging with 5 item per page, you can display the first page by using:
 
-    http://fisher.predictry.com:8090/fisher/item/tenantId?size=5
+    http://fisher.predictry.com:8090/fisher/items/tenantId?size=5
     
 To display the second page, use the following URL:
 
-    http://fisher.predictry.com:8090/fisher/item/tenantId?size=5&from=5
+    http://fisher.predictry.com:8090/fisher/items/tenantId?size=5&from=5
     
 To display the third page, use the following URL:
 
-    http://fisher.predictry.com:8090/fisher/item/tenantId?size=5&from=10
+    http://fisher.predictry.com:8090/fisher/items/tenantId?size=5&from=10
     
 To add ascending sorting, you can use `sortField` request parameter which accept a field name, for example:
 
-    http://fisher.predictry.com:8090/fisher/item/tenantId?sortField=name
+    http://fisher.predictry.com:8090/fisher/items/tenantId?sortField=name
 
 You find information about item by using resource `/items`.  For example, to find information about item with id `11068` owned by tenant id `tenantId`, use the following URL:
 
