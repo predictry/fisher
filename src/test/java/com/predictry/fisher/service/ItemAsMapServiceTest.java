@@ -56,7 +56,7 @@ public class ItemAsMapServiceTest {
 		assertEquals(15, results.size());
 		for (int i=1; i<=15; i++) {
 			Map<String, Object> item = results.get(i-1);
-			assertEquals("id" + i, item.get("id"));
+			assertEquals("id" + i, item.get("item_id"));
 			assertEquals("item" + String.format("%02d", i), item.get("name"));
 			assertEquals("http://item.url", item.get("item_url"));
 			assertEquals("http://image.url", item.get("img_url"));
@@ -68,7 +68,7 @@ public class ItemAsMapServiceTest {
 		assertEquals(5, results.size());
 		for (int i=1; i<=5; i++) {
 			Map<String, Object> item = results.get(i-1);
-			assertEquals("id" + i, item.get("id"));
+			assertEquals("id" + i, item.get("item_id"));
 			assertEquals("item" + String.format("%02d", i), item.get("name"));
 			assertEquals("http://item.url", item.get("item_url"));
 			assertEquals("http://image.url", item.get("img_url"));
@@ -80,7 +80,7 @@ public class ItemAsMapServiceTest {
 		assertEquals(5, results.size());
 		for (int i=1; i<=5; i++) {
 			Map<String, Object> item = results.get(i-1);
-			assertEquals("id" + (5 + i), item.get("id"));
+			assertEquals("id" + (5 + i), item.get("item_id"));
 			assertEquals("item" + String.format("%02d", (5 + i)), item.get("name"));
 			assertEquals("http://item.url", item.get("item_url"));
 			assertEquals("http://image.url", item.get("img_url"));
@@ -92,7 +92,7 @@ public class ItemAsMapServiceTest {
 		assertEquals(5, results.size());
 		for (int i=1; i<=5; i++) {
 			Map<String, Object> item = results.get(i-1);
-			assertEquals("id" + (10 + i), item.get("id"));
+			assertEquals("id" + (10 + i), item.get("item_id"));
 			assertEquals("item" + String.format("%02d", (10 + i)), item.get("name"));
 			assertEquals("http://item.url", item.get("item_url"));
 			assertEquals("http://image.url", item.get("img_url"));

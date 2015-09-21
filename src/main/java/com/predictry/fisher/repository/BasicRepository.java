@@ -65,8 +65,8 @@ public class BasicRepository {
 		for (SearchHit searchHit: response.getHits().getHits()) {
 			Map<String, Object> item = searchHit.getSource();
 			if (item != null) {
-				if (!item.containsKey("id")) {
-					item.put("id", searchHit.getId());
+				if (!item.containsKey("item_id")) {
+					item.put("item_id", searchHit.getId());
 				}
 				if (item.containsKey("imageUrl") && !item.containsKey("img_url")) {
 					item.put("img_url", item.get("imageUrl"));
