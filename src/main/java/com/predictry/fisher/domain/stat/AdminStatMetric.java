@@ -20,6 +20,12 @@ public class AdminStatMetric {
 	private Double sales;
 	
 	private Long skus;
+	
+	@JsonProperty("page_view")
+	private Long pageView;
+	
+	@JsonProperty("recommended_view")
+	private Long recommendedPageView;
 
 	public LocalDateTime getTime() {
 		return time;
@@ -52,5 +58,21 @@ public class AdminStatMetric {
 	public void setSkus(Long skus) {
 		this.skus = skus;
 	}
-	
+
+	public Long getPageView() {
+		return pageView;
+	}
+
+	public void setPageView(Long pageView) {
+		this.pageView = pageView;
+	}
+
+	public Long getRecommendedPageView() {
+		return recommendedPageView;
+	}
+
+	public void setRecommendedPageView(Long recommendedPageView) {
+		this.recommendedPageView = recommendedPageView;
+	}
+		
 }

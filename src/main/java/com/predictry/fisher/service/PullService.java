@@ -142,6 +142,8 @@ public class PullService {
 				SalesAggregation salesAggr = new SalesAggregation();
 				
 				// Global metrics for admin
+				long totalView = 0;
+				long totalRecommendedView = 0;
 				long totalUniqueVisitor = 0;
 				double totalSales = 0.0;
 				Set<String> allItems = new HashSet<>();
@@ -168,6 +170,8 @@ public class PullService {
 					statService.save(stat);
 					
 					// Process global metrics
+					totalView += stat.getViews().getOverall();
+					totalRecommendedView += stat.getViews().getRecommended();
 					totalUniqueVisitor += stat.getUniqueVisitor().getOverall();
 					totalSales += stat.getSales().getRecommended();
 					allItems.addAll(stat.getItems());
@@ -180,6 +184,8 @@ public class PullService {
 				adminStatMetric.setSales(totalSales);
 				adminStatMetric.setUniqueVisitor(totalUniqueVisitor);
 				adminStatMetric.setSkus((long) allItems.size());
+				adminStatMetric.setPageView(totalView);
+				adminStatMetric.setRecommendedPageView(totalRecommendedView);
 				jmsTemplate.send("ADMIN.METRIC", new JsonMessageCreator(adminStatMetric, objectMapper));
 								
 				// Calculate and save top scores
