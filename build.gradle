@@ -48,22 +48,22 @@ dependencies {
 task remoteShutdownTomcat << {
     exec {
         executable "/usr/bin/ssh"
-        args sshTargetHost, "'${sshTargetShutdownScript}'"
+        args "-i", sshPEMFile, sshTargetHost, "'${sshTargetShutdownScript}'"
     }
 }
 
 task remoteStartTomcat << {
     exec {
         executable "/usr/bin/ssh"
-        args sshTargetHost, "'${sshTargetStartupScript}'"
+        args "-i", sshPEMFile, sshTargetHost, "'${sshTargetStartupScript}'"
     }
 }
 
-task remoteDeploy(dependsOn: 'build') << {
+task remoteDeploy(dependsOn: ['build','remoteShutdownTomcat']) << {
     // Copy War file
     exec {
         executable "/usr/bin/scp"
-        args "${buildDir}/libs/${warFile}", 
+        args "-i", sshPEMFile, "${buildDir}/libs/${warFile}", 
             "${sshTargetHost}:${sshTargetTomcatWebapp}/${warFile}"
     }
 }
