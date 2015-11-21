@@ -56,9 +56,9 @@ public class PullTime {
 	public void fail() {
 		Assert.notNull(forTime);
 		// Assume nothing can be retrieved if still fails after repeating several times.
-		if (repeat >= MAX_REPEAT) {
-			success();
-		}
+		//if (repeat >= MAX_REPEAT) {
+		//	success();
+		//}
 		lastExecutedTime = LocalDateTime.now();
 		repeat++;
 	}

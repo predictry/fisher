@@ -110,11 +110,7 @@ public class PullService {
 			log.info("Processing aggregation for " + pullTime);
 			try {
 				GetRecordsResult tapResult = processAggregation(pullTime.getForTime());
-				if (tapResult == null) {
-					pullTime.fail();
-				} else if (tapResult.getStatus() == STATUS.NOT_FOUND) {
-					pullTime.success();
-				} else if (tapResult.getStatus() == STATUS.PROCESSED) {
+				if ((tapResult != null) && (tapResult.getStatus() == STATUS.PROCESSED)) {
 					pullTime.success();
 				} else {
 					pullTime.fail();

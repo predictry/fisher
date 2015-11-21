@@ -21,7 +21,7 @@ public class PullTask {
 	 * keeping the server running (so it can serve), set an environment variable
 	 * with name <code>FISHER_PULL</code> with value <code>false</code>.
 	 */
-	@Scheduled(fixedRate=1000) @Async
+	@Scheduled(fixedRate=60000) @Async
 	public void pullLog() {
 		String flag = System.getenv(ENV_FISHER_PULL);
 		if ((flag != null) && flag.toLowerCase().equals("false")) {
