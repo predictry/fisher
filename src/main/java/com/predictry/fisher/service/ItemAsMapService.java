@@ -98,12 +98,6 @@ public class ItemAsMapService {
 		} catch (Exception e) {
 			log.error("Error pushing recommendation file to S3.", e);
 		}
-		
-		Map<String, Object> addSimiliarItemMessage = new HashMap<>();
-		addSimiliarItemMessage.put("id", id);
-		addSimiliarItemMessage.put("tenantId", tenantId);
-		addSimiliarItemMessage.put("recommendation", itemRecommendation);
-		jmsTemplate.send("FISHER.ADD_SIMILIAR_ITEM", new JsonMessageCreator(addSimiliarItemMessage, objectMapper));
 	}
 	
 	/**

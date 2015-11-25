@@ -31,7 +31,7 @@ public class TapirusService {
 
 	private static final Logger log = LoggerFactory.getLogger(PullService.class);
 	
-	@Value("#{environment['FISHER_TAPIRUS_URL']?:'http://119.81.208.244:7870'}")
+	@Value("#{environment['FISHER_TAPIRUS_URL']?:'http://fisher.predictry.com:7870'}")
 	public String TAPIRUS_URL;
 	
 	@Value("#{environment['FISHER_S3_BUCKET_NAME']?:'trackings'}")
