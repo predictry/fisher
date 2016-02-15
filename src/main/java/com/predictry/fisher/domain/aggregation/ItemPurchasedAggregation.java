@@ -14,9 +14,13 @@ public class ItemPurchasedAggregation implements Aggregation {
 		if (getType(mapJson).equals("Action") && getDataName(mapJson).equals("BUY")) {
 			@SuppressWarnings("unchecked")
 			Map<String,Object> fields = (Map<String,Object>) getData(mapJson).get("fields");
-			double qty = 0;
+			double qty;
 			if (fields.containsKey("quantity")) {
-				qty = Double.parseDouble(fields.get("quantity").toString());
+				try {
+					qty = Double.parseDouble(fields.get("quantity").toString());
+				} catch (NumberFormatException ex) {
+					qty = 0.0;
+				}
 			} else {
 				qty = 1;
 			}

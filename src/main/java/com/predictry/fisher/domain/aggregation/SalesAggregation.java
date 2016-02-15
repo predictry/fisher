@@ -22,7 +22,12 @@ public class SalesAggregation implements Aggregation {
 			@SuppressWarnings("unchecked")
 			Map<String,Object> fields = (Map<String,Object>) getData(mapJson).get("fields");
 			if (fields.containsKey("sub_total") && !fields.get("sub_total").equals("null")) {
-				Double subTotal = Double.parseDouble(fields.get("sub_total").toString());
+				Double subTotal;
+				try {
+					subTotal = Double.parseDouble(fields.get("sub_total").toString());
+				} catch (NumberFormatException ex) {
+					subTotal = 0.0;
+				}
 				stat.addSales(new Value(
 					subTotal,
 					isRecommended(mapJson)? subTotal: 0.0,
@@ -33,7 +38,12 @@ public class SalesAggregation implements Aggregation {
 				Map<String,Object> data = getData(mapJson);
 				String tenantId = data.get("tenant").toString();
 				String itemId = data.get("item").toString();
-				Double quantity = Double.parseDouble(fields.get("quantity").toString());
+				Double quantity;
+				try {
+					quantity = Double.parseDouble(fields.get("quantity").toString());
+				} catch (NumberFormatException ex) {
+					quantity = 0.0;
+				}
 				scoreStore.add(tenantId, new ItemScore(itemId, "", "", quantity));
 			}
 		}		
