@@ -9,16 +9,16 @@ public class StatTest {
 	@Test
 	public void getIndexName() {
 		Stat stat = new Stat();
-		stat.setTimeFrom(LocalDateTime.parse("2015-12-01T10:00:00"));
+		stat.setTime(LocalDateTime.parse("2015-12-01T10:00:00"));
 		assertEquals("stat_2015", stat.getIndexName());
-		stat.setTimeFrom(LocalDateTime.parse("2013-12-01T10:00:00"));
+		stat.setTime(LocalDateTime.parse("2013-12-01T10:00:00"));
 		assertEquals("stat_2013", stat.getIndexName());
 	}
 
 	@Test
 	public void isForTime() {
 		Stat stat = new Stat();
-		stat.setTimeFrom(LocalDateTime.parse("2015-12-01T10:00:00"));
+		stat.setTime(LocalDateTime.parse("2015-12-01T10:00:00"));
 		assertTrue(stat.isForTime(LocalDateTime.parse("2015-12-01T10:10:10")));
 		assertTrue(stat.isForTime(LocalDateTime.parse("2015-12-01T10:00:01")));
 		assertTrue(stat.isForTime(LocalDateTime.parse("2015-12-01T10:59:59")));

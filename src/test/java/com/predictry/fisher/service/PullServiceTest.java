@@ -40,6 +40,7 @@ public class PullServiceTest {
 	@Autowired
 	private BasicRepository basicRepository;
 	
+	@SuppressWarnings("SpringJavaAutowiringInspection")
 	@Autowired
 	private ElasticsearchTemplate template;
 	
@@ -100,6 +101,13 @@ public class PullServiceTest {
 		assertEquals("https://www.xxx_item03.com", result.get("item_url"));
 		assertEquals("https://www.yyy_item03.com", result.get("img_url"));
 		assertEquals("Fashion", result.get("category"));
+	}
+
+	public void email() throws IOException {
+		File file = new File(getClass().getResource("/sample_email.log").getFile());
+        List<String> sources = Files.readAllLines(file.toPath());
+        pullService.aggregate(sources, "BANYAKDEALCOM", LocalDateTime.parse("2016-02-19T03:00:00"));
+
 	}
 	
 	@Test

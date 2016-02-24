@@ -1,33 +1,22 @@
 package com.predictry.fisher.domain.item;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.data.annotation.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.predictry.fisher.domain.TimeBasedEntity;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.util.Assert;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.predictry.fisher.domain.util.JacksonTimeDeserializer;
-import com.predictry.fisher.domain.util.JacksonTimeSerializer;
+import java.util.ArrayList;
+import java.util.List;
 
 @Document(indexName="top")
-public class TopScore {
+public class TopScore extends TimeBasedEntity {
 	
 	public static final int MAX_NUMBER_OF_SCORES = 10;
 	
 	@Field(type=FieldType.Nested)
 	private List<ItemScore> items = new ArrayList<>();
-
-	@Id
-	@JsonSerialize(using=JacksonTimeSerializer.class)
-	@JsonDeserialize(using=JacksonTimeDeserializer.class)
-	private LocalDateTime time;
 	
 	@JsonIgnore
 	private String tenantId;
@@ -41,14 +30,6 @@ public class TopScore {
 	
 	public TopScore(TopScoreType type) {
 		this.type = type;
-	}
-
-	public void setTime(LocalDateTime time) {
-		this.time = time;
-	}
-	
-	public LocalDateTime getTime() {
-		return time;
 	}
 	
 	public void setTenantId(String tenantId) {
@@ -77,7 +58,7 @@ public class TopScore {
 	 * @return index name for Elasticsearch.
 	 */
 	public String getIndexName() {
-		Assert.notNull(time);
+		Assert.notNull(getTime());
 		return "top_" + getType().getPrefix() + "_" + getTime().getYear();
 	}
 	

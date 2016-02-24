@@ -21,7 +21,6 @@ import org.elasticsearch.search.aggregations.metrics.avg.InternalAvg;
 import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.ResultsExtractor;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
@@ -57,7 +56,7 @@ public class StatService {
 		indexQuery.setIndexName(stat.getIndexName());
 		indexQuery.setType(stat.getTenantId());
 		indexQuery.setObject(stat);
-		indexQuery.setId(stat.getTime());
+		indexQuery.setId(stat.getTime().toString());
 		template.index(indexQuery);
 	}
 	
@@ -94,12 +93,7 @@ public class StatService {
 			.addAggregation(AggregationBuilders.sum("uniqueItemPurchased.regular").field("uniqueItemPurchased.regular"))
 			.addAggregation(AggregationBuilders.avg("cartBoost").field("cartBoost"))
 			.build();
-		Aggregations aggregations = template.query(searchQuery, new ResultsExtractor<Aggregations>() {
-			@Override
-			public Aggregations extract(SearchResponse response) {
-				return response.getAggregations();
-			}
-		});
+		Aggregations aggregations = template.query(searchQuery, SearchResponse::getAggregations);
 
 		StatOverview overview = new StatOverview();
 		overview.setPageView(getAggregationValue(aggregations, "views"));
@@ -140,18 +134,13 @@ public class StatService {
 				AggregationBuilders.dateHistogram("aggr")
 					.field("time")
 					.interval(interval)
-					.minDocCount(0l)
+					.minDocCount(0L)
 					.subAggregation(
 						(metric == Metric.ITEM_PER_CART)?
 						AggregationBuilders.avg("value").field(metric.getKeyword() + "." + valueType.getKeyword()):
 						AggregationBuilders.sum("value").field(metric.getKeyword() + "." + valueType.getKeyword())))
 			.build();
-		Aggregations aggregations = template.query(searchQuery, new ResultsExtractor<Aggregations>() {
-			@Override
-			public Aggregations extract(SearchResponse response) {
-				return response.getAggregations();
-			}
-		});
+		Aggregations aggregations = template.query(searchQuery, SearchResponse::getAggregations);
 		DateHistogram histogram = aggregations.get("aggr");
 		List<StatEntry> result = new ArrayList<>();
 		for (DateHistogram.Bucket bucket: histogram.getBuckets()) {
@@ -183,7 +172,7 @@ public class StatService {
 				AggregationBuilders.dateHistogram("aggr")
 					.field("time")
 					.interval(interval)
-					.minDocCount(0l)
+					.minDocCount(0L)
 					.subAggregation(
 						(metric == Metric.ITEM_PER_CART)?
 						AggregationBuilders.avg("value.overall").field(metric.getKeyword() + ".overall"):
@@ -193,12 +182,7 @@ public class StatService {
 						AggregationBuilders.avg("value.recommended").field(metric.getKeyword() + ".recommended"):
 						AggregationBuilders.sum("value.recommended").field(metric.getKeyword() + ".recommended")))
 			.build();
-		Aggregations aggregations = template.query(searchQuery, new ResultsExtractor<Aggregations>() {
-			@Override
-			public Aggregations extract(SearchResponse response) {
-				return response.getAggregations();
-			}
-		});
+		Aggregations aggregations = template.query(searchQuery, SearchResponse::getAggregations);
 		DateHistogram histogram = aggregations.get("aggr");
 		List<StatEntry> overallValues = new ArrayList<>();
 		List<StatEntry> recommendedValues = new ArrayList<>();

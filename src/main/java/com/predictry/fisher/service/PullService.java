@@ -195,13 +195,6 @@ public class PullService {
 		return tapResult;
 	}
 	
-	/**
-	 * Process aggregation for default <code>PullTime</code>.
-	 */
-	public void processAggregation() {
-		processAggregation(getDefaultPullTime());
-	}
-	
 	public List<TopScore> topScore(ViewsAggregation viewsAggr, SalesAggregation salesAggr, LocalDateTime expectedTime) {
 		List<TopScore> results = new ArrayList<>();
 		
@@ -212,9 +205,7 @@ public class PullService {
 	 			TopScore topScore = new TopScore(TopScoreType.HIT);
 				topScore.setTenantId(tenantId);
 				topScore.setTime(expectedTime);
-				itemScores.forEach(i -> {
-					topScore.addNewScore(i);
-				});
+				itemScores.forEach(topScore::addNewScore);
 				results.add(topScore);
 			}
 		});
@@ -226,9 +217,7 @@ public class PullService {
 	 			TopScore topScore = new TopScore(TopScoreType.SALES);
 				topScore.setTenantId(tenantId);
 				topScore.setTime(expectedTime);
-				itemScores.forEach(i -> {
-					topScore.addNewScore(i);
-				});
+				itemScores.forEach(topScore::addNewScore);
 				results.add(topScore);
 			}
 		});
@@ -239,7 +228,6 @@ public class PullService {
 	/**
 	 * Perform the aggregation process for each line in data.
 	 * 
-	 * @see #aggregate(List, LocalDateTime, ViewsAggregation, SalesAggregation)
 	 */
 	public Stat aggregate(List<String> sources, String tenantId, LocalDateTime expectedTime) throws IOException {
 		return aggregate(sources, tenantId, expectedTime, new ViewsAggregation(), new SalesAggregation());
@@ -256,8 +244,7 @@ public class PullService {
 	public Stat aggregate(List<String> sources, String tenantId, LocalDateTime expectedTime, ViewsAggregation viewsAggregation, SalesAggregation salesAggregation) throws IOException {
 		Stat stat = new Stat();
 		stat.setTenantId(tenantId);
-		stat.setTimeFrom(expectedTime);
-		
+
 		// Define aggregation commands
 		// Don't forget to register here everytime new aggregation command is created.
 		List<Aggregation> aggrs = new ArrayList<>();
