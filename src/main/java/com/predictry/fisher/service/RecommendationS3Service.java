@@ -35,8 +35,7 @@ public class RecommendationS3Service {
 	 * 
 	 * @param id is the id of the item.
 	 * @param tenantId is the tenant id that has this item.
-	 * @param content is the content of the JSON file that will be created.
-	 * @throws JsonProcessingException 
+	 * @throws JsonProcessingException
 	 */
 	public void putFile(String id, String tenantId, ItemRecommendation itemRecommendation) throws JsonProcessingException {
 		log.debug("Pushing recommendation for item [" + id + "] for tenant [" + tenantId + "] to S3.");

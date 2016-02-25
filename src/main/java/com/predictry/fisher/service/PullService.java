@@ -3,11 +3,7 @@ package com.predictry.fisher.service;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.transaction.Transactional;
 
@@ -72,6 +68,9 @@ public class PullService {
 	
 	@Autowired @Qualifier("topic")
 	private JmsTemplate jmsTemplate;
+
+	@Autowired
+	private HistoryService historyService;
 	
 	/**
 	 * @return retrieve default <code>PullTime</code> for default task.
@@ -244,6 +243,7 @@ public class PullService {
 	public Stat aggregate(List<String> sources, String tenantId, LocalDateTime expectedTime, ViewsAggregation viewsAggregation, SalesAggregation salesAggregation) throws IOException {
 		Stat stat = new Stat();
 		stat.setTenantId(tenantId);
+        stat.setTime(expectedTime);
 
 		// Define aggregation commands
 		// Don't forget to register here everytime new aggregation command is created.
@@ -256,7 +256,7 @@ public class PullService {
 		aggrs.add(new UniqueItemPurchasedAggregation());
 		aggrs.add(new CartBoostAggregation());
 		aggrs.add(new DeleteItemAggregation());
-		
+
 		for (String line: sources) {
 			Map<String,Object> mapJson = objectMapper.readValue(line, new TypeReference<Map<String,Object>>() {});
 			String type = (String) mapJson.get("type");			
@@ -287,6 +287,9 @@ public class PullService {
 		for (Aggregation aggr: aggrs) {
 			aggr.postProcessing(stat);
 		}
+
+		// Processing history
+		historyService.process(sources, tenantId, expectedTime);
 				
 		return stat;
 	}

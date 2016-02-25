@@ -26,7 +26,7 @@ public class Helper {
 			results.add(prefix + "_" + time.getYear());
 			time = time.plusYears(1);
 		}
-		return results.toArray(new String[]{});
+		return results.toArray(new String[results.size()]);
 	}
 	
 	/**
@@ -49,6 +49,24 @@ public class Helper {
 	public static Map<String, Object> getData(Map<String, Object> mapJson) {
 		return (Map<String, Object>) mapJson.get("data");
 	}
+
+    /**
+     * Get the one of <code>"fields"</code> section from Tapirus' response.
+     *
+     * @param mapJson a JSON map that represents result from Tapirus.
+     * @param fieldName the field name to search for.
+     * @return the field value or <code>null</code> if it is not found.
+     */
+	public static Object getFieldValue(Map<String, Object> mapJson, String fieldName) {
+		Map<String, Object> data = getData(mapJson);
+        if ((data != null) && data.containsKey("fields")) {
+            @SuppressWarnings("unchecked") Map<String, Object> fields = (Map<String, Object>) data.get("fields");
+            if ((fields != null) && fields.containsKey(fieldName)) {
+                return fields.get(fieldName);
+            }
+        }
+        return null;
+	}
 	
 	/**
 	 * Get the <code>"name"</code> value for <code>"data"</code> in Tapirus' response.
@@ -57,7 +75,10 @@ public class Helper {
 	 * @return the <code>"name"</code> inside <code>"data"</code> section.
 	 */
 	public static String getDataName(Map<String,Object> mapJson) {
-		return (String) getData(mapJson).get("name");
+		if (getData(mapJson) != null) {
+			return (String) getData(mapJson).get("name");
+		}
+		return null;
 	}
 	
 	/**
@@ -68,13 +89,9 @@ public class Helper {
 	 */
 	@SuppressWarnings("unchecked")
 	public static boolean isRecommended(Map<String,Object> mapJson) {
-		Map<String, Object> data = getData(mapJson);
-		if (data.containsKey("recommendation")) {
-			return (boolean) ((Map<String,Object>) data.get("recommendation")).get("recommended");
-		} else {
-			return false;
-		}
-	}
+        Map<String, Object> data = getData(mapJson);
+        return data.containsKey("recommendation") && (boolean) ((Map<String, Object>) data.get("recommendation")).get("recommended");
+    }
 	
 	/**
 	 * A temporary solution to do tenant id remapping.
@@ -97,7 +114,7 @@ public class Helper {
 	 * 
 	 * @param time the time to convert.
 	 * @param sourceTimeZone source time zone.
-	 * @param timeZoneId destination time zone.
+	 * @param destinationTimeZone destination time zone.
 	 * @return the same time in destination time zone.
 	 */
 	public static LocalDateTime convertTimeZone(LocalDateTime time, String sourceTimeZone, String destinationTimeZone) {
@@ -109,7 +126,7 @@ public class Helper {
 	 * <code>http://www.xxx.com/exercises/1</code> will be converted into
 	 * <code>/exercises/1</code>.
 	 * 
-	 * @param url
+	 * @param url the url to convert
 	 * @return relative url from the absolute url, or the original url if it can't
 	 *         be converted.
 	 */
