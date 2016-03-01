@@ -6,19 +6,22 @@ import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.StringUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.predictry.fisher.domain.history.History;
 import com.predictry.fisher.domain.history.HistoryItem;
+import com.predictry.fisher.domain.history.UserProfileAction;
+import com.predictry.fisher.domain.history.UserProfileItem;
 import com.predictry.fisher.domain.util.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +33,9 @@ public class HistoryService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private UserProfileService userProfileService;
 
     public History process(List<String> sources, String tenantId, LocalDateTime expectedTime) {
         Map<String, String> userEmails = collectUserEmails(sources);
@@ -46,6 +52,18 @@ public class HistoryService {
                         history.addViewActivity(userId, userEmails.get(userId), itemId);
                     } else if (type.equals("BUY")) {
                         history.addBuyActivity(userId, userEmails.get(userId), itemId);
+                    }
+
+                    // Create new user profile item
+                    if (UserProfileAction.contains(type)) {
+                        LocalDateTime time = ZonedDateTime.parse((String) data.get("timestamp")).toLocalDateTime();
+                        UserProfileItem userProfileItem = new UserProfileItem(time, (String) data.get("tenant"));
+                        userProfileItem.setAction(UserProfileAction.valueOf(type));
+                        userProfileItem.setUserId(userId);
+                        userProfileItem.setEmail(userEmails.get(userId));
+                        userProfileItem.setItemId((String) data.get("item"));
+                        userProfileItem.setAgentId((String) data.get("agent"));
+                        userProfileService.save(userProfileItem);
                     }
                 }
             } catch (IOException ex) {
