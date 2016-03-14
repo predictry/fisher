@@ -81,7 +81,7 @@ public class HistoryServiceTest {
 
     @Test
     public void retrieveEmptyHistory() {
-        LocalDate date = LocalDate.parse("2016-02-17");
+        LocalDate date = LocalDate.parse("2016-02-01");
         History history = historyService.retrieveHistory("latihan", date);
         assertEquals("latihan", history.getTenantId());
         assertEquals(date, history.getDate());

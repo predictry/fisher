@@ -47,7 +47,7 @@ public class RootConfig {
 			Settings settings = ImmutableSettings.settingsBuilder()
 				.put("cluster.name", "fisher").build();
 			client = new TransportClient(settings).addTransportAddress(
-				new InetSocketTransportAddress("localhost", 9500));
+				new InetSocketTransportAddress("52.77.32.249", 9300));
 			
 		}
 		return client;
