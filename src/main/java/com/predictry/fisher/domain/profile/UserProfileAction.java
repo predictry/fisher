@@ -1,4 +1,4 @@
-package com.predictry.fisher.domain.history;
+package com.predictry.fisher.domain.profile;
 
 /**
  * Enumeration of available actions for user profile.

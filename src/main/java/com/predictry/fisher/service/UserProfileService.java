@@ -1,8 +1,8 @@
 package com.predictry.fisher.service;
 
-import com.predictry.fisher.domain.history.UserProfile;
-import com.predictry.fisher.domain.history.UserProfileAction;
-import com.predictry.fisher.domain.history.UserProfileItem;
+import com.predictry.fisher.domain.profile.UserProfile;
+import com.predictry.fisher.domain.profile.UserProfileAction;
+import com.predictry.fisher.domain.profile.UserProfileItem;
 import com.predictry.fisher.domain.util.Helper;
 import org.elasticsearch.index.query.FilteredQueryBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;

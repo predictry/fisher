@@ -1,10 +1,9 @@
 package com.predictry.fisher.service;
 
 import com.predictry.fisher.config.TestRootConfig;
-import com.predictry.fisher.domain.history.History;
-import com.predictry.fisher.domain.history.UserProfile;
-import com.predictry.fisher.domain.history.UserProfileAction;
-import com.predictry.fisher.domain.history.UserProfileItem;
+import com.predictry.fisher.domain.profile.UserProfile;
+import com.predictry.fisher.domain.profile.UserProfileAction;
+import com.predictry.fisher.domain.profile.UserProfileItem;
 import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +55,7 @@ public class UserProfileTest {
         File file = new File(getClass().getResource("/sample_email.log").getFile());
         List<String> sources = Files.readAllLines(file.toPath());
         LocalDateTime date = LocalDateTime.parse("2016-02-16T02:00");
-        History history = historyService.process(sources, "latihan", date);
+        historyService.process(sources, "latihan", date);
 
         // Check Elasticsearch
         template.refresh("history_2016", true);
@@ -76,7 +75,7 @@ public class UserProfileTest {
         File file = new File(getClass().getResource("/sample_user_profile.log").getFile());
         List<String> sources = Files.readAllLines(file.toPath());
         LocalDateTime date = LocalDateTime.parse("2016-02-16T02:00");
-        History history = historyService.process(sources, "latihan", date);
+        historyService.process(sources, "latihan", date);
         template.refresh("history_2016", true);
 
         // Search for buy history

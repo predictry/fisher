@@ -1,4 +1,4 @@
-package com.predictry.fisher.domain.history;
+package com.predictry.fisher.domain.profile;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

@@ -1,7 +1,7 @@
 package com.predictry.fisher.controller;
 
-import com.predictry.fisher.domain.history.UserProfile;
-import com.predictry.fisher.domain.history.UserProfileAction;
+import com.predictry.fisher.domain.profile.UserProfile;
+import com.predictry.fisher.domain.profile.UserProfileAction;
 import com.predictry.fisher.service.UserProfileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
