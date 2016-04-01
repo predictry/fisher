@@ -20,12 +20,12 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={TestRootConfig.class}, loader= AnnotationConfigContextLoader.class)
@@ -138,6 +138,66 @@ public class UserProfileTest {
         userProfile = userProfileService.getUserProfile("BANYAKDEALCOM", "unknown_user", UserProfileAction.VIEW);
         assertNull(userProfile.getLastAction());
         assertEquals(0, userProfile.getItems().size());
+    }
+
+    @Test
+    public void getHistory() throws IOException {
+        // Import user profile data to Elasticsearch
+        File file = new File(getClass().getResource("/sample_user_profile.log").getFile());
+        List<String> sources = Files.readAllLines(file.toPath());
+        LocalDateTime date = LocalDateTime.parse("2016-02-16T02:00");
+        historyService.process(sources, "latihan", date);
+        template.refresh("history_2016", true);
+
+        // Search for buy history of user 15142 at 2016-02-19
+        Map<String, Object> result = userProfileService.getHistory("BANYAKDEALCOM", "15142", UserProfileAction.BUY, LocalDate.parse("2016-02-19"));
+        assertEquals("beeling_low@yahoo.com", result.get("email"));
+        List<String> items = (List<String>) result.get("items");
+        assertEquals(1, items.size());
+        assertTrue(items.contains("2571"));
+
+        // Search for buy history of user 15142 at 2016-02-06
+        result = userProfileService.getHistory("BANYAKDEALCOM", "15142", UserProfileAction.BUY, LocalDate.parse("2016-02-06"));
+        assertEquals("beeling_low@yahoo.com", result.get("email"));
+        items = (List<String>) result.get("items");
+        assertEquals(1, items.size());
+        assertTrue(items.contains("168"));
+
+        // Search for view history of user 15142 at 2016-02-11
+        result = userProfileService.getHistory("BANYAKDEALCOM", "15142", UserProfileAction.VIEW, LocalDate.parse("2016-02-11"));
+        assertEquals("beeling_low@yahoo.com", result.get("email"));
+        items = (List<String>) result.get("items");
+        assertEquals(1, items.size());
+        assertTrue(items.contains("2284"));
+
+        // Search for view history of user 15142 at 2016-02-02
+        result = userProfileService.getHistory("BANYAKDEALCOM", "15142", UserProfileAction.VIEW, LocalDate.parse("2016-02-02"));
+        assertEquals("beeling_low@yahoo.com", result.get("email"));
+        items = (List<String>) result.get("items");
+        assertEquals(1, items.size());
+        assertTrue(items.contains("168"));
+
+        // Search for view history of user 15142 at 2016-02-01
+        result = userProfileService.getHistory("BANYAKDEALCOM", "15142", UserProfileAction.VIEW, LocalDate.parse("2016-02-01"));
+        assertEquals("beeling_low@yahoo.com", result.get("email"));
+        items = (List<String>) result.get("items");
+        assertEquals(1, items.size());
+        assertTrue(items.contains("2284"));
+
+        // Search for buy history of user 31311 at 2016-01-01
+        result = userProfileService.getHistory("BANYAKDEALCOM", "31311", UserProfileAction.BUY, LocalDate.parse("2016-01-01"));
+        assertTrue(result.isEmpty());
+
+        // Search for view history of user 31311 at 2016-02-15
+        result = userProfileService.getHistory("BANYAKDEALCOM", "31311", UserProfileAction.VIEW, LocalDate.parse("2016-02-15"));
+        assertEquals("ycsb_fpk@yahoo.com", result.get("email"));
+        items = (List<String>) result.get("items");
+        assertEquals(1, items.size());
+        assertTrue(items.contains("2129"));
+
+        // Search for unknown user
+        result = userProfileService.getHistory("BANYAKDEALCOM", "unknown_user", UserProfileAction.VIEW, LocalDate.parse("2016-02-15"));
+        assertTrue(result.isEmpty());
     }
 
 }

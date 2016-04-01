@@ -14,13 +14,15 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-
 import static org.elasticsearch.index.query.FilterBuilders.andFilter;
+import static org.elasticsearch.index.query.FilterBuilders.rangeFilter;
 import static org.elasticsearch.index.query.FilterBuilders.termFilter;
 
 /**
@@ -84,6 +86,44 @@ public class UserProfileService {
             });
         }
         return userProfile;
+    }
+
+    /**
+     * Retrieving view or buy history for an user at certain date.  The returned <code>Map</code> can be used to represent
+     * the following Json:
+     *
+     * <p>
+     * <code>
+     * {
+     *     "email": "test1@gmail.com",
+     *     "items": ["id1", "id2", "id3", "id4"]
+     * }
+     * </code>
+     * </p>
+     *
+     * @param tenantId is the tenant id.
+     * @param userId is the user id.
+     * @param action is the <code>UserProfileAction</code> such as view, buy, etc.
+     * @return <code>Map</code> with history data or an empty <code>Map</code> if nothing is found.
+     */
+    public Map<String,Object> getHistory(String tenantId, String userId, UserProfileAction action, LocalDate date) {
+        SearchQuery searchQuery = new NativeSearchQueryBuilder()
+            .withIndices(String.format("history_%d", date.getYear()))
+            .withTypes(tenantId)
+            .withFilter(andFilter(
+                rangeFilter("time").from(date.atStartOfDay()).to(date.plusDays(1).atStartOfDay()),
+                termFilter("userId", userId),
+                termFilter("action", action.name().toLowerCase())
+            ))
+            .build();
+        List<UserProfileItem> items = template.queryForList(searchQuery, UserProfileItem.class);
+
+        Map<String,Object> results = new HashMap<>();
+        if (!items.isEmpty()) {
+            results.put("email", items.get(0).getEmail());
+            results.put("items", items.stream().map(UserProfileItem::getItemId).collect(Collectors.toList()));
+        }
+        return results;
     }
 
 }
