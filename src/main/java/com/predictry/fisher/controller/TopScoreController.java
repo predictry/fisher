@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +18,7 @@ import com.predictry.fisher.domain.util.Helper;
 import com.predictry.fisher.service.TopScoreService;
 
 @RestController
+@CrossOrigin
 public class TopScoreController {
 	
 	private static final Logger log = LoggerFactory.getLogger(TopScoreController.class);
